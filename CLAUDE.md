@@ -172,8 +172,14 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
 
 ## Deployment
 
-Vercel, framework `nextjs` (`vercel.json` keeps only the security headers). Both locales are
-prerendered as static HTML; `proxy.ts` runs for the root redirect.
+Vercel, framework `nextjs`. Both locales are prerendered as static HTML; `proxy.ts` runs for the root
+redirect.
+
+`vercel.json` states `"outputDirectory": ".next"` even though that is the Next.js default. It is not
+decoration: the project was created for the old static chain and its dashboard still carried
+`Output Directory = dist`. The Next build succeeded and Vercel then failed looking for `dist/`.
+Settings in `vercel.json` take precedence over the dashboard, so declaring it here pins the correct
+value in the repository instead of leaving it to a setting nobody can see from the code.
 
 Vercel deploys from git and is **not** driven by the workflows below — CI verifies, Vercel ships.
 
