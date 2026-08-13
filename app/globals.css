@@ -466,13 +466,22 @@ button{font-family:inherit; cursor:pointer}
 .pli-rng{margin-top:2px; font-size:12px}
 .pli-rng input[type="range"]{width:132px}
 
-/* Entre les deux etats publies, un pliable n'a pas de cotes : personne ne publie
-   sa largeur a mi-course, son epaisseur n'y a plus de definition (les volets
-   forment un V, pas une pile) et sa dalle est en partie retournee. On les efface
-   plutot que d'afficher un chiffre qui ne veut rien dire -- au milieu on regarde
-   le mouvement, aux extremites on mesure. Les barres, elles, gardent les leurs :
-   le curseur ne les concerne pas. */
-.dev.sans-cote .marks,
+/* Entre les deux etats publies, toutes les cotes d'un pliable ne se valent pas,
+   et le partage se fait sur *ou elles sont dessinees*.
+   La diagonale et la surface sont posees SUR la dalle (mk-d en inset:0, mk-a dans
+   un coin) : sur un volet qui pivote elles suivent une dalle en partie retournee,
+   donc elles s'effacent. L'epaisseur aussi, dans la bande : a mi-course les volets
+   forment un V et non une pile, elle n'y a plus de definition du tout.
+   Les rails de largeur et de hauteur, eux, sont A COTE de l'appareil -- sous la
+   dalle et a sa droite -- et marquent l'encombrement que la disposition reserve
+   deja, celui de l'etat deplie. Ils restent donc allumes pendant toute la course
+   du curseur. La hauteur y tombe juste de bout en bout (un pliable en livre garde
+   sa hauteur de chassis dans les deux etats) ; la largeur montre le rail de la
+   dalle depliee pendant que le dessin en occupe moins, ce qui est la contrepartie
+   assumee de ne jamais interpoler un chiffre que personne ne publie.
+   Les barres, elles, gardent tout : le curseur ne les concerne pas. */
+.dev.sans-cote .mk-d,
+.dev.sans-cote .mk-a,
 .prof.sans-cote .tag{opacity:0; transition:opacity .25s var(--ease)}
 
 /* Superposition : les profils partagent la meme abscisse, donc les etiquettes

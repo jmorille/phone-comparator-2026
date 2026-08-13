@@ -29,12 +29,17 @@ export interface EtatUI {
    * choisit au curseur. `null` -- le cas courant -- veut dire « suis `etat` », en
    * s'animant sur la charniere.
    *
-   * Les deux sont separes parce qu'entre les deux etats publies aucune cote
-   * n'existe : personne ne publie la largeur d'un pliable a mi-course,
-   * l'epaisseur n'y a plus de definition (les volets forment un V, pas une pile)
-   * et la dalle est en partie retournee. Le curseur bouge donc le dessin sans
-   * bouger la mesure, et les cotes des pliables s'effacent tant qu'on est entre
-   * les deux -- au milieu on regarde le mouvement, aux extremites on mesure.
+   * Les deux sont separes parce qu'entre les deux etats publies la mesure n'a
+   * plus le meme sens que le dessin : l'epaisseur n'y a plus de definition (les
+   * volets forment un V, pas une pile) et la dalle est en partie retournee. Le
+   * curseur bouge donc le dessin sans bouger la mesure -- il est la pour regarder
+   * le mouvement, pas pour mesurer entre les deux.
+   *
+   * Ce qui s'efface alors est exactement ce qui est dessine *sur* la dalle du
+   * pliable : sa diagonale, sa surface, son epaisseur dans la bande. Ses rails de
+   * largeur et de hauteur restent, eux : ils sont a cote de l'appareil et
+   * marquent l'encombrement deplie, celui que `disposer()` reserve deja. Voir
+   * `.sans-cote` dans globals.css.
    */
   pliLibre: number | null;
   vis: Record<string, boolean>;

@@ -239,7 +239,12 @@ export function Banc({
   pli: number;
   /** l'ouverture vient du curseur : elle suit la main, sans transition */
   libre: boolean;
-  /** entre les deux etats publies : les cotes des pliables s'effacent */
+  /**
+   * Entre les deux etats publies. Les cotes d'un pliable qui sont dessinees *sur*
+   * sa dalle -- diagonale, surface, et l'epaisseur dans la bande -- s'effacent
+   * alors ; ses rails de largeur et de hauteur restent, ils marquent
+   * l'encombrement deplie que la disposition reserve. Voir `.sans-cote`.
+   */
   intermediaire: boolean;
   marks: Marques;
   focus: string | null;
@@ -280,6 +285,8 @@ export function Banc({
               className={
                 "dev" +
                 (enAvant ? " focus" : "") +
+                // n'eteint que la diagonale et la surface : elles sont posees sur
+                // une dalle qui, a mi-course, est en partie retournee
                 (intermediaire && d.kind === "fold" ? " sans-cote" : "")
               }
               style={{

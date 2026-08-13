@@ -216,10 +216,20 @@ panel is partly turned away so its area is not its area. So `EtatUI` keeps two s
   at 1 % open, which is correct — the device is no longer closed.
 - `pliLibre` — the **drawn** opening, `null` when it should just follow `etat`.
 
-While they disagree, the foldables' cotes fade out (`.sans-cote`) and the bars keep theirs — the
-slider does not concern them. At the middle you watch the movement; at the ends you measure. Do not
-"improve" this by interpolating the chassis dimensions: they would be computed numbers wearing the
-authority of published ones, which is the one line this page does not cross.
+While they disagree, `.sans-cote` fades out **the cotes that are drawn on the panel itself** — the
+foldable's diagonal (`mk-d`, `inset:0`) and area (`mk-a`), plus its thickness in the tranche band. Those
+sit on a panel that is partly turned away, and a thickness has no definition at all when the leaves
+form a V rather than a stack.
+
+**The width and height rails stay lit through the whole travel.** They are drawn *beside* the device —
+below the panel and to its right — and they mark the footprint `disposer()` already reserves, which is
+the unfolded one. Height is exact end to end (a book-fold keeps its chassis height in both states);
+width shows the unfolded rail while the drawing occupies less, and the dotted line overhangs the leaf
+in flight. That overhang is the accepted cost of the rule below. Bars keep every cote — the slider does
+not concern them.
+
+Do not "improve" this by interpolating the chassis dimensions: they would be computed numbers wearing
+the authority of published ones, which is the one line this page does not cross.
 
 `libre` (the slider is leading) also switches the sequencing below off, because there is nothing left
 to sequence — the reader is doing the timing by hand, and the layout must not wait for a hinge that
