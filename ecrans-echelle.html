@@ -743,7 +743,7 @@ const wsClass = dp => dp>=840 ? ["expanded","Expanded \u2265 840 dp"] : dp>=600 
 /* -- \u00E9tat ----------------------------------------------------------- */
 // Selection de depart. Source de verite unique : l'etat initial, l'echelle
 // automatique et le dernier temps de l'animation lisent tous cette liste.
-const DEFAULT_VIS = ["p7p", "fold", "sam8"];
+const DEFAULT_VIS = ["p11xl", "fold", "sam8"];
 const visSet = ids => Object.fromEntries(DEV.map(d => [d.id, ids.includes(d.id)]));
 
 const S = { mode:"side", state:"open", vis:visSet(DEFAULT_VIS),
@@ -1049,8 +1049,8 @@ const STEPS = [
     apply(){ S.mode="center"; }, t:1900 },
   { cap:"<b>Les rep\u00E8res tombent :</b> largeur, hauteur, diagonale et surface, dalle par dalle.",
     apply(){ S.marks={w:true,h:true,d:true,a:true}; }, t:2500 },
-  { cap:"<b>Et c\u00F4te \u00E0 c\u00F4te, cot\u00E9s, \u00E0 l'\u00E9chelle.</b> La vue s'arr\u00EAte sur le m\u00E8tre-\u00E9talon et les deux pliables les plus oppos\u00E9s. <b>Les trois autres appareils restent \u00E0 un clic</b> dans \u00AB Appareils \u00BB \u2014 et les sections suivantes ne montrent que ce que vous s\u00E9lectionnez ici.",
-    apply(){ S.vis=visSet(DEFAULT_VIS); S.mode="side"; S.sel="fold"; }, t:0 }
+  { cap:"<b>Et c\u00F4te \u00E0 c\u00F4te, d\u00E9pli\u00E9s, cot\u00E9s, \u00E0 l'\u00E9chelle.</b> La vue s'arr\u00EAte sur la plus grande barre du moment et les deux pliables les plus oppos\u00E9s. <b>Les trois autres appareils restent \u00E0 un clic</b> dans \u00AB Appareils \u00BB \u2014 dont le Pixel 7 Pro, qui demeure la r\u00E9f\u00E9rence de tous les pourcentages m\u00EAme lorsqu'il n'est pas affich\u00E9. Les sections suivantes ne montrent que ce que vous s\u00E9lectionnez ici.",
+    apply(){ S.vis=visSet(DEFAULT_VIS); S.mode="side"; S.state="open"; S.sel="fold"; }, t:0 }
 ];
 const dots = document.getElementById("dots"), cap = document.getElementById("cap");
 STEPS.forEach(() => dots.insertAdjacentHTML("beforeend", `<span class="sd"></span>`));
