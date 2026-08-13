@@ -121,6 +121,12 @@ h1 em{font-style:normal; color:var(--acc)}
    groupes a part entiere -- c'est leur place dans la barre qui est commune, pas
    leur intitule. */
 .ctl-col{display:grid; gap:14px; align-content:start}
+/* Le groupe des appareils est le seul qui s'etire : il prend ce qui reste et fait
+   passer ses puces a la ligne. Sans lui, flexbox place les groupes a leur largeur
+   naturelle et renvoie le dernier a la ligne des qu'il manque vingt pixels -- ce
+   qui arrivait, la barre reclamant 1945 px pour 1924 disponibles. La base courte
+   sert au calcul de coupure, la largeur reelle vient de l'etirement. */
+.ctl-souple{flex:1 1 300px; min-width:0}
 .ctl-lbl{font:500 10.5px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.16em; color:var(--muted)}
 .chips{display:flex; flex-wrap:wrap; gap:6px}
 button{font-family:inherit; cursor:pointer}
@@ -139,6 +145,12 @@ button{font-family:inherit; cursor:pointer}
   background:var(--acc-soft); border-color:color-mix(in oklab,var(--acc) 55%, transparent); color:var(--ink);
 }
 .chip.ghost{background:transparent}
+/* Puce reduite a son icone. Le libelle n'est pas perdu : il devient le nom
+   accessible et l'infobulle, et l'intitule du groupe reste au-dessus. */
+.chip.ico{
+  justify-content:center; min-width:38px; padding:8px 10px;
+  font:600 15px/1 var(--f-mono);
+}
 /* Mention portee par la puce de reference dont l'appareil n'est pas coche. La
    reference du catalogue reste l'etalon meme absente de la scene : on l'annonce,
    sans en faire un avertissement. */

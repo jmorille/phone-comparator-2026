@@ -60,7 +60,7 @@ export const fr: Dictionnaire = {
       a: "Surface",
       e: "Épaisseur",
     },
-    rejouer: "↻ Rejouer l'animation",
+    rejouer: "Rejouer l'animation",
     replierFiche: "Replier la fiche",
     deplierFiche: "Déplier la fiche",
     replierFicheTitre: "Replier la fiche technique",

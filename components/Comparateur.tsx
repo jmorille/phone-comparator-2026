@@ -351,7 +351,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
           </div>
 
           <div className="ctl-bar">
-            <div className="ctl-grp">
+            <div className="ctl-grp ctl-souple">
               <span className="ctl-lbl">{dict.ctl.appareils}</span>
               <div className="chips">
                 {cat.appareils.map((d) => (
@@ -373,38 +373,6 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                     {d.name}
                   </button>
                 ))}
-              </div>
-            </div>
-
-            <div className="ctl-col">
-              <div className="ctl-grp">
-                <span className="ctl-lbl">{dict.ctl.disposition}</span>
-                <div className="chips">
-                  {(["side", "stack", "center"] as const).map((m) => (
-                    <button
-                      key={m}
-                      className={puce(s.mode === m)}
-                      onClick={() => agir({ mode: m })}
-                    >
-                      {dict.ctl.modes[m]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="ctl-grp">
-                <span className="ctl-lbl">{dict.ctl.reperes}</span>
-                <div className="chips">
-                  {REPERES.map((k) => (
-                    <button
-                      key={k}
-                      className={puce(s.marks[k], "ghost")}
-                      aria-pressed={s.marks[k]}
-                      onClick={() => maj({ marks: { ...s.marks, [k]: !s.marks[k] } })}
-                    >
-                      {dict.ctl.marques[k]}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -462,10 +430,49 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
 
             <div className="ctl-col">
               <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.disposition}</span>
+                <div className="chips">
+                  {(["side", "stack", "center"] as const).map((m) => (
+                    <button
+                      key={m}
+                      className={puce(s.mode === m)}
+                      onClick={() => agir({ mode: m })}
+                    >
+                      {dict.ctl.modes[m]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.reperes}</span>
+                <div className="chips">
+                  {REPERES.map((k) => (
+                    <button
+                      key={k}
+                      className={puce(s.marks[k], "ghost")}
+                      aria-pressed={s.marks[k]}
+                      onClick={() => maj({ marks: { ...s.marks, [k]: !s.marks[k] } })}
+                    >
+                      {dict.ctl.marques[k]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+
+            <div className="ctl-col">
+              <div className="ctl-grp">
                 <span className="ctl-lbl">{dict.ctl.animation}</span>
                 <div className="chips">
-                  <button className="chip act" onClick={jouer}>
-                    {dict.ctl.rejouer}
+                  {/* icone seule : le libelle porte le nom accessible et l'infobulle */}
+                  <button
+                    className="chip act ico"
+                    onClick={jouer}
+                    title={dict.ctl.rejouer}
+                    aria-label={dict.ctl.rejouer}
+                  >
+                    ↻
                   </button>
                 </div>
               </div>
@@ -473,12 +480,14 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                 <span className="ctl-lbl">{dict.ctl.ficheTechnique}</span>
                 <div className="chips">
                   <button
-                    className={puce(!s.fiche)}
+                    className={puce(!s.fiche, "ico")}
                     aria-expanded={s.fiche}
                     aria-controls="fiche"
+                    title={s.fiche ? dict.ctl.replierFiche : dict.ctl.deplierFiche}
+                    aria-label={s.fiche ? dict.ctl.replierFiche : dict.ctl.deplierFiche}
                     onClick={() => maj({ fiche: !s.fiche })}
                   >
-                    {s.fiche ? dict.ctl.replierFiche : dict.ctl.deplierFiche}
+                    {s.fiche ? "«" : "»"}
                   </button>
                 </div>
               </div>

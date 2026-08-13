@@ -58,7 +58,7 @@ export const en: Dictionnaire = {
       a: "Area",
       e: "Thickness",
     },
-    rejouer: "↻ Replay the animation",
+    rejouer: "Replay the animation",
     replierFiche: "Collapse the panel",
     deplierFiche: "Expand the panel",
     replierFicheTitre: "Collapse the spec panel",
