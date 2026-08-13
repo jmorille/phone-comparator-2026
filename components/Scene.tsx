@@ -191,8 +191,11 @@ function Tranche({
                 "--ew": b.body.w,
                 "--ed": b.body.d,
                 "--stag": b.stag,
+                // le rang de profondeur va aux sections, pas au profil : c'est ce qui
+                // laisse l'etiquette passer sous *toutes* les sections de la bande et
+                // pas seulement sous celles de son propre appareil
+                "--z": b.z,
               }),
-              zIndex: b.z,
               opacity: b.visible ? undefined : 0,
               pointerEvents: b.visible ? undefined : "none",
             }}

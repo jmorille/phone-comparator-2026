@@ -140,6 +140,13 @@ back screen space, never scale.
 mm label and what moves. What paints is a `.sect` inside it — one for a bar, two hinged leaves for a
 foldable, so the cote stays measurable while the drawing folds.
 
+The depth rank rides on the sections (`--z` → `.sect{z-index}`), deliberately **not** on `.prof`. A
+z-index on `.prof` would make it a stacking context, and its mm label could then only ever be covered
+by its own device's sections. With the rank one level down, `.prof` stays transparent to stacking and
+every label (`z-index:1`) sits under every section in the band — so a closing leaf sweeps over the
+cotes instead of ducking behind them. At rest the label clears the profile by 6 px, so nothing hides
+it.
+
 ### The hinge, and why the closed profile is exact
 
 A foldable's profile is two leaves pivoting at the crease. **The pivot sits at half the *published*

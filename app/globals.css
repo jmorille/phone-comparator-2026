@@ -378,13 +378,19 @@ button{font-family:inherit; cursor:pointer}
 }
 /* Ce qui peint : une section de chassis. Une barre en a une, qui remplit la
    cote ; un pliable en a deux, articulees sur sa pliure. */
+/* Le rang de profondeur est porte par les sections, et non par le profil : le
+   profil n'est donc pas un contexte d'empilement, et son etiquette (z-index 1)
+   passe sous *toutes* les sections de la bande -- pas seulement sous les
+   siennes. C'est ce qui laisse le volet d'un pliable balayer par-dessus les
+   cotes de ses voisins pendant qu'il se referme. */
 .sect{
-  position:absolute; bottom:0;
+  position:absolute; bottom:0; z-index:var(--z, 10);
   background:linear-gradient(180deg, color-mix(in oklab,var(--body) 82%, var(--dc)) 0%, var(--body) 62%);
   box-shadow:inset 0 0 0 1px var(--body-edge);
 }
 .sect.plein{left:0; right:0; top:0; border-radius:inherit}
 .prof .tag{
+  z-index:1;
   bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
   font:600 12px/1 var(--f-mono); padding:4px 6px 4px 5px;
 }
@@ -434,9 +440,8 @@ button{font-family:inherit; cursor:pointer}
   box-shadow:inset 0 0 0 2px var(--dc);
 }
 .tranche:not([data-mode="side"]) .prof.focus .sect{
-  background:color-mix(in oklab, var(--dc) 38%, transparent);
+  background:color-mix(in oklab, var(--dc) 38%, transparent); z-index:40;
 }
-.tranche:not([data-mode="side"]) .prof.focus{z-index:40}
 /* un volet en fil de fer n'a pas de masse a ombrer */
 .tranche:not([data-mode="side"]) .pli:not(.open) .vol.r::after{opacity:0}
 .tranche:not([data-mode="side"]) .prof .tag{
