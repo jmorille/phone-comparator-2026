@@ -1,0 +1,46 @@
+{
+  "id": "p7p",
+  "order": 10,
+  "name": "Pixel 7 Pro",
+  "ref": "Google Pixel 7 Pro (GE2AE)",
+  "brand": "Google",
+  "kind": "bar",
+  "weight": 212,
+  "hue": { "light": "#4A5164", "dark": "#B9C0D4" },
+  "role": {
+    "fr": "Référence non pliable",
+    "en": "Non-folding reference"
+  },
+  "announced": {
+    "fr": "6 octobre 2022",
+    "en": "6 October 2022"
+  },
+  "body": {
+    "closed": { "w": 76.6, "h": 162.9, "d": 8.9, "r": 12 }
+  },
+  "screens": {
+    "main": {
+      "label": { "fr": "Écran", "en": "Display" },
+      "diag": 6.7,
+      "px": [1440, 3120],
+      "ppi": 512,
+      "ratio": { "fr": "19,5:9", "en": "19.5:9" },
+      "tech": { "fr": "LTPO AMOLED", "en": "LTPO AMOLED" },
+      "hz": { "fr": "10–120 Hz", "en": "10–120 Hz" },
+      "peak": 1500,
+      "hdr": 1000,
+      "glass": { "fr": "Gorilla Glass Victus", "en": "Gorilla Glass Victus" },
+      "r": 11
+    }
+  },
+  "sources": [
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Google Pixel 7 Pro — fiche complète",
+        "en": "Google Pixel 7 Pro — full specifications"
+      },
+      "url": "https://www.gsmarena.com/google_pixel_7_pro-11908.php"
+    }
+  ]
+}

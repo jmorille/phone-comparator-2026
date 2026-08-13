@@ -1,0 +1,85 @@
+{
+  "id": "sam8",
+  "order": 50,
+  "name": "Galaxy Z Fold8",
+  "ref": "Samsung Galaxy Z Fold8 — SM-F971 (B / B DS / U / U1)",
+  "brand": "Samsung",
+  "kind": "fold",
+  "weight": 201,
+  "hue": { "light": "#0C7A70", "dark": "#3FD8C1" },
+  "role": {
+    "fr": "Pliable large, sorti le 22 juillet 2026",
+    "en": "Wide-folding foldable, on sale 22 July 2026"
+  },
+  "announced": {
+    "fr": "22 juillet 2026",
+    "en": "22 July 2026"
+  },
+  "body": {
+    "closed": { "w": 81.9, "h": 123.9, "d": 9.7, "r": 8 },
+    "open": { "w": 161.4, "h": 123.9, "d": 4.5, "r": 7 }
+  },
+  "screens": {
+    "cover": {
+      "label": { "fr": "Écran externe", "en": "Cover display" },
+      "diag": 5.5,
+      "px": [1248, 1972],
+      "ppi": 428,
+      "ratio": { "fr": "10:16", "en": "10:16" },
+      "tech": {
+        "fr": "Dynamic LTPO AMOLED 2X",
+        "en": "Dynamic LTPO AMOLED 2X"
+      },
+      "hz": { "fr": "120 Hz (LTPO)", "en": "120 Hz (LTPO)" },
+      "peak": 2600,
+      "hdr": null,
+      "glass": { "fr": "Gorilla Glass Ceramic 3", "en": "Gorilla Glass Ceramic 3" },
+      "r": 6
+    },
+    "inner": {
+      "label": { "fr": "Écran interne", "en": "Inner display" },
+      "diag": 7.6,
+      "px": [2448, 1848],
+      "ppi": 404,
+      "ratio": { "fr": "4:3 (paysage)", "en": "4:3 (landscape)" },
+      "tech": {
+        "fr": "Dynamic LTPO AMOLED 2X pliable, HDR10+",
+        "en": "Foldable Dynamic LTPO AMOLED 2X, HDR10+"
+      },
+      "hz": { "fr": "120 Hz (LTPO)", "en": "120 Hz (LTPO)" },
+      "peak": 2600,
+      "hdr": null,
+      "glass": {
+        "fr": "Flex Titanium / anti-reflet",
+        "en": "Flex Titanium / anti-reflective"
+      },
+      "r": 5
+    }
+  },
+  "sources": [
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Samsung Galaxy Z Fold8 — fiche complète : SM-F971, cotes repliées / dépliées, résolutions, ppi, protections",
+        "en": "Samsung Galaxy Z Fold8 — full specifications: SM-F971, folded / unfolded dimensions, resolutions, ppi, cover glass"
+      },
+      "url": "https://www.gsmarena.com/samsung_galaxy_z_fold_wide_5g-14673.php"
+    },
+    {
+      "who": "Samsung",
+      "what": {
+        "fr": "Galaxy Z Fold8 — fiche officielle : 5,5″ en 10:16, 7,6″ en 4:3, 120 Hz, 2 600 nits, 201 g",
+        "en": "Galaxy Z Fold8 — official specifications: 5.5″ at 10:16, 7.6″ at 4:3, 120 Hz, 2,600 nits, 201 g"
+      },
+      "url": "https://www.samsung.com/ph/mobile/mobile-phone-buying-guide/galaxy-z-fold8-features-specs/"
+    },
+    {
+      "who": "Samsung US",
+      "what": {
+        "fr": "Galaxy Z Fold8 — page produit : ratios d'écran, 4,5 mm déplié",
+        "en": "Galaxy Z Fold8 — product page: display aspect ratios, 4.5 mm unfolded"
+      },
+      "url": "https://www.samsung.com/us/smartphones/galaxy-z-fold8/"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "sam",
+  "order": 60,
+  "name": "Galaxy Z Fold8 Ultra",
+  "ref": "Samsung Galaxy Z Fold8 Ultra — SM-F976",
+  "brand": "Samsung",
+  "kind": "fold",
+  "weight": 215,
+  "hue": { "light": "#7A2FC4", "dark": "#C58BF5" },
+  "role": {
+    "fr": "Pliable book, sorti le 22 juillet 2026",
+    "en": "Book-style foldable, on sale 22 July 2026"
+  },
+  "announced": {
+    "fr": "22 juillet 2026",
+    "en": "22 July 2026"
+  },
+  "body": {
+    "closed": { "w": 72.8, "h": 158.4, "d": 8.9, "r": 7 },
+    "open": { "w": 143.2, "h": 158.4, "d": 4.1, "r": 6 }
+  },
+  "screens": {
+    "cover": {
+      "label": { "fr": "Écran externe", "en": "Cover display" },
+      "diag": 6.5,
+      "px": [1080, 2520],
+      "ppi": 422,
+      "ratio": { "fr": "21:9", "en": "21:9" },
+      "tech": {
+        "fr": "Dynamic LTPO AMOLED 2X",
+        "en": "Dynamic LTPO AMOLED 2X"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3000,
+      "hdr": 3000,
+      "glass": { "fr": "Gorilla Glass Ceramic 3", "en": "Gorilla Glass Ceramic 3" },
+      "r": 6
+    },
+    "inner": {
+      "label": { "fr": "Écran interne", "en": "Inner display" },
+      "diag": 8.0,
+      "px": [2256, 2504],
+      "ppi": 422,
+      "ratio": { "fr": "1,11:1", "en": "1.11:1" },
+      "tech": {
+        "fr": "Dynamic LTPO AMOLED 2X pliable, HDR10+",
+        "en": "Foldable Dynamic LTPO AMOLED 2X, HDR10+"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3000,
+      "hdr": 3000,
+      "glass": {
+        "fr": "Flex Titanium / anti-reflet",
+        "en": "Flex Titanium / anti-reflective"
+      },
+      "r": 5
+    }
+  },
+  "sources": [
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Samsung Galaxy Z Fold8 Ultra — fiche complète",
+        "en": "Samsung Galaxy Z Fold8 Ultra — full specifications"
+      },
+      "url": "https://www.gsmarena.com/samsung_galaxy_z_fold8_ultra_5g-14802.php"
+    },
+    {
+      "who": "Samsung",
+      "what": {
+        "fr": "Galaxy Unpacked juillet 2026 — Z Fold8 Ultra, Z Fold8, Z Flip8",
+        "en": "Galaxy Unpacked July 2026 — Z Fold8 Ultra, Z Fold8, Z Flip8"
+      },
+      "url": "https://news.samsung.com/global/galaxy-unpacked-july-2026-a-first-look-at-galaxy-z-fold8-ultra-galaxy-z-fold8-and-galaxy-z-flip8"
+    }
+  ]
+}

@@ -1,15 +1,37 @@
 {
   "name": "phone-comparator-2026",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Comparaison a l'echelle reelle relative des ecrans de six smartphones",
+  "description": "Comparaison a l'echelle reelle relative des ecrans de smartphones, catalogue externalise en JSON",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "node build.js",
-    "asciify": "node asciify.js",
-    "check": "node asciify.js && node build.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "types": "tsc --noEmit",
+    "check": "pnpm run types && pnpm run build"
   },
+  "packageManager": "pnpm@11.21.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9",
+    "pnpm": ">=11"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Edge versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 iOS versions"
+  ],
+  "dependencies": {
+    "next": "^16.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.3"
   }
 }

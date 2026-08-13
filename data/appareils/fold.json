@@ -1,0 +1,98 @@
+{
+  "id": "fold",
+  "order": 40,
+  "name": "Pixel 11 Pro Fold",
+  "ref": "Google Pixel 11 Pro Fold",
+  "brand": "Google",
+  "kind": "fold",
+  "weight": 239,
+  "hue": { "light": "#1E62D8", "dark": "#6FA8FF" },
+  "role": {
+    "fr": "Pliable book, sorti le 20 août 2026",
+    "en": "Book-style foldable, on sale 20 August 2026"
+  },
+  "announced": {
+    "fr": "12 août 2026",
+    "en": "12 August 2026"
+  },
+  "body": {
+    "closed": { "w": 76.0, "h": 155.2, "d": 10.1, "r": 9 },
+    "open": { "w": 150.4, "h": 155.2, "d": 5.0, "r": 8 }
+  },
+  "screens": {
+    "cover": {
+      "label": { "fr": "Écran externe", "en": "Cover display" },
+      "diag": 6.5,
+      "px": [1080, 2342],
+      "ppi": 399,
+      "ratio": { "fr": "19,5:9", "en": "19.5:9" },
+      "tech": {
+        "fr": "LTPO OLED « Super Actua »",
+        "en": "LTPO OLED “Super Actua”"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3600,
+      "hdr": 2400,
+      "glass": { "fr": "Gorilla Glass Victus 2", "en": "Gorilla Glass Victus 2" },
+      "r": 8
+    },
+    "inner": {
+      "label": { "fr": "Écran interne", "en": "Inner display" },
+      "diag": 8.0,
+      "px": [2076, 2152],
+      "ppi": 372,
+      "ratio": { "fr": "1,04:1", "en": "1.04:1" },
+      "tech": {
+        "fr": "LTPO OLED pliable « Super Actua Flex »",
+        "en": "Foldable LTPO OLED “Super Actua Flex”"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3600,
+      "hdr": 2400,
+      "glass": { "fr": "Ultra-thin glass", "en": "Ultra-thin glass" },
+      "r": 6
+    }
+  },
+  "sources": [
+    {
+      "who": "Google Store",
+      "what": {
+        "fr": "Pixel 11 Pro Fold — fiche technique complète",
+        "en": "Pixel 11 Pro Fold — full specification sheet"
+      },
+      "url": "https://store.google.com/product/pixel_11_pro_fold_specs"
+    },
+    {
+      "who": "Blog Google",
+      "what": {
+        "fr": "Annonce du Pixel 11 Pro Fold, 12 août 2026",
+        "en": "Pixel 11 Pro Fold announcement, 12 August 2026"
+      },
+      "url": "https://blog.google/products-and-platforms/devices/pixel/pixel-11-pro-fold/"
+    },
+    {
+      "who": "Wikipédia",
+      "what": {
+        "fr": "Pixel 11 Pro Fold — dimensions repliées / dépliées, ratios, ppi",
+        "en": "Pixel 11 Pro Fold — folded / unfolded dimensions, aspect ratios, ppi"
+      },
+      "url": "https://en.wikipedia.org/wiki/Pixel_11_Pro_Fold"
+    },
+    {
+      "who": "PhoneArena",
+      "what": {
+        "fr": "Pixel 11 Pro Fold — luminosité Super Actua, 3 600 nits",
+        "en": "Pixel 11 Pro Fold — Super Actua brightness, 3,600 nits"
+      },
+      "url": "https://www.phonearena.com/news/pixel-11-pro-fold-is-here_id182546"
+    },
+    {
+      "who": "TechCrunch",
+      "what": {
+        "fr": "Pixel 11 Pro Fold — châssis renforcé, écrans plus lumineux",
+        "en": "Pixel 11 Pro Fold — stronger build, brighter screens"
+      },
+      "url": "https://techcrunch.com/2026/08/12/google-launches-the-pixel-11-pro-fold-with-a-stronger-build-and-brighter-screens/"
+    }
+  ]
+}

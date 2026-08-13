@@ -1,0 +1,73 @@
+{
+  "id": "p11p",
+  "order": 20,
+  "name": "Pixel 11 Pro",
+  "ref": "Google Pixel 11 Pro (GM45K)",
+  "brand": "Google",
+  "kind": "bar",
+  "weight": 204,
+  "hue": { "light": "#B0325E", "dark": "#FF8FB4" },
+  "role": {
+    "fr": "Barre compacte, sortie le 20 août 2026",
+    "en": "Compact bar phone, on sale 20 August 2026"
+  },
+  "announced": {
+    "fr": "12 août 2026",
+    "en": "12 August 2026"
+  },
+  "body": {
+    "closed": { "w": 71.9, "h": 152.7, "d": 8.4, "r": 12 }
+  },
+  "screens": {
+    "main": {
+      "label": { "fr": "Écran", "en": "Display" },
+      "diag": 6.3,
+      "px": [1280, 2856],
+      "ppi": 495,
+      "ratio": { "fr": "20:9", "en": "20:9" },
+      "tech": {
+        "fr": "LTPO OLED « Super Actua »",
+        "en": "LTPO OLED “Super Actua”"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3600,
+      "hdr": 2400,
+      "glass": { "fr": "Gorilla Glass Victus 2", "en": "Gorilla Glass Victus 2" },
+      "r": 11
+    }
+  },
+  "sources": [
+    {
+      "who": "Google Store",
+      "what": {
+        "fr": "Pixel 11 Pro et 11 Pro XL — fiche technique commune",
+        "en": "Pixel 11 Pro and 11 Pro XL — shared specification sheet"
+      },
+      "url": "https://store.google.com/us/product/pixel_11_pro_specs"
+    },
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Google Pixel 11 Pro — fiche complète : GM45K, 152,7 × 71,9 × 8,4 mm, 1280 × 2856 px, 204 g",
+        "en": "Google Pixel 11 Pro — full specifications: GM45K, 152.7 × 71.9 × 8.4 mm, 1280 × 2856 px, 204 g"
+      },
+      "url": "https://www.gsmarena.com/google_pixel_11_pro_5g-14801.php"
+    },
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Couverture de l'annonce Pixel 11 Pro / Pro XL / Pro Fold",
+        "en": "Coverage of the Pixel 11 Pro / Pro XL / Pro Fold announcement"
+      },
+      "url": "https://www.gsmarena.com/google_unveils_the_pixel_11_pro_and_11_pro_xl_the_new_pixel_11_pro_fold_joins_them-news-74139.php"
+    },
+    {
+      "who": "Wikipédia",
+      "what": {
+        "fr": "Pixel 11 Pro / 11 Pro XL — diagonales, ppi publiés (495 et 486), 1–120 Hz, 3 600 / 2 400 nits",
+        "en": "Pixel 11 Pro / 11 Pro XL — diagonals, published ppi (495 and 486), 1–120 Hz, 3,600 / 2,400 nits"
+      },
+      "url": "https://en.wikipedia.org/wiki/Pixel_11_Pro"
+    }
+  ]
+}
