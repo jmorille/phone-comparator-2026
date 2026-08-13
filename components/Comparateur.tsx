@@ -424,14 +424,19 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                   aria-valuetext={dict.ctl.ouverturePc(f.f0(pli * 100))}
                   onChange={(e) => {
                     const v = parseFloat(e.target.value);
-                    // aux deux bouts on fixe aussi l'etat publie, pour que la
-                    // disposition et les cotes s'y remettent -- mais pliLibre reste
-                    // pose, sinon la transition se rallumerait et les derniers
-                    // degres du geste se joueraient tout seuls apres coup
-                    agir({
-                      pliLibre: v,
-                      ...(v === 0 || v === 1 ? { etat: v === 1 ? "open" : "closed" } : {}),
-                    });
+                    /*
+                     * L'etat publie bascule des que le curseur quitte le fond, et
+                     * non a mi-course : la disposition reserve alors l'encombrement
+                     * **deplie**, le seul qui contienne toutes les positions
+                     * intermediaires. Sans cela les pliables s'ouvraient dans une
+                     * scene restee resserree -- mesure faite, ils debordaient de
+                     * 127 a 146 px sur leurs voisins a 90 % d'ouverture.
+                     *
+                     * pliLibre, lui, reste pose meme aux deux bouts : le lacher
+                     * rallumerait la transition et les derniers degres du geste se
+                     * joueraient tout seuls apres coup.
+                     */
+                    agir({ pliLibre: v, etat: v > 0 ? "open" : "closed" });
                   }}
                 />
                 <span className="num">{dict.ctl.ouverturePc(f.f0(pli * 100))}</span>

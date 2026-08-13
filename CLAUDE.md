@@ -205,7 +205,11 @@ width at mid-course, thickness has no definition when the leaves form a V rather
 panel is partly turned away so its area is not its area. So `EtatUI` keeps two separate things:
 
 - `etat` — the **published** state, still binary. It drives `disposer()`, the fiche, the table. The
-  slider only moves it when it reaches an end.
+  slider sets it to `"open"` as soon as it leaves the bottom, not at half-course: the layout must
+  reserve the **unfolded** footprint, the only one that contains every intermediate position.
+  Measured before that rule existed, foldables opened inside a still-tight scene and overran their
+  neighbours by 127–146 px at 90 % open. The visible cost is that the fiche flips to the inner screen
+  at 1 % open, which is correct — the device is no longer closed.
 - `pliLibre` — the **drawn** opening, `null` when it should just follow `etat`.
 
 While they disagree, the foldables' cotes fade out (`.sans-cote`) and the bars keep theirs — the
