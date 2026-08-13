@@ -224,6 +224,27 @@ button{font-family:inherit; cursor:pointer}
 }
 
 /* fold mechanics */
+/*
+ * TOUT LE GESTE EST FONCTION DE --pli : 0 replie, 1 deplie. La propriete est
+ * enregistree, donc animable -- c'est ce qui permet aux puces de la faire
+ * transiter sur --hinge pendant que le curseur, lui, l'ecrit directement. Une
+ * seule mecanique sert les deux, et il n'y a plus de classe d'etat a tenir.
+ *
+ * --relais est la part de course sur laquelle se fait le passage de relais avec
+ * la plaque de couverture. Elle est etroite parce que c'est le moment ou le
+ * volet se pose a plat : mesure sur la version minutee qui a precede, les .35 s
+ * du relais ne couvraient que les 2 % derniers degres.
+ */
+@property --pli{syntax:"<number>"; inherits:true; initial-value:1}
+:root{--relais:.03}
+.stage-scroll{transition:--pli var(--hinge) var(--ease-hinge)}
+/* Le curseur tenu a la main : l'image suit le doigt, elle ne le rattrape pas.
+   La seconde regle vise .dev .plate, plus bas, qui lisse l'opacite sur .35 s pour
+   le passage en superposition : ce lissage ferait trainer le relais couverture /
+   face interne derriere le curseur. */
+.stage-scroll[data-libre]{transition:none}
+.stage-scroll[data-libre] .dev .plate{transition:none}
+
 .fold{position:relative; width:calc(var(--ow) * var(--u)); height:calc(var(--oh) * var(--u)); perspective:calc(700 * var(--u))}
 .leaf{position:absolute; top:0; height:100%; width:calc(var(--hw) * var(--u)); overflow:hidden}
 .leaf.l{left:0}
@@ -234,29 +255,17 @@ button{font-family:inherit; cursor:pointer}
  * la couverture pleinement opaque, pour 10 degres parcourus sur 180. Les 170
  * degres restants tournaient dans le vide, et le pliage se lisait comme un
  * fondu enchaine.
- *
- * Les quatre opacites ci-dessous ne font donc plus que le relais avec la plaque
- * de couverture, sur --relais, aux extremites de la course : a la toute fin en
- * refermant, au tout debut en depliant. Entre les deux, on regarde le demi-ecran
- * tourner.
  */
-:root{--relais:.35s}
 .leaf.r{
   left:calc(var(--hw) * var(--u)); transform-origin:0 50%;
-  transform:rotateY(-180deg); opacity:0;
-  transition:transform var(--hinge) var(--ease-hinge),
-             opacity var(--relais) linear calc(var(--hinge) - var(--relais));
-}
-.fold.open .leaf.r{
-  transform:rotateY(0deg); opacity:1;
-  transition:transform var(--hinge) var(--ease-hinge), opacity var(--relais) linear;
+  transform:rotateY(calc((var(--pli) - 1) * 180deg));
+  opacity:clamp(0, calc(var(--pli) / var(--relais)), 1);
 }
 .leaf.r::after{
   content:""; position:absolute; inset:0; pointer-events:none; z-index:8;
   background:linear-gradient(90deg, rgba(0,0,0,.34), transparent 52%);
-  opacity:0; transition:opacity var(--hinge) var(--ease-hinge);
+  opacity:calc(1 - var(--pli));
 }
-.fold:not(.open) .leaf.r::after{opacity:1}
 .leaf .plate{transform:translateX(var(--ox,0))}
 
 /*
@@ -264,11 +273,11 @@ button{font-family:inherit; cursor:pointer}
  * voit mais sa coque : sans ce voile, la face interne se montrait en miroir et
  * l'appareil semblait avoir un ecran des deux cotes.
  *
- * La bascule est franche (duree nulle) et calee sur l'instant ou le volet est vu
- * par la tranche : sa largeur apparente y est nulle, donc la substitution ne se
- * voit pas. .46 est l'abscisse ou --ease-hinge atteint la MOITIE DE SA COURSE,
- * pas la moitie du temps -- la courbe demarre lentement. Elle vaut pour les deux
- * sens, la meme courbe etant parcourue a l'aller comme au retour.
+ * La bascule est franche -- une rampe de 2 % de course, juste assez large pour
+ * ne pas creneler -- et calee sur la mi-course, la ou le volet est vu par la
+ * tranche : sa largeur apparente y est nulle, donc la substitution ne se voit
+ * pas. Etre fonction de --pli et non du temps la met au bon endroit quel que
+ * soit le chemin parcouru, curseur compris.
  */
 .fold .leaf.r .plate.face-inner::after{
   content:""; position:absolute; inset:0; z-index:7; border-radius:inherit;
@@ -277,14 +286,11 @@ button{font-family:inherit; cursor:pointer}
     linear-gradient(155deg, rgba(0,0,0,.22), rgba(0,0,0,.34) 60%),
     linear-gradient(155deg, color-mix(in oklab,var(--body) 88%, var(--dc)) 0%, var(--body) 55%);
   box-shadow:inset 0 0 0 1px var(--body-edge);
-  opacity:0; transition:opacity 0s linear calc(var(--hinge) * .46);
+  opacity:clamp(0, calc((.5 - var(--pli)) * 50), 1);
 }
-.fold:not(.open) .leaf.r .plate.face-inner::after{opacity:1}
 
-.fold .plate.face-inner{opacity:0; transition:opacity var(--relais) linear calc(var(--hinge) - var(--relais))}
-.fold.open .plate.face-inner{opacity:1; transition:opacity var(--relais) linear}
-.fold .plate.cover{z-index:20; opacity:1; transition:opacity var(--relais) linear calc(var(--hinge) - var(--relais))}
-.fold.open .plate.cover{opacity:0; transition:opacity var(--relais) linear}
+.fold .plate.face-inner{opacity:clamp(0, calc(var(--pli) / var(--relais)), 1)}
+.fold .plate.cover{z-index:20; opacity:clamp(0, calc((var(--relais) - var(--pli)) / var(--relais)), 1)}
 
 /* overlay modes */
 .stage[data-mode="side"] .dev{--fill:1}
@@ -416,21 +422,32 @@ button{font-family:inherit; cursor:pointer}
   width:calc((var(--eh) + var(--eb)) * var(--u));
   border-radius:0 calc(var(--eo) * var(--u) / 2) calc(var(--eo) * var(--u) / 2) 0;
   transform-origin:calc(var(--eb) * var(--u)) calc((var(--eo) - var(--ec) / 2) * var(--u));
-  transform:rotate(-180deg);
-  transition:transform var(--hinge) var(--ease-hinge);
+  /* la meme fonction de --pli que le volet de la vue de face : les deux vues
+     plient donc rigoureusement ensemble, curseur compris */
+  transform:rotate(calc((var(--pli) - 1) * 180deg));
 }
-/* Declaree dans les deux etats : l'ouverture et la fermeture s'animent donc
-   toutes les deux, et une inversion en cours de route se reprend au vol. */
-.pli.open .vol.r{transform:none}
 /* Une ombre dans la rainure, pour que la pile refermee ne se lise pas comme une
    seule masse. Le degrade tourne avec le volet : il ombre donc la face qui vient
    se poser sur l'autre. */
 .vol.r::after{
   content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:linear-gradient(180deg, rgba(0,0,0,.30), transparent 62%);
-  opacity:0; transition:opacity var(--hinge) var(--ease-hinge);
+  opacity:calc(1 - var(--pli));
 }
-.pli:not(.open) .vol.r::after{opacity:1}
+
+/* Le curseur d'ouverture, sous les deux puces. Meme facture que la calibration
+   d'echelle, en plus etroit : c'est un reglage de vue, pas une mesure. */
+.pli-rng{margin-top:2px; font-size:12px}
+.pli-rng input[type="range"]{width:132px}
+
+/* Entre les deux etats publies, un pliable n'a pas de cotes : personne ne publie
+   sa largeur a mi-course, son epaisseur n'y a plus de definition (les volets
+   forment un V, pas une pile) et sa dalle est en partie retournee. On les efface
+   plutot que d'afficher un chiffre qui ne veut rien dire -- au milieu on regarde
+   le mouvement, aux extremites on mesure. Les barres, elles, gardent les leurs :
+   le curseur ne les concerne pas. */
+.dev.sans-cote .marks,
+.prof.sans-cote .tag{opacity:0; transition:opacity .25s var(--ease)}
 
 /* Superposition : les profils partagent la meme abscisse, donc les etiquettes
    se decalent sur le rang -- exactement le procede des cotes de diagonale. */
@@ -443,7 +460,7 @@ button{font-family:inherit; cursor:pointer}
   background:color-mix(in oklab, var(--dc) 38%, transparent); z-index:40;
 }
 /* un volet en fil de fer n'a pas de masse a ombrer */
-.tranche:not([data-mode="side"]) .pli:not(.open) .vol.r::after{opacity:0}
+.tranche:not([data-mode="side"]) .vol.r::after{opacity:0}
 .tranche:not([data-mode="side"]) .prof .tag{
   left:calc(var(--stag) * 78px); transform:none;
 }

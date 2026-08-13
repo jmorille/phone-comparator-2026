@@ -231,8 +231,22 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
    * transition de disposition etait deja creee avec un delai nul -- le style
    * calcule affichait bien 1,8 s, mais l'animation en cours, elle, portait 0.
    */
-  const pliDispo = useRetarde(s.etat, "closed", CHARNIERE_MS);
-  const pliCharniere = useRetarde(s.etat, "open", DISPOSITION_MS);
+  /*
+   * `libre` : le curseur mene. Il reste vrai apres qu'on l'a lache, jusqu'a ce
+   * qu'une puce ou la narration reprenne la main -- deux consequences voulues.
+   * La transition de --pli reste coupee, donc un second glissement suit le doigt
+   * comme le premier ; et le sequencage du pliage s'efface, parce qu'il n'a plus
+   * rien a sequencer : l'utilisateur fait lui-meme le timing du geste, la
+   * disposition n'a pas a attendre une charniere deja arrivee.
+   */
+  const libre = s.pliLibre !== null;
+  const pliDispo = useRetarde(s.etat, "closed", libre ? 0 : CHARNIERE_MS);
+  const pliCharniere = useRetarde(s.etat, "open", libre ? 0 : DISPOSITION_MS);
+
+  /** l'ouverture dessinee : le curseur, ou la charniere sequencee des puces */
+  const pli = s.pliLibre ?? (pliCharniere === "open" ? 1 : 0);
+  /** entre les deux etats publies : les cotes des pliables n'ont plus de valeur */
+  const intermediaire = pli > 0 && pli < 1;
 
   /* -- animation ---------------------------------------------------- */
   const [temps, setTemps] = useState<number | null>(null);
@@ -383,12 +397,44 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                 {(["closed", "open"] as const).map((e) => (
                   <button
                     key={e}
-                    className={puce(s.etat === e)}
-                    onClick={() => agir({ etat: e })}
+                    // active des que le dessin est a ce bout, quel que soit le
+                    // chemin : le curseur pose au fond est un appareil ferme
+                    className={puce(pli === (e === "open" ? 1 : 0))}
+                    onClick={() => agir({ etat: e, pliLibre: null })}
                   >
                     {dict.ctl.etats[e]}
                   </button>
                 ))}
+              </div>
+              {/*
+                Le curseur pose les pliables a l'angle qu'on veut. Aux deux bouts
+                il rend la main aux puces (pliLibre repasse a null) : la position
+                redevient un etat publie, ses cotes reviennent, et la disposition
+                s'y ajuste. Entre les deux, seul le dessin bouge.
+              */}
+              <div className="calib pli-rng">
+                <label htmlFor="pli">{dict.ctl.ouverture}</label>
+                <input
+                  type="range"
+                  id="pli"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={pli}
+                  aria-valuetext={dict.ctl.ouverturePc(f.f0(pli * 100))}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    // aux deux bouts on fixe aussi l'etat publie, pour que la
+                    // disposition et les cotes s'y remettent -- mais pliLibre reste
+                    // pose, sinon la transition se rallumerait et les derniers
+                    // degres du geste se joueraient tout seuls apres coup
+                    agir({
+                      pliLibre: v,
+                      ...(v === 0 || v === 1 ? { etat: v === 1 ? "open" : "closed" } : {}),
+                    });
+                  }}
+                />
+                <span className="num">{dict.ctl.ouverturePc(f.f0(pli * 100))}</span>
               </div>
             </div>
 
@@ -438,7 +484,9 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                 <Banc
                   dispo={dispo}
                   mode={s.mode}
-                  etat={pliCharniere}
+                  pli={pli}
+                  libre={libre}
+                  intermediaire={intermediaire}
                   marks={s.marks}
                   focus={s.focus}
                   f={f}

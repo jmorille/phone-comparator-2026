@@ -157,6 +157,10 @@ export interface Dictionnaire {
     ecranPliables: string;
     /** intitule du choix de la dalle qui vaut 100 %, en section 02 */
     comparerA: string;
+    /** intitule du curseur qui pose les pliables a l'angle voulu */
+    ouverture: string;
+    /** son etat lu, pour les lecteurs d'ecran comme a l'ecran */
+    ouverturePc(pc: string): string;
     reperes: string;
     animation: string;
     ficheTechnique: string;

@@ -1,23 +1,19 @@
 import type { Dictionnaire } from "@/i18n";
 import type { Formats } from "@/lib/format";
 import type { Disposition, Mode } from "@/lib/scene";
-import {
-  teinte,
-  type Appareil,
-  type AppareilPliable,
-  type EtatPli,
-  type Marques,
-} from "@/lib/types";
+import { teinte, type Appareil, type AppareilPliable, type Marques } from "@/lib/types";
 
 import { Plaque, vars } from "./primitives";
 
 /**
  * Un appareil sur le banc de mesure. Une barre est une simple plaque ; un
  * pliable est deux volets dont le droit pivote sur sa charniere, avec la plaque
- * de couverture qui s'efface en fondu. Ajouter .open a .fold joue l'ouverture,
- * toute la mecanique est en CSS.
+ * de couverture qui s'efface en fondu.
+ *
+ * Aucune classe d'etat ici : tout le geste est fonction de `--pli`, un nombre
+ * herite de la scene. Toute la mecanique est en CSS.
  */
-function Chassis({ d, ouvert }: { d: Appareil; ouvert: boolean }) {
+function Chassis({ d }: { d: Appareil }) {
   if (d.kind === "bar") {
     return (
       <Plaque body={d.body.closed} s={d.screens.main}>
@@ -27,10 +23,7 @@ function Chassis({ d, ouvert }: { d: Appareil; ouvert: boolean }) {
   }
   const op = d.body.open;
   return (
-    <div
-      className={"fold" + (ouvert ? " open" : "")}
-      style={vars({ "--ow": op.w, "--oh": op.h, "--hw": op.w / 2 })}
-    >
+    <div className="fold" style={vars({ "--ow": op.w, "--oh": op.h, "--hw": op.w / 2 })}>
       {(["l", "r"] as const).map((cote) => (
         <div key={cote} className={"leaf " + cote}>
           <Plaque
@@ -115,12 +108,12 @@ function Reperes({
  * Les deux dernieres sont ce qui rend la bande juste au millimetre dans les deux
  * etats plutot que seulement vraisemblable. Voir le bloc CSS de `.pli`.
  */
-function Pliure({ d, ouvert }: { d: AppareilPliable; ouvert: boolean }) {
+function Pliure({ d }: { d: AppareilPliable }) {
   const op = d.body.open;
   const cl = d.body.closed;
   return (
     <div
-      className={"pli" + (ouvert ? " open" : "")}
+      className="pli"
       style={vars({
         "--eh": op.w / 2,
         "--eo": op.d,
@@ -151,7 +144,7 @@ function Pliure({ d, ouvert }: { d: AppareilPliable; ouvert: boolean }) {
 function Tranche({
   dispo,
   mode,
-  ouvert,
+  intermediaire,
   focus,
   f,
   etiquette,
@@ -160,7 +153,7 @@ function Tranche({
 }: {
   dispo: Disposition;
   mode: Mode;
-  ouvert: boolean;
+  intermediaire: boolean;
   focus: string | null;
   f: Formats;
   etiquette: string;
@@ -183,7 +176,13 @@ function Tranche({
         return (
           <div
             key={b.d.id}
-            className={"prof" + (enAvant ? " focus" : "")}
+            className={
+              "prof" +
+              (enAvant ? " focus" : "") +
+              // entre les deux etats publies, l'epaisseur d'un pliable n'a pas de
+              // valeur : sa cote s'efface plutot que d'en afficher une fausse
+              (intermediaire && b.d.kind === "fold" ? " sans-cote" : "")
+            }
             style={{
               ...vars({
                 "--dc": teinte(b.d.id),
@@ -203,7 +202,7 @@ function Tranche({
             onPointerLeave={surSortie}
           >
             {b.d.kind === "fold" ? (
-              <Pliure d={b.d} ouvert={ouvert} />
+              <Pliure d={b.d} />
             ) : (
               <div className="sect plein" />
             )}
@@ -218,7 +217,9 @@ function Tranche({
 export function Banc({
   dispo,
   mode,
-  etat,
+  pli,
+  libre,
+  intermediaire,
   marks,
   focus,
   f,
@@ -230,11 +231,16 @@ export function Banc({
   dispo: Disposition;
   mode: Mode;
   /**
-   * L'etat du pli **vu par les volets**, qui n'est pas celui vu par `dispo` : le
-   * pliage est sequence, la charniere et la disposition ne bougent pas ensemble.
-   * Voir `useRetarde` dans Comparateur.
+   * L'ouverture **dessinee**, de 0 a 1. Elle n'est pas l'etat que voit `dispo` :
+   * le pliage est sequence (la charniere et la disposition ne bougent pas
+   * ensemble, voir `useRetarde`), et le curseur peut la poser entre les deux.
+   * Tout le geste, dans les deux vues, est fonction de ce seul nombre.
    */
-  etat: EtatPli;
+  pli: number;
+  /** l'ouverture vient du curseur : elle suit la main, sans transition */
+  libre: boolean;
+  /** entre les deux etats publies : les cotes des pliables s'effacent */
+  intermediaire: boolean;
   marks: Marques;
   focus: string | null;
   f: Formats;
@@ -244,7 +250,15 @@ export function Banc({
   dict: Dictionnaire;
 }) {
   return (
-    <div className="stage-scroll" ref={refDefilement}>
+    <div
+      className="stage-scroll"
+      ref={refDefilement}
+      /* --pli est pose ici, ancetre commun des deux vues : la bande de tranche est
+         soeur de la scene et n'heriterait de rien s'il vivait sur celle-ci.
+         data-libre coupe sa transition le temps que le curseur soit tenu. */
+      data-libre={libre ? "" : undefined}
+      style={vars({ "--pli": pli })}
+    >
       <div
         className="stage"
         data-mode={mode}
@@ -258,7 +272,11 @@ export function Banc({
           return (
             <div
               key={d.id}
-              className={"dev" + (enAvant ? " focus" : "")}
+              className={
+                "dev" +
+                (enAvant ? " focus" : "") +
+                (intermediaire && d.kind === "fold" ? " sans-cote" : "")
+              }
               style={{
                 ...vars({
                   "--dc": teinte(d.id),
@@ -274,7 +292,7 @@ export function Banc({
               onPointerEnter={() => surSurvol(d.id)}
               onPointerLeave={surSortie}
             >
-              <Chassis d={d} ouvert={etat === "open"} />
+              <Chassis d={d} />
               <Reperes boite={b} marks={marks} f={f} />
             </div>
           );
@@ -285,7 +303,7 @@ export function Banc({
         <Tranche
           dispo={dispo}
           mode={mode}
-          ouvert={etat === "open"}
+          intermediaire={intermediaire}
           focus={focus}
           f={f}
           etiquette={dict.banc.tranche}

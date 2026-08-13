@@ -169,28 +169,53 @@ Mid-flight the leaf stands its full length — ~76 mm, far beyond the band's few
 closing leaf passes **in front** of the phones: an object being shut passes in front of what is behind
 it, and that is what makes the gesture read.
 
-### The main view folds too, and shows the whole swing
+### One number drives the whole gesture
 
-The stage's own fold used to be a cross-fade wearing a rotation's clothes: `.leaf.r` faded out in
-0.43 s while the hinge took 1.8 s, so **the closing showed nothing** — measured, the leaf was at 15 %
-opacity and the cover plate fully opaque by 400 ms, for 10° travelled out of 180. The remaining 170°
-turned invisibly.
+`--pli` is the fold's only state: **0 closed, 1 open**, registered with `@property` so it animates.
+Everything else is a function of it — both views' rotation, the shell overlay, the hand-over with the
+cover plate. There is no `.open` class anywhere; there is nothing to keep in sync.
 
-The opacities now only hand over to the cover plate at the ends of the swing — `--relais` (0.35 s) at
-the very end when closing, at the very start when opening. In between you watch the half turn.
+That is what makes the **opening slider** possible. The chips transition `--pli` over `--hinge`; the
+slider writes it straight, with `data-libre` on `.stage-scroll` killing the transition so the drawing
+follows the finger instead of chasing it. One mechanism serves both. `data-libre` must also kill
+`.dev .plate{transition:opacity .35s}`, or the cover/inner hand-over lags a third of a second behind
+the slider.
+
+The stage's fold used to be a cross-fade wearing a rotation's clothes: `.leaf.r` faded out in 0.43 s
+while the hinge took 1.8 s, so **the closing showed nothing** — measured, the leaf was at 15 % opacity
+and the cover fully opaque by 400 ms, for 10° travelled out of 180. The opacities now hand over only
+over `--relais`, the last **3 % of travel** — travel, not time, so the hand-over lands in the right
+place whatever path `--pli` took, scrubbing included. In between you watch the half turn.
 
 Past 90° you are looking at that half's **back**, so a shell overlay (`.leaf.r .plate.face-inner::after`)
-switches in there; without it the inner screen showed mirrored and the device appeared to have a
-display on both faces. The switch is instant and delayed by `calc(var(--hinge) * .46)` — `.46` is where
-`--ease-hinge` reaches **half its travel**, not half its time, since the curve starts slowly. At that
-instant the leaf is edge-on and has no apparent width, so the substitution cannot be seen. The same
-delay serves both directions: the same curve is walked either way.
+switches in at `--pli` 0.5; without it the inner screen showed mirrored and the device appeared to have
+a display on both faces. At exactly 0.5 the leaf is edge-on and has no apparent width, so the
+substitution cannot be seen.
 
 **The specificity trap.** `.dev .plate{transition:opacity .35s}` in the overlay-modes block outranks a
 bare `.face-inner` or `.plate.cover`, and silently replaced their transitions — which is why the
 original timings never ran as written. The fold rules are therefore scoped `.fold .plate.face-inner`
-and `.fold .plate.cover`. If a fold cross-fade ever ignores its delay again, check computed
-`transitionDelay` against the rule you think you wrote before changing the rule.
+and `.fold .plate.cover`. If a fold rule ever seems ignored, check the computed value against the rule
+you think you wrote before changing the rule.
+
+### Between the two published states, a foldable has no dimensions
+
+The slider can park a foldable at any angle, and there **is no cote there**: nobody publishes a Fold's
+width at mid-course, thickness has no definition when the leaves form a V rather than a stack, and the
+panel is partly turned away so its area is not its area. So `EtatUI` keeps two separate things:
+
+- `etat` — the **published** state, still binary. It drives `disposer()`, the fiche, the table. The
+  slider only moves it when it reaches an end.
+- `pliLibre` — the **drawn** opening, `null` when it should just follow `etat`.
+
+While they disagree, the foldables' cotes fade out (`.sans-cote`) and the bars keep theirs — the
+slider does not concern them. At the middle you watch the movement; at the ends you measure. Do not
+"improve" this by interpolating the chassis dimensions: they would be computed numbers wearing the
+authority of published ones, which is the one line this page does not cross.
+
+`libre` (the slider is leading) also switches the sequencing below off, because there is nothing left
+to sequence — the reader is doing the timing by hand, and the layout must not wait for a hinge that
+has already arrived.
 
 ### Sequencing: the fold and the layout do not move together
 

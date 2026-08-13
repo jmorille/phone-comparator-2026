@@ -41,6 +41,8 @@ export const en: Dictionnaire = {
     disposition: "Layout",
     ecranPliables: "Foldable display",
     comparerA: "Compare against",
+    ouverture: "Opening",
+    ouverturePc: (pc) => `${pc}% open`,
     reperes: "Dimensions",
     animation: "Animation",
     ficheTechnique: "Spec panel",

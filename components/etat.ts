@@ -18,7 +18,25 @@ export const CLES_SCENE: CleScene[] = ["web", "video", "list", "multi"];
  */
 export interface EtatUI {
   mode: Mode;
+  /**
+   * L'etat **publie** du pli : celui dont les cotes, la fiche et le tableau
+   * existent. Il ne prend que ses deux valeurs, et c'est lui qui pilote
+   * `disposer()`.
+   */
   etat: EtatPli;
+  /**
+   * L'ouverture **dessinee**, de 0 (replie) a 1 (deplie), quand le lecteur la
+   * choisit au curseur. `null` -- le cas courant -- veut dire « suis `etat` », en
+   * s'animant sur la charniere.
+   *
+   * Les deux sont separes parce qu'entre les deux etats publies aucune cote
+   * n'existe : personne ne publie la largeur d'un pliable a mi-course,
+   * l'epaisseur n'y a plus de definition (les volets forment un V, pas une pile)
+   * et la dalle est en partie retournee. Le curseur bouge donc le dessin sans
+   * bouger la mesure, et les cotes des pliables s'effacent tant qu'on est entre
+   * les deux -- au milieu on regarde le mouvement, aux extremites on mesure.
+   */
+  pliLibre: number | null;
   vis: Record<string, boolean>;
   /**
    * La dalle qui vaut 100 %. Le catalogue en fixe une par defaut
@@ -55,6 +73,7 @@ export function etatInitial(cat: Catalogue): EtatUI {
   return {
     mode: "side",
     etat: "open",
+    pliLibre: null,
     vis: jeuVisible(cat, selectionParDefaut),
     // la reference du catalogue est une barre (le chargeur l'exige), donc "main"
     ref: { id: cat.refId, k: "main" },
@@ -101,11 +120,14 @@ const coche = (s: EtatUI, ids: string[]): Record<string, boolean> => ({
 export const TEMPS: Temps[] = [
   {
     t: 1500,
+    // la narration reprend la main sur le pli : un reglage au curseur ne doit pas
+    // figer les appareils a mi-course pendant qu'elle se joue
     appliquer: (s, cat) => ({
       ...s,
       vis: jeuVisible(cat, [cat.refId]),
       mode: "center",
       etat: "closed",
+      pliLibre: null,
       marks: marquesToutes(false),
       sel: cat.refId,
     }),
@@ -133,6 +155,7 @@ export const TEMPS: Temps[] = [
       vis: jeuVisible(cat, cat.reglages.selectionParDefaut),
       mode: "side",
       etat: "open",
+      pliLibre: null,
       sel: cat.reglages.ficheParDefaut,
     }),
   },

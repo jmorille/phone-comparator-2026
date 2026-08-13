@@ -43,6 +43,8 @@ export const fr: Dictionnaire = {
     disposition: "Disposition",
     ecranPliables: "Écran des pliables",
     comparerA: "Comparer à",
+    ouverture: "Ouverture",
+    ouverturePc: (pc) => `${pc} % ouvert`,
     reperes: "Repères",
     animation: "Animation",
     ficheTechnique: "Fiche technique",
