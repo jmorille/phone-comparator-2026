@@ -21,9 +21,23 @@ since every device is now officially announced). Don't "fix" the page back towar
 
 ```powershell
 node asciify.js                    # MANDATORY after any edit — see below
-Start-Process ecrans-echelle.html  # open in the default browser to check it
-node -e "const b=require('fs').readFileSync('ecrans-echelle.html');console.log([...b].filter(c=>c>127).length)"  # must print 0
+node build.js                      # writes dist/index.html — open THAT, never the source
+node -e "const s=require('fs').readFileSync('ecrans-echelle.html','utf8');new Function(s.slice(s.indexOf('<script>')+8,s.indexOf('</script>')));console.log('JS OK')"
 ```
+
+`npm run check` chains asciify + build. There are still no dependencies and no test suite.
+
+**Do not preview `ecrans-echelle.html` by opening it directly.** It has no `<!doctype html>`, so a
+browser renders it in **Quirks Mode** and the local result does not match the published one.
+`build.js` adds the publish skeleton (doctype, `<head>` with charset/viewport/OG tags, `<body>`) and
+writes `dist/index.html` — open that. It reads and writes `latin1`, refuses to build if the ASCII
+invariant is broken, and refuses to build if the source has grown an `<html>`/`<body>` wrapper of its
+own. Rerun it after every edit.
+
+## Deployment
+
+Static site on Vercel (`vercel.json`): `node build.js` → `dist/`, served as-is. No framework, no
+install step. `dist/` is gitignored and rebuilt on every deploy.
 
 ## The ASCII invariant
 
@@ -58,9 +72,10 @@ device**, converted by one CSS variable:
 - `--ppmm2` / `--u2` is a **second, independent scale** used only by the "mise en situation" scenes
   section, which sizes itself separately (`scaleScenes()`).
 
-The main scale is deliberately **fixed**: it does not change when a device unfolds or when the layout
-mode changes, because a comparison at varying scale is meaningless. `autoScale()` picks, once at boot
-and on resize, the largest scale that fits the widest case (all four devices unfolded, side by side).
+The main scale is deliberately **fixed**: it does not change when a device unfolds, when the layout
+mode changes, or when a device is checked on, because a comparison at varying scale is meaningless.
+`autoScale()` picks, once at boot and on resize, the largest scale that fits `DEFAULT_VIS` unfolded
+and side by side; checking on more devices makes the stage scroll horizontally rather than shrink.
 The calibration slider then lets the user push up to true 1:1 by matching a bank card, at which point
 the stage scrolls horizontally. See the comment block in `autoScale()` before changing this.
 
@@ -68,6 +83,8 @@ the stage scrolls horizontally. See the comment block in `autoScale()` before ch
 
 ```
 DEV[]  →  geom(diag, [w,h] px)  →  S (state)  →  paint()  →  DOM
+                                        ↓
+                                    panels()  →  sections 02 / 03 / 04
 ```
 
 - `DEV[]` holds **only officially published specs** (diagonal, resolution, vendor ppi, panel tech,
@@ -79,7 +96,19 @@ DEV[]  →  geom(diag, [w,h] px)  →  S (state)  →  paint()  →  DOM
 - `scr(d, state)` / `bod(d, state)` resolve which screen and which chassis apply to a device given the
   fold state — the only place `kind:"bar"` vs `kind:"fold"` is branched on.
 - `S` is the single mutable state object (visible devices, layout mode, fold state, marks, focus,
-  selected scene). Mutate `S`, then call `paint()` — `paint()` = `paintChips() + layout() + paintFiche()`.
+  selected scene). Mutate `S`, then call `paint()` — never a section builder directly.
+- **`panels()` is the one derivation that feeds sections 02, 03 and 04**: "for each selected device,
+  its screens", yielding `[device, screenKey]` pairs. Add a device to `DEV[]` and the area bars, the
+  usage scenes and the spec table all follow — there is no per-section list to keep in sync.
+  `ALL_PANELS` is the same thing over the whole catalogue, used wherever a value must stay stable
+  across selections (the bar-length normaliser, the spelled-out panel count).
+- `paint()` runs `paintChips + layout + paintFiche` every time, but rebuilds the three heavy sections
+  only when the selection actually changed — it is also called on chip *hover*, so `paintSections()`
+  memoises on a key of (selection, scene state, scene content). Keep that guard if you add work to
+  `paint()`.
+- `DEFAULT_VIS` is the startup selection and the single source of truth for three things: the initial
+  `S.vis`, what `autoScale()`/`scaleScenes()` size themselves against, and the state the animation's
+  last beat returns to. Devices outside it exist everywhere but start unchecked.
 - `layout()` computes absolute mm positions for every device in the stage (side-by-side or centred
   overlay), plus the offsets of the dimension rails, and writes them as CSS custom properties. It is
   the only function that positions devices.

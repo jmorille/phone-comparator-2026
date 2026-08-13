@@ -1,0 +1,15 @@
+{
+  "name": "phone-comparator-2026",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Comparaison a l'echelle reelle relative des ecrans de six smartphones",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "node build.js",
+    "asciify": "node asciify.js",
+    "check": "node asciify.js && node build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
