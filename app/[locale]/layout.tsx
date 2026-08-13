@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -71,7 +72,16 @@ export default async function RootLayout({
         <meta name="color-scheme" content="light dark" />
         <style dangerouslySetInnerHTML={{ __html: jetonsCouleurs(chargerCatalogue()) }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/*
+          Vercel Analytics. Sans cookie et sans identifiant persistant, il ne
+          collecte donc rien qui suive un visiteur d'une visite a l'autre. Le
+          composant n'injecte son script qu'une fois deploye : en local comme
+          dans l'instantane hors ligne, il ne fait rien.
+        */}
+        <Analytics />
+      </body>
     </html>
   );
 }

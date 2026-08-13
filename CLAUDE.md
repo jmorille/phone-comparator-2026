@@ -175,6 +175,11 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
 Vercel, framework `nextjs`. Both locales are prerendered as static HTML; `proxy.ts` runs for the root
 redirect.
 
+`<Analytics />` from `@vercel/analytics/next` sits in the root layout's `<body>`. It is cookieless and
+stores no persistent identifier, and it injects nothing until the site is deployed — locally, and in
+the offline snapshot, it is inert. It is the only runtime dependency outside the framework; the page
+still makes no other network request.
+
 `vercel.json` states `"outputDirectory": ".next"` even though that is the Next.js default. It is not
 decoration: the project was created for the old static chain and its dashboard still carried
 `Output Directory = dist`. The Next build succeeded and Vercel then failed looking for `dist/`.

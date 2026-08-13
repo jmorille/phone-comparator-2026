@@ -57,7 +57,8 @@ bash scripts/fumee.sh         # test de fumee sur la construction
 ```
 
 **Node 24 minimum** (`.nvmrc`) — la construction refuse de démarrer en deçà. Next.js 16 · React 19 ·
-TypeScript · aucune dépendance d'exécution hors framework. La cible navigateur est déclarée dans
+TypeScript. La seule dépendance hors framework est `@vercel/analytics`, sans cookie ni identifiant
+persistant, et inerte tant que le site n'est pas déployé. La cible navigateur est déclarée dans
 `browserslist` : navigateurs récents uniquement.
 
 ## Structure

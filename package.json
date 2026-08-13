@@ -25,6 +25,7 @@
     "last 2 iOS versions"
   ],
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "next": "^16.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
