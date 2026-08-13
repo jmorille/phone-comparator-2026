@@ -357,12 +357,26 @@ input[type=range]{accent-color:var(--acc); width:150px}
 table{border-collapse:collapse; width:100%; min-width:1080px; font-size:13px}
 th,td{padding:9px 13px; text-align:left; border-bottom:1px solid var(--line2); white-space:nowrap}
 thead th{
-  position:sticky; top:0; background:var(--panel2); z-index:2;
+  position:sticky; background:var(--panel2); z-index:2;
   font:600 11px/1.35 var(--f-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink);
   border-bottom:1px solid var(--line); vertical-align:bottom;
 }
+/* en-tete sur deux rangs : le nom de l'appareil coiffe ses dalles, le second rang
+   nomme chaque dalle. --hd1 est mesuree apres rendu pour que le second rang se
+   colle exactement sous le premier pendant le defilement vertical. */
+thead tr:first-child th{top:0; z-index:3}
+thead tr:first-child + tr th{top:var(--hd1,34px)}
+thead th.dev-grp{
+  text-align:center; box-shadow:inset 0 3px 0 var(--dc);
+  border-bottom:1px solid var(--line2); padding-bottom:7px;
+}
+thead th.dev-col{
+  font-weight:400; letter-spacing:.04em; text-transform:none; color:var(--ink2); font-size:12px;
+}
+/* filet vertical a chaque changement d'appareil : c'est lui qui rend le
+   regroupement lisible une fois qu'on est descendu dans les valeurs */
+thead th.opens,td.opens{border-left:1px solid var(--line)}
 thead th .sub2{display:block; font-weight:400; letter-spacing:.04em; text-transform:none; color:var(--muted)}
-thead th.dev-col{box-shadow:inset 0 3px 0 var(--dc)}
 tbody th{font-weight:500; color:var(--muted); font-size:12.5px; white-space:normal; min-width:150px}
 td{font-family:var(--f-mono); font-variant-numeric:tabular-nums; color:var(--ink2)}
 td.hi{color:var(--ink); font-weight:600}
@@ -1320,12 +1334,14 @@ function scaleScenes(){
 
 /* -- tableau -------------------------------------------------------- */
 const DIA = "<span style=\"color:var(--acc)\">\u25C6</span> ";
+// 5e champ : la ligne decrit l'appareil, pas la dalle -- sa valeur est alors
+// fusionnee sur toutes les colonnes du meme appareil au lieu d'y etre repetee.
 const TROWS = [
   ["grp","Identit\u00E9"],
-  ["R\u00E9f\u00E9rence exacte", (d)=>d.ref, true],
-  ["Annonce officielle", (d)=>d.announced],
-  ["Statut de la donn\u00E9e", ()=>"officielle"],
-  ["Poids", (d)=>d.weight+" g"],
+  ["R\u00E9f\u00E9rence exacte", (d)=>d.ref, true, false, true],
+  ["Annonce officielle", (d)=>d.announced, false, false, true],
+  ["Statut de la donn\u00E9e", ()=>"officielle", false, false, true],
+  ["Poids", (d)=>d.weight+" g", false, false, true],
   ["grp","Dalle"],
   ["Technologie", (d,s)=>s.tech, true],
   ["Diagonale", (d,s)=>dg(s.diag), false, true],
@@ -1362,19 +1378,53 @@ function paintTable(){
     tbl.innerHTML = `<tbody><tr><td style="padding:0;border:0">${EMPTY}</td></tr></tbody>`;
     return;
   }
+  // Un pliable occupe deux colonnes, une par dalle. Repeter son nom au-dessus des
+  // deux se lisait comme un doublon : on regroupe donc les colonnes d'un meme
+  // appareil sous un seul en-tete, le second rang nommant chaque dalle.
+  const groups = [];
+  cols.forEach(([d, k]) => {
+    const last = groups[groups.length - 1];
+    if (last && last.d === d) last.keys.push(k);
+    else groups.push({ d, keys:[k] });
+  });
+  // index des colonnes qui ouvrent un appareil : elles portent le filet de separation
+  const opens = new Set();
+  let n = 0;
+  groups.forEach(g => { opens.add(n); n += g.keys.length; });
+
   tbl.innerHTML =
-    `<thead><tr><th style="min-width:190px">Caract\u00E9ristique</th>${
-      cols.map(([d,k]) => { const s=d.screens[k];
-        return `<th class="dev-col" style="--dc:${d.hue}">${d.name}<span class="sub2">${s.label} \u00B7 ${f1(s.diag).replace(",0","")}\u2033</span></th>`;
-      }).join("")}</tr></thead>
+    `<thead>
+       <tr><th rowspan="2" style="min-width:190px">Caract\u00E9ristique</th>${
+         groups.map(g =>
+           `<th class="dev-grp" colspan="${g.keys.length}" style="--dc:${g.d.hue}">${g.d.name}</th>`
+         ).join("")}</tr>
+       <tr>${
+         groups.map(g => g.keys.map((k, i) => { const s = g.d.screens[k];
+           return `<th class="dev-col${i===0?" opens":""}" style="--dc:${g.d.hue}">${s.label}<span class="sub2">${f1(s.diag).replace(",0","")}\u2033</span></th>`;
+         }).join("")).join("")}</tr>
+     </thead>
      <tbody>${TROWS.map(r => {
        if (r[0]==="grp") return `<tr class="grp"><th>${r[1]}</th>${cols.map(()=>`<td></td>`).join("")}</tr>`;
-       const [label, fn, wrap, hi] = r;
-       return `<tr><th${wrap?' style="white-space:normal"':""}>${label}</th>${
-         cols.map(([d,k]) => { const s=d.screens[k], st = k==="inner"?"open":"closed";
-           return `<td class="${hi?"hi":""}"${wrap?' style="white-space:normal"':""}>${fn(d,s,st)}</td>`;
+       const [label, fn, wrap, hi, perDev] = r;
+       const th = `<th${wrap?' style="white-space:normal"':""}>${label}</th>`;
+       const attrs = `${wrap?' style="white-space:normal"':""}`;
+       // une propriete d'appareil s'ecrit une fois, en travers de ses dalles
+       if (perDev) return `<tr>${th}${
+         groups.map(g => { const k = g.keys[0], s = g.d.screens[k];
+           return `<td class="${hi?"hi":""} opens" colspan="${g.keys.length}"${attrs}>${fn(g.d, s, k==="inner"?"open":"closed")}</td>`;
+         }).join("")}</tr>`;
+       return `<tr>${th}${
+         cols.map(([d,k],i) => { const s=d.screens[k], st = k==="inner"?"open":"closed";
+           return `<td class="${hi?"hi":""}${opens.has(i)?" opens":""}"${attrs}>${fn(d,s,st)}</td>`;
          }).join("")}</tr>`;
      }).join("")}</tbody>`;
+
+  // le second rang d'en-tete doit se coller sous le premier quand on defile :
+  // sa hauteur n'est connue qu'apres rendu
+  requestAnimationFrame(() => {
+    const r1 = tbl.querySelector("thead tr");
+    if (r1) tbl.style.setProperty("--hd1", r1.getBoundingClientRect().height + "px");
+  });
 }
 
 /* -- verdicts ------------------------------------------------------- */
