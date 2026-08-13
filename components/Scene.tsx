@@ -1,7 +1,13 @@
 import type { Dictionnaire } from "@/i18n";
 import type { Formats } from "@/lib/format";
 import type { Disposition, Mode } from "@/lib/scene";
-import { teinte, type Appareil, type EtatPli, type Marques } from "@/lib/types";
+import {
+  teinte,
+  type Appareil,
+  type AppareilPliable,
+  type EtatPli,
+  type Marques,
+} from "@/lib/types";
 
 import { Plaque, vars } from "./primitives";
 
@@ -93,14 +99,50 @@ function Reperes({
 }
 
 /**
+ * Un pliable vu par la tranche : deux volets et une pliure. Le volet gauche
+ * reste pose au sol, le droit pivote de 180 degres autour de la charniere --
+ * c'est le meme partage que `Chassis` fait en vue de face, donc les deux vues
+ * plient dans le meme geste.
+ *
+ * Les quatre variables sont intrinseques a l'appareil, pas a la disposition :
+ * c'est pourquoi elles se calculent ici et non dans `disposer()`.
+ *
+ *  --eh  demi-largeur depliee : l'abscisse de la pliure
+ *  --eo  epaisseur depliee : celle d'un volet
+ *  --ec  epaisseur repliee **publiee**, dont le CSS deduit la hauteur du pivot
+ *  --eb  debord du dos : ce que la largeur repliee a de plus que la demi-largeur
+ *
+ * Les deux dernieres sont ce qui rend la bande juste au millimetre dans les deux
+ * etats plutot que seulement vraisemblable. Voir le bloc CSS de `.pli`.
+ */
+function Pliure({ d, ouvert }: { d: AppareilPliable; ouvert: boolean }) {
+  const op = d.body.open;
+  const cl = d.body.closed;
+  return (
+    <div
+      className={"pli" + (ouvert ? " open" : "")}
+      style={vars({
+        "--eh": op.w / 2,
+        "--eo": op.d,
+        "--ec": cl.d,
+        "--eb": +(cl.w - op.w / 2).toFixed(2),
+      })}
+    >
+      <div className="sect vol l" />
+      <div className="sect vol r" />
+    </div>
+  );
+}
+
+/**
  * Les appareils vus par la tranche, sous la scene et a la meme echelle : chaque
  * profil fait `body.w` de large sur `body.d` d'epais, pose a la meme abscisse
  * que l'appareil au-dessus de lui.
  *
- * Rien n'est calcule ici. `boite.body` vaut deja `bod(d, etat)`, donc deplier un
- * pliable fait passer son profil de son epaisseur fermee a son epaisseur
- * ouverte -- et sa largeur double dans le meme mouvement, puisque c'est le meme
- * chassis. Les transitions CSS font le reste.
+ * `.prof` est la **cote** : sa boite vaut exactement `bod(d, etat)`, elle porte
+ * l'etiquette en mm et c'est elle qui se deplace. Ce qui peint, ce sont les
+ * sections a l'interieur -- une seule pour une barre, deux volets articules pour
+ * un pliable. La cote reste donc mesurable pendant que le dessin, lui, plie.
  *
  * La bande partage la largeur et le defilement de la scene, et reprend son
  * `data-mode` : en superposition les profils se recouvrent exactement comme les
@@ -109,6 +151,7 @@ function Reperes({
 function Tranche({
   dispo,
   mode,
+  ouvert,
   focus,
   f,
   etiquette,
@@ -117,6 +160,7 @@ function Tranche({
 }: {
   dispo: Disposition;
   mode: Mode;
+  ouvert: boolean;
   focus: string | null;
   f: Formats;
   etiquette: string;
@@ -155,6 +199,11 @@ function Tranche({
             onPointerEnter={() => surSurvol(b.d.id)}
             onPointerLeave={surSortie}
           >
+            {b.d.kind === "fold" ? (
+              <Pliure d={b.d} ouvert={ouvert} />
+            ) : (
+              <div className="sect plein" />
+            )}
             <span className="tag">{f.mm(b.body.d)}</span>
           </div>
         );
@@ -177,6 +226,11 @@ export function Banc({
 }: {
   dispo: Disposition;
   mode: Mode;
+  /**
+   * L'etat du pli **vu par les volets**, qui n'est pas celui vu par `dispo` : le
+   * pliage est sequence, la charniere et la disposition ne bougent pas ensemble.
+   * Voir `useRetarde` dans Comparateur.
+   */
   etat: EtatPli;
   marks: Marques;
   focus: string | null;
@@ -228,6 +282,7 @@ export function Banc({
         <Tranche
           dispo={dispo}
           mode={mode}
+          ouvert={etat === "open"}
           focus={focus}
           f={f}
           etiquette={dict.banc.tranche}

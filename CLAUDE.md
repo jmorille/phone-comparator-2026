@@ -131,12 +131,62 @@ cote is one array entry: the two dictionaries then stop compiling until they tra
 `TEMPS` from having to be rewritten.
 
 The `Tranche` band under the stage draws each device **edge-on** — `body.w` wide by `body.d` thick,
-at the same `--u`, on a shared baseline, at the same `x` as the device above it. It computes
-nothing: `boite.body` is already `bod(d, etat)`, so unfolding a foldable moves its profile from the
-closed thickness to the open one and doubles its width in the same gesture, in CSS transitions.
+at the same `--u`, on a shared baseline, at the same `x` as the device above it.
 Its height reserve, `TRANCHE_MM`, is a **constant** in `echelleAuto()`'s budget — it does not shrink
 when the band is toggled off, for the same reason the scale itself is fixed. Toggling the band gives
 back screen space, never scale.
+
+`.prof` is the **cote**, not the drawing: its box is exactly `bod(d, etat)`, which is what carries the
+mm label and what moves. What paints is a `.sect` inside it — one for a bar, two hinged leaves for a
+foldable, so the cote stays measurable while the drawing folds.
+
+### The hinge, and why the closed profile is exact
+
+A foldable's profile is two leaves pivoting at the crease. **The pivot sits at half the *published*
+closed thickness** above the baseline, so a 180° rotation lands the upper leaf at exactly `closed.d` —
+10.1 mm for the Fold, not the 10.0 that stacking two 5.0 mm leaves would give. The hinge gap is
+reproduced, not ignored. Likewise the pivoting leaf is longer than half the open width and overhangs
+the pivot by `closed.w − open.w/2`: open it covers exactly `open.w` (the overhang overlaps invisibly at
+the crease), closed it covers exactly `closed.w` (the overhang falls on the hinge side, where the spine
+is). Both end states are therefore right to the millimetre, like the single capsule they replaced.
+
+**Measure this if you touch it.** Rendered against published data at 2.1 px/mm, all seven devices in
+both fold states agree to within 0.011 mm in both views — sub-pixel, i.e. rounding in
+`getBoundingClientRect` alone. Chassis heights do not change when a book-fold closes (155.2 mm for the
+Fold either way); the number that changes is the thickness. Scale respect is the point of this app, so
+a hinge change that shifts a silhouette by a visible fraction of a millimetre is a regression even if
+it looks better.
+
+Mid-flight the leaf stands its full length — ~76 mm, far beyond the band's few millimetres of reserve.
+`.tranche` therefore carries `z-index:60`, above every device (10–17, and 40 when focused), so the
+closing leaf passes **in front** of the phones: an object being shut passes in front of what is behind
+it, and that is what makes the gesture read.
+
+### Sequencing: the fold and the layout do not move together
+
+A foldable closes **before** the scene tightens, and the scene spreads **before** it opens. Otherwise
+devices pack onto a leaf still in flight, or a leaf unfolds across its neighbour.
+
+This lives in **JavaScript, not CSS**. `useRetarde` in `Comparateur` reads `s.etat` twice with
+different lags: `pliDispo` (fed to `disposer()` — positions, widths, cotes) waits `CHARNIERE_MS` when
+closing, and `pliCharniere` (fed to the leaves) waits `DISPOSITION_MS` when opening. `s.etat` itself
+stays immediate, so the chip responds at once.
+
+Two attempts failed before this one, both worth not repeating:
+
+- **`transition-delay` armed from React arrives too late.** A `data-geste` attribute toggled for the
+  duration of the gesture computed correctly — `getComputedStyle` reported `1.8s` — while
+  `getAnimations()` showed the running transition carrying delay `0`. React commits the new positions
+  before the attribute lands, and by then the transition already exists. Setting the state *during
+  render* rather than in an effect did not fix it either.
+- **Keying the delay on the fold state itself** stalls everything else: while closed, checking a device
+  on would wait 1.8 s for no reason. The delay has to belong to the gesture, not to the state.
+
+`CHARNIERE_MS` / `DISPOSITION_MS` in `components/etat.ts` are the twins of `--hinge` / `--dur` in
+`globals.css` — **move them together.** `GESTE_MS` is their sum, and the `TEMPS` beat that unfolds is
+derived from it rather than typed, so lengthening the hinge cannot leave the narration cutting the
+gesture off mid-swing. Reduced motion drops the lag to zero in `useRetarde`: staggering a gesture whose
+transitions are instant is a frozen screen, not a gentler movement.
 
 Dimension rails stagger over the **visible** devices, with a step that tightens as the selection
 grows. The original page indexed a fixed four-entry `ROWS` table by catalogue position, which
@@ -202,8 +252,10 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
   Define new colours as tokens in all three places, never only inside the media query. The per-device
   `--c-<id>` tokens are **generated** from JSON in `app/[locale]/layout.tsx` and therefore satisfy this
   by construction — do not add them to `globals.css`.
-- **Reduced motion.** `jouer()` short-circuits the scripted animation to its final state, and a CSS
-  media block kills all transitions. Keep both paths working when touching `TEMPS`.
+- **Reduced motion.** Three paths, all of which must keep working: `jouer()` short-circuits the
+  scripted animation to its final state, `useRetarde` drops the fold sequencing lag to zero, and a CSS
+  media block kills every transition **duration and delay** — the delay matters, since the fold's
+  cross-fades carry one and an instant-but-postponed transition is still movement.
 - **Prose carries markup.** Dictionary strings contain `<b>`, `<span class="num">`, `<sub>`; they are
   rendered through `<Riche>`. This content is written in the repo and never comes from a visitor.
 

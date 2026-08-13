@@ -68,6 +68,21 @@ export function etatInitial(cat: Catalogue): EtatUI {
 }
 
 /**
+ * Les deux temps du pliage, en ms. Ce sont les jumeaux des jetons `--hinge` et
+ * `--dur` de globals.css -- **ils doivent bouger ensemble.**
+ *
+ * Ils ne sont pas la pour redire le CSS : c'est en JavaScript que le sequencage
+ * se decide. Un pliable se referme AVANT que la scene se resserre, et la scene
+ * s'ecarte AVANT qu'il se deplie, ce qui se fait en retardant l'un des deux etats
+ * du pli d'une de ces durees (voir `useRetarde` dans Comparateur).
+ */
+export const CHARNIERE_MS = 1800;
+export const DISPOSITION_MS = 900;
+
+/** Duree totale d'un pliage : la charniere puis le resserrage, ou l'inverse. */
+export const GESTE_MS = CHARNIERE_MS + DISPOSITION_MS;
+
+/**
  * Les temps de l'animation. La legende de chaque temps vient du dictionnaire
  * (banc.etapes) ; ce tableau ne porte que la mecanique et la duree, qui ne se
  * traduisent pas. Les deux tableaux doivent avoir la meme longueur.
@@ -100,7 +115,10 @@ export const TEMPS: Temps[] = [
     t: 2100,
     appliquer: (s) => ({ ...s, vis: coche(s, ["fold"]), mode: "center", etat: "closed", sel: "fold" }),
   },
-  { t: 2300, appliquer: (s) => ({ ...s, etat: "open" }) },
+  // le seul temps qui deplie. Il est derive de GESTE_MS plutot que saisi : la
+  // narration enchainerait sinon sur le temps suivant alors que le volet est
+  // encore en vol -- ce qui arrive des qu'on rallonge la charniere sans y penser
+  { t: GESTE_MS + 400, appliquer: (s) => ({ ...s, etat: "open" }) },
   { t: 2300, appliquer: (s) => ({ ...s, vis: coche(s, ["sam"]), sel: "sam" }) },
   { t: 2500, appliquer: (s) => ({ ...s, vis: coche(s, ["sam8"]), sel: "sam8" }) },
   // la tablette arrive en dernier, et en mode centre : c'est la superposition qui

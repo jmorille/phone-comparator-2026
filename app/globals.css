@@ -14,7 +14,15 @@
   --f-mono:"Cascadia Mono","Cascadia Code",Consolas,"SF Mono",ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
   --ease:cubic-bezier(.22,.9,.24,1);
   --dur:.9s;
-  --hinge:1.25s; --ease-hinge:cubic-bezier(.62,.02,.28,1);
+  /* Le geste de pliage, et lui seul, est cale sur le temps qu'une main y met
+     reellement : ouvrir un pliable a deux mains prend pres de deux secondes,
+     detente de charniere comprise. La courbe demarre lentement, prend son elan,
+     puis se pose sans rebond. Les fondus qui l'accompagnent (couverture qui
+     s'efface, face interne qui apparait) sont cales sur la meme duree : les
+     rallonger sans eux ferait disparaitre la couverture avant que le volet ait
+     bouge. --dur, qui deplace les appareils, ne suit pas : c'est un mouvement de
+     graphique, pas un geste. */
+  --hinge:1.8s; --ease-hinge:cubic-bezier(.62,.02,.28,1);
   --ppmm:2.10; --u:calc(var(--ppmm) * 1px); --dp:calc(.15875 * var(--u));
   --ppmm2:2.4; --u2:calc(var(--ppmm2) * 1px); --dp2:calc(.15875 * var(--u2));
 }
@@ -170,6 +178,16 @@ button{font-family:inherit; cursor:pointer}
 .cap.show{opacity:1; transform:none}
 .cap b{color:var(--ink); font-weight:600}
 
+/* Sequencage du pliage : il n'est PAS ici. Un pliable se referme avant que la
+   scene se resserre, et la scene s'ecarte avant qu'il se deplie -- mais ce
+   decalage se joue en JavaScript, en retardant l'un des deux etats du pli (voir
+   `useRetarde` dans Comparateur). Une premiere version l'avait tente en CSS, avec
+   un `transition-delay` arme le temps du geste : le style calcule affichait bien
+   le delai, et l'animation en cours portait quand meme zero -- React commite les
+   nouvelles positions avant que l'attribut arrive, et la transition est deja
+   creee. Ne pas y revenir : les transitions ci-dessous n'ont pas a savoir ce qui
+   les declenche. */
+
 /* device */
 .dev{
   position:absolute; left:0; top:0; z-index:10;
@@ -212,9 +230,9 @@ button{font-family:inherit; cursor:pointer}
 .leaf.r{
   left:calc(var(--hw) * var(--u)); transform-origin:0 50%;
   transform:rotateY(-180deg); opacity:0;
-  transition:transform var(--hinge) var(--ease-hinge), opacity .3s linear;
+  transition:transform var(--hinge) var(--ease-hinge), opacity .43s linear;
 }
-.fold.open .leaf.r{transform:rotateY(0deg); opacity:1; transition:transform var(--hinge) var(--ease-hinge), opacity .34s linear .3s}
+.fold.open .leaf.r{transform:rotateY(0deg); opacity:1; transition:transform var(--hinge) var(--ease-hinge), opacity .49s linear .43s}
 .leaf.r::after{
   content:""; position:absolute; inset:0; pointer-events:none; z-index:8;
   background:linear-gradient(90deg, rgba(0,0,0,.34), transparent 52%);
@@ -222,10 +240,10 @@ button{font-family:inherit; cursor:pointer}
 }
 .fold:not(.open) .leaf.r::after{opacity:1}
 .leaf .plate{transform:translateX(var(--ox,0))}
-.face-inner{opacity:0; transition:opacity .4s linear}
-.fold.open .face-inner{opacity:1; transition:opacity .45s linear .3s}
-.plate.cover{z-index:20; opacity:1; transition:opacity .4s linear .3s}
-.fold.open .plate.cover{opacity:0; transition:opacity .4s linear .1s}
+.face-inner{opacity:0; transition:opacity .58s linear}
+.fold.open .face-inner{opacity:1; transition:opacity .65s linear .43s}
+.plate.cover{z-index:20; opacity:1; transition:opacity .58s linear .43s}
+.fold.open .plate.cover{opacity:0; transition:opacity .58s linear .14s}
 
 /* overlay modes */
 .stage[data-mode="side"] .dev{--fill:1}
@@ -286,14 +304,24 @@ button{font-family:inherit; cursor:pointer}
    etiquette : elle ne se redimensionne donc jamais, ni au depliage ni au
    cochage. Les profils reposent sur une ligne de base commune -- des telephones
    poses a plat -- ce qui rend la comparaison lisible y compris superposes. */
+/* Le z-index fait de la bande un contexte d'empilement place AU-DESSUS des
+   appareils : ceux-ci vont de 10 a 17, et 40 pour celui qui a le focus. C'est ce
+   qui autorise le volet d'un pliable a sortir de la bande en plein pliage : a
+   mi-course il se dresse sur toute sa longueur, bien au-dela des quelques
+   millimetres d'epaisseur reserves ici, et il passe alors DEVANT les telephones
+   -- un objet qu'on referme passe devant ce qu'il y a derriere, et c'est ce qui
+   rend le geste credible. Il ne masque la scene que le temps de son arc. */
 .tranche{
-  position:relative; height:calc(var(--epmax) * var(--u) + 34px);
+  position:relative; z-index:60; height:calc(var(--epmax) * var(--u) + 34px);
   border-top:1px solid var(--line2); background:var(--panel2);
 }
 .tranche::after{
   content:""; position:absolute; left:0; right:0; bottom:0;
   border-bottom:1px solid var(--line);
 }
+/* La cote : la boite de .prof vaut exactement bod(d, etat), donc l'etiquette en
+   mm monte avec la pile et se recentre sur la largeur courante. Elle ne peint
+   pas -- sauf son ombre portee, juste dans les deux etats de repos. */
 .prof{
   position:absolute; bottom:0;
   left:calc(var(--ex) * var(--u));
@@ -301,26 +329,75 @@ button{font-family:inherit; cursor:pointer}
   height:calc(var(--ed) * var(--u));
   /* une gelule : c'est la section d'un chassis, pas une plaque vue de face */
   border-radius:calc(var(--ed) * var(--u) / 2);
-  background:linear-gradient(180deg, color-mix(in oklab,var(--body) 82%, var(--dc)) 0%, var(--body) 62%);
-  box-shadow:inset 0 0 0 1px var(--body-edge), 0 calc(.6 * var(--u)) calc(1.6 * var(--u)) var(--shade);
+  box-shadow:0 calc(.6 * var(--u)) calc(1.6 * var(--u)) var(--shade);
   transition:
     left var(--dur) var(--ease), width var(--dur) var(--ease),
     height var(--dur) var(--ease), opacity .5s var(--ease);
   will-change:left,width,height;
 }
+/* Ce qui peint : une section de chassis. Une barre en a une, qui remplit la
+   cote ; un pliable en a deux, articulees sur sa pliure. */
+.sect{
+  position:absolute; bottom:0;
+  background:linear-gradient(180deg, color-mix(in oklab,var(--body) 82%, var(--dc)) 0%, var(--body) 62%);
+  box-shadow:inset 0 0 0 1px var(--body-edge);
+}
+.sect.plein{left:0; right:0; top:0; border-radius:inherit}
 .prof .tag{
   bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
   font:600 12px/1 var(--f-mono); padding:4px 6px 4px 5px;
 }
+
+/* Un pliable vu par la tranche : deux volets et une pliure.
+   Le pivot est a MI-EPAISSEUR DU CHASSIS REPLIE, soit --ec / 2 au-dessus de la
+   ligne de base. Une rotation de 180 deg autour de ce point pose le volet
+   superieur pile a --ec, jeu de charniere compris : 10,1 mm pour le Fold, et non
+   les 10,0 qu'un empilement de deux volets de 5,0 donnerait.
+   Le volet droit est plus long que --eh : il deborde de --eb *avant* le pivot.
+   Deplie, les deux volets couvrent exactement open.w, le debord se recouvrant a
+   la pliure, invisible ; replie, la pile couvre exactement closed.w, le debord
+   retombant cote charniere -- la ou est le dos. La bande reste donc juste au
+   millimetre dans les deux etats, comme la gelule unique qu'elle remplace. */
+.pli{position:absolute; inset:0}
+.vol{height:calc(var(--eo) * var(--u))}
+.vol.l{
+  left:0; width:calc(var(--eh) * var(--u));
+  border-radius:calc(var(--eo) * var(--u) / 2) 0 0 calc(var(--eo) * var(--u) / 2);
+}
+.vol.r{
+  left:calc((var(--eh) - var(--eb)) * var(--u));
+  width:calc((var(--eh) + var(--eb)) * var(--u));
+  border-radius:0 calc(var(--eo) * var(--u) / 2) calc(var(--eo) * var(--u) / 2) 0;
+  transform-origin:calc(var(--eb) * var(--u)) calc((var(--eo) - var(--ec) / 2) * var(--u));
+  transform:rotate(-180deg);
+  transition:transform var(--hinge) var(--ease-hinge);
+}
+/* Declaree dans les deux etats : l'ouverture et la fermeture s'animent donc
+   toutes les deux, et une inversion en cours de route se reprend au vol. */
+.pli.open .vol.r{transform:none}
+/* Une ombre dans la rainure, pour que la pile refermee ne se lise pas comme une
+   seule masse. Le degrade tourne avec le volet : il ombre donc la face qui vient
+   se poser sur l'autre. */
+.vol.r::after{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg, rgba(0,0,0,.30), transparent 62%);
+  opacity:0; transition:opacity var(--hinge) var(--ease-hinge);
+}
+.pli:not(.open) .vol.r::after{opacity:1}
+
 /* Superposition : les profils partagent la meme abscisse, donc les etiquettes
    se decalent sur le rang -- exactement le procede des cotes de diagonale. */
-.tranche:not([data-mode="side"]) .prof{
+.tranche:not([data-mode="side"]) .prof{box-shadow:none}
+.tranche:not([data-mode="side"]) .sect{
   background:color-mix(in oklab, var(--dc) 15%, transparent);
   box-shadow:inset 0 0 0 2px var(--dc);
 }
-.tranche:not([data-mode="side"]) .prof.focus{
-  background:color-mix(in oklab, var(--dc) 38%, transparent); z-index:40;
+.tranche:not([data-mode="side"]) .prof.focus .sect{
+  background:color-mix(in oklab, var(--dc) 38%, transparent);
 }
+.tranche:not([data-mode="side"]) .prof.focus{z-index:40}
+/* un volet en fil de fer n'a pas de masse a ombrer */
+.tranche:not([data-mode="side"]) .pli:not(.open) .vol.r::after{opacity:0}
 .tranche:not([data-mode="side"]) .prof .tag{
   left:calc(var(--stag) * 78px); transform:none;
 }
@@ -522,5 +599,11 @@ ul.notes{padding-left:18px}
 footer.end{padding:34px 0 60px; color:var(--muted); font-size:12.5px; display:grid; gap:6px}
 
 @media (prefers-reduced-motion:reduce){
-  *{transition-duration:.01ms !important; animation-duration:.01ms !important}
+  /* Le delai compte autant que la duree. Les fondus du pliage en portent un (la
+     couverture s'efface .43 s apres que le volet a commence a bouger) : une
+     transition instantanee mais retardee laisserait la plaque en place un instant
+     apres coup, ce qui est encore du mouvement. Le sequencage du pliage lui-meme
+     n'a pas besoin d'etre annule ici -- il vit dans useRetarde, qui met son
+     retard a zero quand le mouvement reduit est demande. */
+  *{transition-duration:.01ms !important; transition-delay:0s !important; animation-duration:.01ms !important}
 }

@@ -13,6 +13,7 @@ import {
   resoudreRef,
   teinte,
   type Catalogue,
+  type EtatPli,
   type Locale,
   type Panneau,
 } from "@/lib/types";
@@ -23,7 +24,14 @@ import { Banc } from "./Scene";
 import { Tableau } from "./Tableau";
 import { RangeeScenes } from "./Usage";
 import { Verdicts } from "./Verdicts";
-import { CLES_SCENE, TEMPS, etatInitial, type EtatUI } from "./etat";
+import {
+  CHARNIERE_MS,
+  CLES_SCENE,
+  DISPOSITION_MS,
+  TEMPS,
+  etatInitial,
+  type EtatUI,
+} from "./etat";
 import { Riche, vars } from "./primitives";
 
 /**
@@ -57,6 +65,30 @@ const oublierEchelle = () => {
     /* rien a oublier */
   }
 };
+
+/**
+ * `etat`, mais en retard de `ms` lorsqu'il passe a `sens` -- immediat dans l'autre
+ * sens. C'est toute la mecanique du sequencage du pliage : deux lectures decalees
+ * du meme etat, l'une pour la disposition, l'autre pour les volets.
+ *
+ * Mouvement reduit : le retard tombe a zero. Etaler un geste dont toutes les
+ * transitions sont instantanees ne donnerait pas un mouvement adouci, mais un
+ * ecran qui se fige une seconde et demie entre deux sauts.
+ */
+function useRetarde(etat: EtatPli, sens: EtatPli, ms: number): EtatPli {
+  const [vu, setVu] = useState(etat);
+  useEffect(() => {
+    if (etat === vu) return;
+    const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (etat !== sens || reduit) {
+      setVu(etat);
+      return;
+    }
+    const t = setTimeout(() => setVu(etat), ms);
+    return () => clearTimeout(t);
+  }, [etat, vu, sens, ms]);
+  return vu;
+}
 
 export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale }) {
   const dict = useMemo(() => dictionnaire(locale), [locale]);
@@ -169,6 +201,39 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
     };
   }, [recalculerBanc, recalculerScenes]);
 
+  /* -- sequencage du pliage ----------------------------------------- */
+  /*
+   * Un pliable se referme AVANT que la scene se resserre, et la scene s'ecarte
+   * AVANT qu'il se deplie. Sans cela on voit les appareils se tasser sur un volet
+   * encore en vol, ou un volet se deployer par-dessus son voisin.
+   *
+   * Ce decalage ne peut pas se deduire de l'etat du pli : la feuille de style
+   * verrait « replie » et retarderait *tout* changement de disposition, si bien
+   * que cocher un appareil pendant qu'un pliable est ferme resterait suspendu
+   * une seconde et demie pour rien. C'est le geste qu'on marque, pas l'etat
+   * d'arrivee -- le temps qu'il dure, et lui seul.
+   *
+   * Le sens du geste est celui de l'etat vers lequel on va : globals.css lit
+   * `data-geste` pour donner une valeur a --pause et a --elan.
+   */
+  /*
+   * Deux lectures de l'etat du pli, decalees l'une par rapport a l'autre. Le
+   * bouton, lui, ne connait que `s.etat` -- l'intention, immediate.
+   *
+   *   pliDispo      ce que voit disposer() : positions, largeurs, cotes.
+   *                 Il attend la fin de la charniere quand on REFERME, pour que
+   *                 les appareils ne se tassent pas sur un volet encore en vol.
+   *   pliCharniere  ce que voient les volets. Il attend la disposition quand on
+   *                 DEPLIE, pour qu'un volet ne se deploie pas sur son voisin.
+   *
+   * Le decalage se joue sur l'etat et non sur un `transition-delay` en CSS : un
+   * delai arme depuis React arrive toujours trop tard. Mesure faite, la
+   * transition de disposition etait deja creee avec un delai nul -- le style
+   * calcule affichait bien 1,8 s, mais l'animation en cours, elle, portait 0.
+   */
+  const pliDispo = useRetarde(s.etat, "closed", CHARNIERE_MS);
+  const pliCharniere = useRetarde(s.etat, "open", DISPOSITION_MS);
+
   /* -- animation ---------------------------------------------------- */
   const [temps, setTemps] = useState<number | null>(null);
   const [montre, setMontre] = useState(true);
@@ -243,11 +308,11 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
         appareils: cat.appareils,
         visibles: s.vis,
         mode: s.mode,
-        etat: s.etat,
+        etat: pliDispo,
         ppmm,
         largeurPx: largeurBanc,
       }),
-    [cat, s.vis, s.mode, s.etat, ppmm, largeurBanc],
+    [cat, s.vis, s.mode, pliDispo, ppmm, largeurBanc],
   );
 
   const affiche = cat.parId[s.focus ?? s.sel] ?? cat.parId[cat.reglages.ficheParDefaut]!;
@@ -373,7 +438,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                 <Banc
                   dispo={dispo}
                   mode={s.mode}
-                  etat={s.etat}
+                  etat={pliCharniere}
                   marks={s.marks}
                   focus={s.focus}
                   f={f}

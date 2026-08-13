@@ -96,6 +96,24 @@ for langue in fr en; do
     || { echo "ECHEC : ${langue}, le Fold devrait etre deplie (--ed:5)"; exit 1; }
 done
 
+# Le profil d'un pliable est deux volets articules sur sa pliure, et cette seule
+# chaine atteste de tout ce qui doit tenir :
+#   --eo:5    l'epaisseur d'un volet, celle du chassis deplie ;
+#   --ec:10.1 l'epaisseur repliee *publiee*, dont le CSS deduit la hauteur du
+#             pivot -- un empilement naif de deux volets donnerait 10,0 ;
+#   --eb:0.8  le debord du dos, derive de closed.w - open.w / 2 ;
+#   "open"    l'etat de depart, deplie.
+# Les six volets sont les deux de chacun des trois pliables.
+echo "> les pliables ont une pliure articulee dans la tranche"
+for langue in fr en; do
+  page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")
+  grep -q 'class="pli open" style="--eh:75.2;--eo:5;--ec:10.1;--eb:0.8"' <<< "$page" \
+    || { echo "ECHEC : ${langue}, la pliure du Fold n'est pas cotee comme attendu"; exit 1; }
+  volets=$(grep -o 'class="sect vol' <<< "$page" | wc -l)
+  [ "$volets" -eq 6 ] \
+    || { echo "ECHEC : ${langue}, 6 volets attendus, ${volets} trouves"; exit 1; }
+done
+
 # Le 100 % est choisi par l'utilisateur en section 02, mais il part de la
 # reference du catalogue, qui n'est pas dans la selection de depart : la puce doit
 # donc etre proposee avec sa mention « hors scene ». Et +87,2 % est l'ecart de la
