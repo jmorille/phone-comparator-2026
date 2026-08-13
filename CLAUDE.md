@@ -162,6 +162,29 @@ Mid-flight the leaf stands its full length — ~76 mm, far beyond the band's few
 closing leaf passes **in front** of the phones: an object being shut passes in front of what is behind
 it, and that is what makes the gesture read.
 
+### The main view folds too, and shows the whole swing
+
+The stage's own fold used to be a cross-fade wearing a rotation's clothes: `.leaf.r` faded out in
+0.43 s while the hinge took 1.8 s, so **the closing showed nothing** — measured, the leaf was at 15 %
+opacity and the cover plate fully opaque by 400 ms, for 10° travelled out of 180. The remaining 170°
+turned invisibly.
+
+The opacities now only hand over to the cover plate at the ends of the swing — `--relais` (0.35 s) at
+the very end when closing, at the very start when opening. In between you watch the half turn.
+
+Past 90° you are looking at that half's **back**, so a shell overlay (`.leaf.r .plate.face-inner::after`)
+switches in there; without it the inner screen showed mirrored and the device appeared to have a
+display on both faces. The switch is instant and delayed by `calc(var(--hinge) * .46)` — `.46` is where
+`--ease-hinge` reaches **half its travel**, not half its time, since the curve starts slowly. At that
+instant the leaf is edge-on and has no apparent width, so the substitution cannot be seen. The same
+delay serves both directions: the same curve is walked either way.
+
+**The specificity trap.** `.dev .plate{transition:opacity .35s}` in the overlay-modes block outranks a
+bare `.face-inner` or `.plate.cover`, and silently replaced their transitions — which is why the
+original timings never ran as written. The fold rules are therefore scoped `.fold .plate.face-inner`
+and `.fold .plate.cover`. If a fold cross-fade ever ignores its delay again, check computed
+`transitionDelay` against the rule you think you wrote before changing the rule.
+
 ### Sequencing: the fold and the layout do not move together
 
 A foldable closes **before** the scene tightens, and the scene spreads **before** it opens. Otherwise

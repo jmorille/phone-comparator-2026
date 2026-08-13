@@ -227,12 +227,30 @@ button{font-family:inherit; cursor:pointer}
 .fold{position:relative; width:calc(var(--ow) * var(--u)); height:calc(var(--oh) * var(--u)); perspective:calc(700 * var(--u))}
 .leaf{position:absolute; top:0; height:100%; width:calc(var(--hw) * var(--u)); overflow:hidden}
 .leaf.l{left:0}
+/*
+ * Le volet reste visible pendant toute sa course. Il ne l'etait pas : il
+ * s'effacait en .43 s alors que la charniere en prend 1,8, si bien que la
+ * fermeture ne montrait rien -- a 400 ms le volet etait deja a 15 % d'opacite et
+ * la couverture pleinement opaque, pour 10 degres parcourus sur 180. Les 170
+ * degres restants tournaient dans le vide, et le pliage se lisait comme un
+ * fondu enchaine.
+ *
+ * Les quatre opacites ci-dessous ne font donc plus que le relais avec la plaque
+ * de couverture, sur --relais, aux extremites de la course : a la toute fin en
+ * refermant, au tout debut en depliant. Entre les deux, on regarde le demi-ecran
+ * tourner.
+ */
+:root{--relais:.35s}
 .leaf.r{
   left:calc(var(--hw) * var(--u)); transform-origin:0 50%;
   transform:rotateY(-180deg); opacity:0;
-  transition:transform var(--hinge) var(--ease-hinge), opacity .43s linear;
+  transition:transform var(--hinge) var(--ease-hinge),
+             opacity var(--relais) linear calc(var(--hinge) - var(--relais));
 }
-.fold.open .leaf.r{transform:rotateY(0deg); opacity:1; transition:transform var(--hinge) var(--ease-hinge), opacity .49s linear .43s}
+.fold.open .leaf.r{
+  transform:rotateY(0deg); opacity:1;
+  transition:transform var(--hinge) var(--ease-hinge), opacity var(--relais) linear;
+}
 .leaf.r::after{
   content:""; position:absolute; inset:0; pointer-events:none; z-index:8;
   background:linear-gradient(90deg, rgba(0,0,0,.34), transparent 52%);
@@ -240,10 +258,33 @@ button{font-family:inherit; cursor:pointer}
 }
 .fold:not(.open) .leaf.r::after{opacity:1}
 .leaf .plate{transform:translateX(var(--ox,0))}
-.face-inner{opacity:0; transition:opacity .58s linear}
-.fold.open .face-inner{opacity:1; transition:opacity .65s linear .43s}
-.plate.cover{z-index:20; opacity:1; transition:opacity .58s linear .43s}
-.fold.open .plate.cover{opacity:0; transition:opacity .58s linear .14s}
+
+/*
+ * Le dos du volet qui se rabat. Passe 90 degres, ce n'est plus sa dalle qu'on
+ * voit mais sa coque : sans ce voile, la face interne se montrait en miroir et
+ * l'appareil semblait avoir un ecran des deux cotes.
+ *
+ * La bascule est franche (duree nulle) et calee sur l'instant ou le volet est vu
+ * par la tranche : sa largeur apparente y est nulle, donc la substitution ne se
+ * voit pas. .46 est l'abscisse ou --ease-hinge atteint la MOITIE DE SA COURSE,
+ * pas la moitie du temps -- la courbe demarre lentement. Elle vaut pour les deux
+ * sens, la meme courbe etant parcourue a l'aller comme au retour.
+ */
+.fold .leaf.r .plate.face-inner::after{
+  content:""; position:absolute; inset:0; z-index:7; border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(155deg, rgba(0,0,0,.22), rgba(0,0,0,.34) 60%),
+    linear-gradient(155deg, color-mix(in oklab,var(--body) 88%, var(--dc)) 0%, var(--body) 55%);
+  box-shadow:inset 0 0 0 1px var(--body-edge);
+  opacity:0; transition:opacity 0s linear calc(var(--hinge) * .46);
+}
+.fold:not(.open) .leaf.r .plate.face-inner::after{opacity:1}
+
+.fold .plate.face-inner{opacity:0; transition:opacity var(--relais) linear calc(var(--hinge) - var(--relais))}
+.fold.open .plate.face-inner{opacity:1; transition:opacity var(--relais) linear}
+.fold .plate.cover{z-index:20; opacity:1; transition:opacity var(--relais) linear calc(var(--hinge) - var(--relais))}
+.fold.open .plate.cover{opacity:0; transition:opacity var(--relais) linear}
 
 /* overlay modes */
 .stage[data-mode="side"] .dev{--fill:1}
