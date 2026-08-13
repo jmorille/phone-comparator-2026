@@ -31,9 +31,39 @@ const TRANCHE_MM = 16;
 const BIAIS = 17;
 /** Ecart entre deux appareils cote a cote, en mm. */
 const ECART = 10;
-/** Bande verticale ou se posent les rails de largeur. */
-const RAIL_HAUT = 176;
-const RAIL_BAS = 206;
+/**
+ * La bande verticale ou se posent les rails de largeur, dite en **ecarts** et non
+ * en positions absolues.
+ *
+ * Elle l'a ete : `RAIL_HAUT = 176` / `RAIL_BAS = 206`, deux cotes calees a la main
+ * sur une scene de 212 mm. Quand la toile est passee a 240 pour degager la
+ * Tab S10+, tous les appareils sont descendus de 14 mm et le bas des dalles est
+ * passe **sous** la ligne des rails, restee ou elle etait : quatre appareils sur
+ * sept se sont retrouves avec un `woff` negatif, donc un rail remonte *dans* la
+ * dalle, ou son etiquette recouvrait celle de surface. Meme piege que la tablette
+ * rognee, une constante en dessous.
+ *
+ * D'ou la forme actuelle : la bande part sous le chassis le plus bas du
+ * catalogue, et le reste n'est plus qu'une hauteur d'echelonnement. Relever la
+ * toile ne peut plus laisser les rails derriere.
+ *
+ * Les deux valeurs se mesurent au pire cas, et le pire cas n'est pas l'echelle
+ * courante : l'etiquette est dessinee en **px** (13 px de fonte, ~19 px de haut),
+ * donc sa taille *en millimetres* grandit quand l'echelle retrecit. Au minimum du
+ * curseur, 1,3 px/mm, elle fait 14,6 mm.
+ *
+ * Les deux contraintes s'y opposent, et 10 / 26 est ce qui les tient toutes deux :
+ *  - le premier rang doit degager le chassis le plus bas. Sa demi-hauteur, 7,3 mm,
+ *    plus les 2 mm entre le trait et le bas de sa boite, veut RAIL_MARGE > 9,3 ;
+ *    a 10 il reste 0,7 mm au pire, et ~4,4 mm a l'echelle de depart.
+ *  - le dernier rang doit rester dans la scene. Mesure a 1,3 px/mm avec les sept
+ *    appareils coches, le bas de son etiquette tombe a 239,1 mm pour 240.
+ * Augmenter l'une oblige donc a baisser l'autre : ce ne sont pas deux reglages
+ * independants, mais un seul budget de 34 mm entre le chassis et le bas de la
+ * scene.
+ */
+const RAIL_MARGE = 10;
+const RAIL_COURSE = 26;
 
 export interface BoiteDisposee {
   d: Appareil;
@@ -144,10 +174,20 @@ export function disposer(params: {
    * n'occupe aucune place. Le pas se resserre quand la selection s'agrandit,
    * pour que la derniere ligne reste dans la bande basse de la scene.
    */
+  /*
+   * Le bas du chassis le plus bas du catalogue, en mm depuis le haut de la scene.
+   * Un appareil est centre puis remonte de BIAIS, donc son bas vaut
+   * HAUTEUR_MM / 2 - BIAIS + h / 2 : sa position n'y entre pas, seule sa hauteur.
+   * On le prend sur le catalogue entier et sur les deux etats de pli -- la bande
+   * ne doit sauter ni quand on coche un appareil, ni quand on plie.
+   */
+  const basMax =
+    HAUTEUR_MM / 2 -
+    BIAIS +
+    Math.max(...appareils.flatMap((d) => Object.values(d.body).map((b) => b.h))) / 2;
+  const railHaut = basMax + RAIL_MARGE;
   const pas =
-    vivantes.length > 1
-      ? Math.min(10, (RAIL_BAS - RAIL_HAUT) / (vivantes.length - 1))
-      : 0;
+    vivantes.length > 1 ? Math.min(10, RAIL_COURSE / (vivantes.length - 1)) : 0;
   const rangs = new Map(vivantes.map((b, i) => [b.d.id, i]));
 
   const railsPartages = mode !== "side";
@@ -172,7 +212,7 @@ export function disposer(params: {
       z: zParId.get(b.d.id)!,
       s: b.s,
       body: b.body,
-      woff: RAIL_HAUT + rang * pas - basDalle,
+      woff: railHaut + rang * pas - basDalle,
       hoff: railsPartages ? plusADroite + 8 + 10 * rang - droiteDalle : 5.5,
       stag: rang,
     };

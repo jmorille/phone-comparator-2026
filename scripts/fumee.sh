@@ -128,6 +128,24 @@ for langue in fr en; do
     || { echo "ECHEC : ${langue}, le curseur d'ouverture est absent"; exit 1; }
 done
 
+# Un rail de largeur se pose SOUS sa dalle : --woff est la distance qui l'en
+# separe, et un --woff negatif le remonte *dans* la dalle, ou son etiquette
+# recouvre celle de surface. C'est exactement ce qui est arrive quand la scene est
+# passee de 212 a 240 mm sans que la bande de rails, cotee en absolu, ne suive :
+# quatre appareils sur sept sont devenus negatifs sans que rien n'echoue. La bande
+# est desormais derivee du chassis le plus bas ; ce controle est ce qui l'atteste
+# sur la page servie, et non dans le calcul.
+echo "> les rails de largeur restent sous les dalles"
+for langue in fr en; do
+  page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")
+  # `|| true` sur la chaine entiere : sans correspondance grep sort en 1, et sous
+  # `set -e` avec pipefail l'affectation elle-meme ferait echouer le script -- le
+  # controle echouerait donc precisement quand il passe
+  negatifs=$(grep -o -e '--woff:-[0-9.]*' <<< "$page" | wc -l || true)
+  [ "$negatifs" -eq 0 ] \
+    || { echo "ECHEC : ${langue}, ${negatifs} rail(s) de largeur remonte(s) dans la dalle"; exit 1; }
+done
+
 # Le 100 % est choisi par l'utilisateur en section 02, mais il part de la
 # reference du catalogue, qui n'est pas dans la selection de depart : la puce doit
 # donc etre proposee avec sa mention « hors scene ». Et +87,2 % est l'ecart de la

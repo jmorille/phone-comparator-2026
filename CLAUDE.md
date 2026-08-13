@@ -265,6 +265,15 @@ Dimension rails stagger over the **visible** devices, with a step that tightens 
 grows. The original page indexed a fixed four-entry `ROWS` table by catalogue position, which
 produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew past four.
 
+**Where the rail band sits is derived, not typed** — `RAIL_MARGE` and `RAIL_COURSE` are a gap and a
+height, not two coordinates. The band starts under the lowest chassis in the catalogue,
+`HAUTEUR_MM/2 − BIAIS + maxChassisH/2 + RAIL_MARGE`, taken over every device and both fold states so
+it moves neither with the selection nor with the pli. It was two absolute positions (`RAIL_HAUT = 176`,
+`RAIL_BAS = 206`) calibrated against the 212 mm canvas; raising the canvas to 240 mm dropped every
+device 14 mm while the rails stayed put, so four of seven devices got a **negative `woff`** — the width
+rail climbed inside the panel and its label landed on top of the area label. Same trap as the clipped
+tablet, one constant further down: a number pinned to `HAUTEUR_MM` that nobody moved with it.
+
 ## Internationalisation
 
 - Routes are `/[locale]`, `LOCALES = ["fr", "en"]`, both prerendered by `generateStaticParams`.
