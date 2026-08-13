@@ -441,7 +441,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
           <div className="sec-head">
             <span className="eyebrow">{dict.surface.eyebrow}</span>
             <h2>{dict.surface.titre}</h2>
-            <p>{dict.surface.intro(cat.tousPanneaux.length)}</p>
+            <p>{dict.surface.intro}</p>
           </div>
           <Barres
             panneaux={panneaux}

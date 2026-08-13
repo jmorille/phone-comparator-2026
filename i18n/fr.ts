@@ -11,24 +11,26 @@ export const fr: Dictionnaire = {
   nombreF: (n) => F[n] ?? String(n),
 
   meta: {
-    titre: (n) => `${cap(M[n] ?? String(n))} écrans à l'échelle`,
-    description: (n, p) =>
-      `Les écrans de ${M[n] ?? n} smartphones dessinés à l'échelle réelle relative : ` +
-      `${p} dalles, mesurées sur la même grille millimétrique, à partir des seules données officielles.`,
+    titre: "Les écrans à l'échelle",
+    description:
+      "Les écrans de smartphones, de pliables et de tablettes dessinés à l'échelle réelle " +
+      "relative : toutes les dalles mesurées sur la même grille millimétrique, à partir des " +
+      "seules données officielles.",
   },
 
   entete: {
     eyebrow: "Banc de mesure · relevé du 13 août 2026",
-    titre: (n) => `${cap(M[n] ?? String(n))} écrans`,
+    titre: "Les écrans",
     titreAccent: "à l'échelle",
-    lede: (dalles, defaut) =>
+    lede: (defaut) =>
       `Google a présenté hier le Pixel 11 Pro Fold, le Pixel 11 Pro et le Pixel 11 Pro XL. ` +
       `Face à eux, les deux pliables de Samsung — le Galaxy Z Fold8 Ultra, qui plie comme un livre, ` +
       `et le Galaxy Z Fold8, qui plie en largeur — et le Pixel 7 Pro comme mètre-étalon du smartphone ` +
-      `classique. ${cap(F[dalles] ?? String(dalles))} dalles au total, toutes dessinées ici à l'échelle ` +
-      `réelle relative, mesurées sur la même grille millimétrique. La scène démarre sur ` +
-      `${M[defaut] ?? defaut} d'entre eux : ajoutez les autres d'un clic, les sections suivantes ` +
-      `suivent votre sélection.`,
+      `classique. La Galaxy Tab S10+ ferme la marche : elle n'est pas un téléphone, et c'est bien ` +
+      `l'intérêt — elle donne l'échelle vers laquelle un pliable déplié tend sans jamais l'atteindre. ` +
+      `Toutes les dalles sont dessinées ici à l'échelle réelle relative, mesurées sur la même grille ` +
+      `millimétrique. La scène démarre sur ${M[defaut] ?? defaut} appareils : ajoutez les autres d'un ` +
+      `clic, les sections suivantes suivent votre sélection.`,
     badgeOfficiel: "Toutes les fiches techniques sont <b>officielles</b>",
     badgeCalcule: "Les cotes en mm, cm² et dp sont <b>calculées</b>",
     badgeRumeur: "Aucune donnée de rumeur",
@@ -110,21 +112,28 @@ export const fr: Dictionnaire = {
       {
         cap:
           "<b>Et le Galaxy Z Fold8, qui plie dans l'autre sens.</b> Replié, il est court et large ; " +
-          "déplié, il s'étale à l'horizontale en 4:3 — le plus large des six.",
+          "déplié, il s'étale à l'horizontale en 4:3 — le plus large des pliables.",
       },
       {
-        cap: "<b>Les six appareils s'alignent</b>, centrés les uns sur les autres et rendus translucides.",
+        cap:
+          `<b>La Galaxy Tab S10+ referme la comparaison.</b> ${c.f.f1(c.TAB.area)} cm² : ` +
+          `<b>${c.f.pc((c.TAB.area / c.FI.area - 1) * 100)}</b> sur le plus grand des pliables déplié, ` +
+          `pour ${c.f.f1(c.tabs10p.body.closed.d)} mm d'épaisseur seulement. Voilà la marche qui reste ` +
+          `à franchir.`,
+      },
+      {
+        cap: "<b>Tous les appareils s'alignent</b>, centrés les uns sur les autres et rendus translucides.",
       },
       {
         cap: "<b>Les repères tombent :</b> largeur, hauteur, diagonale et surface, dalle par dalle.",
       },
       {
         cap:
-          "<b>Et côte à côte, dépliés, cotés, à l'échelle.</b> La vue s'arrête sur la plus grande barre " +
-          "du moment et les deux pliables les plus opposés. <b>Les trois autres appareils restent à un " +
-          "clic</b> dans « Appareils » — dont le Pixel 7 Pro, qui demeure la référence de tous les " +
-          "pourcentages même lorsqu'il n'est pas affiché. Les sections suivantes ne montrent que ce que " +
-          "vous sélectionnez ici.",
+          "<b>Et côte à côte, dépliés, cotés, à l'échelle.</b> La vue s'arrête sur le plus grand " +
+          "téléphone du moment, les deux pliables les plus opposés et la tablette. <b>Les autres " +
+          "appareils restent à un clic</b> dans « Appareils » — dont le Pixel 7 Pro, qui demeure la " +
+          "référence de tous les pourcentages même lorsqu'il n'est pas affiché. Les sections suivantes " +
+          "ne montrent que ce que vous sélectionnez ici.",
       },
     ],
   },
@@ -155,11 +164,12 @@ export const fr: Dictionnaire = {
   surface: {
     eyebrow: "02 — Surface d'affichage",
     titre: "Ce que le pli rend, en centimètres carrés",
-    intro: (dalles) =>
-      `Surface du rectangle actif, coins arrondis non déduits. Le repère ambré marque les 100 % du ` +
-      `Pixel 7 Pro. Les dalles listées suivent votre sélection d'appareils ; la longueur des barres, ` +
-      `elle, reste normée sur la plus grande des ${F[dalles] ?? dalles}, pour rester comparable d'une ` +
-      `sélection à l'autre.`,
+    intro:
+      "Surface du rectangle actif, coins arrondis non déduits. Le repère ambré marque les 100 % du " +
+      "Pixel 7 Pro. Les dalles listées suivent votre sélection d'appareils ; la longueur des barres, " +
+      "elle, reste normée sur la plus grande dalle du catalogue, pour rester comparable d'une " +
+      "sélection à l'autre — c'est aujourd'hui celle de la tablette, et c'est pourquoi les barres des " +
+      "téléphones en occupent moins de la moitié.",
     externe: "externe",
     interne: "interne",
     affirmations: (c) => [
@@ -190,8 +200,7 @@ export const fr: Dictionnaire = {
         texte:
           `Replié, ce même Z Fold8 est le seul à ne pas ressembler à un téléphone : ${c.f.f1(c.WC.w)} × ` +
           `${c.f.f1(c.WC.h)} mm d'écran en 10:16, <b>${c.f.pc(c.delta(c.WC.area))}</b> de surface par ` +
-          `rapport au Pixel 7 Pro. C'est le plus petit des ${F[c.cat.tousPanneaux.length] ?? c.cat.tousPanneaux.length} ` +
-          `écrans mesurés ici.`,
+          `rapport au Pixel 7 Pro. C'est le plus petit écran mesuré ici.`,
       },
       {
         deviceId: c.fold.id,
@@ -337,6 +346,20 @@ export const fr: Dictionnaire = {
     verdicts: (c) => [
       {
         q: "Le plus grand écran",
+        deviceId: c.tabs10p.id,
+        a: "Galaxy Tab S10+",
+        w:
+          `<span class="num">${c.f.f1(c.TAB.area)} cm²</span> — ` +
+          `<b>${c.f.pc((c.TAB.area / c.FI.area - 1) * 100)}</b> sur le plus grand des pliables ` +
+          `déplié, et <b>${c.f.pc(c.delta(c.TAB.area))}</b> sur le Pixel 7 Pro. Ce n'est pas une ` +
+          `victoire à armes égales : la tablette ne se plie pas, ne tient pas dans une poche et pèse ` +
+          `<span class="num">${c.tabs10p.weight} g</span>, soit ` +
+          `<span class="num">${c.f.pc((c.tabs10p.weight / c.fold.weight - 1) * 100)}</span> de plus que ` +
+          `le Fold. Elle est ici pour donner la mesure de ce que le pli cherche à atteindre — et de ` +
+          `ce qui reste à parcourir.`,
+      },
+      {
+        q: "Le plus grand écran de téléphone",
         deviceId: c.fold.id,
         a: "Pixel 11 Pro Fold",
         w:
@@ -347,7 +370,7 @@ export const fr: Dictionnaire = {
           `<span class="num">${c.f.f1(c.WI.area)} cm²</span>.`,
       },
       {
-        q: "Le plus large une fois ouvert",
+        q: "Le pliable le plus large une fois ouvert",
         deviceId: c.sam8.id,
         a: "Galaxy Z Fold8",
         w:
@@ -355,7 +378,7 @@ export const fr: Dictionnaire = {
           `<span class="num">${c.f.f1(c.FI.w)} mm</span> au Pixel et ` +
           `<span class="num">${c.f.f1(c.SI.w)} mm</span> au Fold8 Ultra — et ` +
           `<span class="num">${c.f.f1(c.sam8.body.open.w)} mm</span> de châssis, le plus ` +
-          `large des six. C'est le seul à s'ouvrir en ${c.t(c.WI.ratio)} : il gagne en largeur ce qu'il ` +
+          `large des pliables. C'est le seul à s'ouvrir en ${c.t(c.WI.ratio)} : il gagne en largeur ce qu'il ` +
           `perd en hauteur (<span class="num">${c.f.f1(c.WI.h)} mm</span> contre ${c.f.f1(c.FI.h)}).`,
       },
       {
@@ -432,11 +455,25 @@ export const fr: Dictionnaire = {
     eyebrow: "06 — Méthode et sources",
     titre: "D'où viennent ces chiffres",
     notes: (c) => [
-      `<b>Statut des données.</b> Les ${M[c.cat.appareils.length] ?? c.cat.appareils.length} appareils ` +
-        `sont commercialisés ou annoncés officiellement : Pixel 7 Pro (6 oct. 2022), Galaxy Z Fold8 et ` +
-        `Z Fold8 Ultra (Unpacked du 22 juil. 2026, sortie le jour même), Pixel 11 Pro Fold, Pixel 11 Pro ` +
-        `et Pixel 11 Pro XL (annoncés le 12 août 2026, ventes ouvertes le 20 août). Aucune estimation de ` +
-        `rumeur n'entre dans cette comparaison.`,
+      `<b>Statut des données.</b> Tous les appareils du relevé sont commercialisés ou annoncés ` +
+        `officiellement : Pixel 7 Pro (6 oct. 2022), Galaxy Tab S10+ (26 sept. 2024, ventes le 3 oct.), ` +
+        `Galaxy Z Fold8 et Z Fold8 Ultra (Unpacked du 22 juil. 2026, sortie le jour même), Pixel 11 Pro ` +
+        `Fold, Pixel 11 Pro et Pixel 11 Pro XL (annoncés le 12 août 2026, ventes ouvertes le 20 août). ` +
+        `Aucune estimation de rumeur n'entre dans cette comparaison.`,
+      `<b>Une tablette parmi des téléphones.</b> La <b>Galaxy Tab S10+</b> n'est pas un concurrent des ` +
+        `six autres : elle sert d'échelle haute. Deux conséquences à connaître. Elle est saisie dans ` +
+        `l'orientation où Samsung la spécifie, <b>paysage</b> ` +
+        `(${c.f.f1(c.tabs10p.body.closed.h)} mm de haut sur ${c.f.f1(c.tabs10p.body.closed.w)} de large), ` +
+        `sans quoi elle ne tiendrait pas dans la hauteur de la scène. Et comme la longueur des barres de ` +
+        `la section 02 est normée sur la plus grande dalle du catalogue, c'est désormais la sienne qui ` +
+        `fixe le 100 % : les barres des téléphones sont donc plus courtes qu'avant son arrivée, sans que ` +
+        `leurs surfaces aient changé.`,
+      `<b>Deux valeurs que Samsung ne publie pas.</b> La fiche officielle de la Tab S10+ donne la ` +
+        `diagonale, la résolution et la technologie de dalle, mais ni sa densité ni la nature de son ` +
+        `verre. Les <span class="num">${c.TAB.ppi} ppi</span> affichés viennent de GSMArena — le recalcul ` +
+        `géométrique donne ici exactement la même valeur ` +
+        `(<span class="num">${Math.round(c.TAB.ppiCalc)} ppi</span>) — et la protection est donnée en ` +
+        `dureté Mohs, l'échelle que Samsung emploie pour ses tablettes, faute de verre nommé.`,
       `<b>Zone d'affichage.</b> Largeur et hauteur du rectangle actif déduites de la diagonale officielle ` +
         `et de la résolution : <span class="num">L = D × l<sub>px</sub> / √(l<sub>px</sub>² + h<sub>px</sub>²)</span>. ` +
         `Les coins arrondis et, sur le Pixel 7 Pro, la légère courbure des bords ne sont pas déduits — les ` +

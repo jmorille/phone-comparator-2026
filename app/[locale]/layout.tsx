@@ -22,9 +22,7 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!estLocale(locale)) return {};
   const dict = dictionnaire(locale);
-  const cat = chargerCatalogue();
-  const titre = dict.meta.titre(cat.appareils.length);
-  const description = dict.meta.description(cat.appareils.length, cat.tousPanneaux.length);
+  const { titre, description } = dict.meta;
 
   return {
     title: titre,

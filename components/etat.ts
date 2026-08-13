@@ -88,6 +88,9 @@ export const TEMPS: Temps[] = [
   { t: 2300, appliquer: (s) => ({ ...s, etat: "open" }) },
   { t: 2300, appliquer: (s) => ({ ...s, vis: coche(s, ["sam"]), sel: "sam" }) },
   { t: 2500, appliquer: (s) => ({ ...s, vis: coche(s, ["sam8"]), sel: "sam8" }) },
+  // la tablette arrive en dernier, et en mode centre : c'est la superposition qui
+  // rend l'ecart lisible, une tablette posee cote a cote sortirait du cadre
+  { t: 2700, appliquer: (s) => ({ ...s, vis: coche(s, ["tabs10p"]), sel: "tabs10p" }) },
   { t: 1900, appliquer: (s) => ({ ...s, mode: "center" }) },
   { t: 2500, appliquer: (s) => ({ ...s, marks: marquesToutes(true) }) },
   {

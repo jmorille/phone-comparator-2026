@@ -1,0 +1,65 @@
+{
+  "id": "tabs10p",
+  "order": 70,
+  "name": "Galaxy Tab S10+",
+  "ref": "Samsung Galaxy Tab S10+ (SM-X826)",
+  "brand": "Samsung",
+  "kind": "bar",
+  "weight": 576,
+  "hue": { "light": "#A85A00", "dark": "#F0A94A" },
+  "role": {
+    "fr": "Tablette, sortie le 3 octobre 2024",
+    "en": "Tablet, on sale 3 October 2024"
+  },
+  "announced": {
+    "fr": "26 septembre 2024",
+    "en": "26 September 2024"
+  },
+  "body": {
+    "closed": { "w": 285.4, "h": 185.4, "d": 5.6, "r": 12 }
+  },
+  "screens": {
+    "main": {
+      "label": { "fr": "Écran", "en": "Display" },
+      "diag": 12.4,
+      "px": [2800, 1752],
+      "ppi": 266,
+      "ratio": { "fr": "16:10", "en": "16:10" },
+      "tech": {
+        "fr": "Dynamic AMOLED 2X, revêtement antireflet",
+        "en": "Dynamic AMOLED 2X, anti-reflective coating"
+      },
+      "hz": { "fr": "120 Hz", "en": "120 Hz" },
+      "peak": 650,
+      "hdr": null,
+      "glass": { "fr": "Dureté Mohs niveau 5", "en": "Mohs level 5 hardness" },
+      "r": 10
+    }
+  },
+  "sources": [
+    {
+      "who": "Samsung",
+      "what": {
+        "fr": "Galaxy Tab S10+ — fiche technique officielle : 12,4″, 2800 × 1752, Dynamic AMOLED 2X, 185,4 × 285,4 × 5,6 mm, 576 g",
+        "en": "Galaxy Tab S10+ — official specification sheet: 12.4″, 2800 × 1752, Dynamic AMOLED 2X, 185.4 × 285.4 × 5.6 mm, 576 g"
+      },
+      "url": "https://www.samsung.com/sg/tablets/galaxy-tab-s/galaxy-tab-s10-plus-gray-256gb-sm-x826bzaaxsp/"
+    },
+    {
+      "who": "Samsung",
+      "what": {
+        "fr": "Gamme Galaxy Tab S10 — annonce du 26 septembre 2024",
+        "en": "Galaxy Tab S10 series — announcement of 26 September 2024"
+      },
+      "url": "https://www.samsung.com/us/tablets/galaxy-tab-s10/"
+    },
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Galaxy Tab S10+ — densité de 266 ppi et dureté Mohs 5, deux valeurs que Samsung ne publie pas",
+        "en": "Galaxy Tab S10+ — 266 ppi density and Mohs level 5, two figures Samsung does not publish"
+      },
+      "url": "https://www.gsmarena.com/samsung_galaxy_tab_s10+-13363.php"
+    }
+  ]
+}

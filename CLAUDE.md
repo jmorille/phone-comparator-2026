@@ -156,6 +156,13 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
   components import it directly and rebuild `Ctx` from the catalogue they receive. Keep `node:fs` out
   of anything a client component imports — that is why `exiger*()` lives in `lib/types.ts` and not in
   `lib/catalogue.ts`.
+- **No string states how large the catalogue is.** Not the page title, not the meta description, not
+  the lede, not a verdict. `meta.titre` and `entete.titre` are plain strings, not `titre(n)`; the
+  title is "Les écrans à l'échelle", never "Sept écrans". Deriving the count was not enough: it kept
+  the page truthful but still moved the title, the description and the search snippet on every
+  addition, and the same habit had produced hardcoded "des six" elsewhere that went quietly false.
+  Counts that describe the **user's current selection** stay — `tableau.titre(n)` still says "Les six
+  dalles" — because growing the catalogue cannot make those wrong.
 
 ## Conventions
 
@@ -184,6 +191,25 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
 2. `pnpm build`. The loader names the file and the field for anything missing or malformed.
 3. Nothing else. The chips, the stage, the area bars, the usage scenes and the spec table all derive
    from the catalogue. Only mention the device in `i18n/` if you want editorial prose about it.
+
+**Two things step 3 does not cover, both learned the hard way when the Galaxy Tab S10+ was added.**
+
+*A device that breaks a record falsifies prose that no compiler checks.* The editorial claims and
+verdicts hold superlatives — "the largest display", "the widest of the foldables". A new device that
+beats one of them makes it silently false; the build stays green. Before adding one, grep `i18n/` for
+`plus grand|plus large|plus petit|largest|widest|smallest` and check each hit against the newcomer.
+The fix is usually to narrow the claim to the class it is really about (a foldable, a phone) rather
+than to delete it.
+
+*The stage is 212 mm tall and does not grow.* A device taller than that is clipped — `disposer()`
+centres it on a fixed canvas. Enter it in the orientation the vendor specifies; for tablets that is
+landscape, which is what makes the Tab S10+ fit at 185.4 mm. A genuinely taller device needs
+`HAUTEUR_MM` raised, which rescales the whole comparison for everyone.
+
+Also worth knowing: `maxArea` normalises the area bars over the **whole catalogue**, not the
+selection. A device with a much larger panel shortens every other bar, even while it is unchecked.
+That is by design — bars must stay comparable across selections — but it does change the existing
+page, so say so in `dict.surface.intro` rather than letting it look like a regression.
 
 ## Deployment
 

@@ -34,19 +34,16 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const dict = dictionnaire(locale);
   const ctx = contexte(cat, locale);
 
-  const nbAppareils = cat.appareils.length;
-  const nbDalles = cat.tousPanneaux.length;
-
   return (
     <>
       <header className="top">
         <div className="wrap top-in">
           <span className="eyebrow">{dict.entete.eyebrow}</span>
           <h1>
-            {dict.entete.titre(nbAppareils)} <em>{dict.entete.titreAccent}</em>
+            {dict.entete.titre} <em>{dict.entete.titreAccent}</em>
           </h1>
           <p className="lede">
-            {dict.entete.lede(nbDalles, cat.reglages.selectionParDefaut.length)}
+            {dict.entete.lede(cat.reglages.selectionParDefaut.length)}
           </p>
           <div className="meta-row">
             <span className="badge ofc">

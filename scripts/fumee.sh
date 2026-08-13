@@ -61,13 +61,24 @@ echo "> chaque langue est servie dans sa langue"
 grep -q 'lang="fr"' <<< "$fr" || { echo 'ECHEC : lang="fr" absent'; exit 1; }
 grep -q 'lang="en"' <<< "$en" || { echo 'ECHEC : lang="en" absent'; exit 1; }
 
-# Ces deux titres viennent du catalogue : ils prouvent d'un coup que la selection
-# de depart est appliquee et que les deux dictionnaires servent.
-echo "> le catalogue alimente les sections"
-grep -q "Les cinq dalles, ligne par ligne" <<< "$fr" \
+# Ces deux fragments viennent des dictionnaires : ils prouvent que chaque langue
+# est servie par le sien. On cherche volontairement la partie du titre qui ne
+# porte pas de compte : la version precedente cherchait "Les cinq dalles", et
+# elle a casse des que la selection de depart a gagne un appareil -- exactement
+# le defaut que la prose a cesse d'avoir.
+echo "> chaque langue est servie par son dictionnaire"
+grep -q "ligne par ligne" <<< "$fr" \
   || { echo "ECHEC : section 04, titre francais attendu"; exit 1; }
-grep -q "The five panels, row by row" <<< "$en" \
+grep -q "row by row" <<< "$en" \
   || { echo "ECHEC : section 04, titre anglais attendu"; exit 1; }
+
+# La surface de la tablette est derivee de sa seule diagonale et de sa resolution
+# et vaut 446,1 cm2, la valeur publiee. La trouver prouve d'un coup que le
+# fichier du catalogue est charge, que la geometrie a tourne, et que le
+# separateur decimal suit la langue.
+echo "> le catalogue alimente les sections"
+grep -q "446,1" <<< "$fr" || { echo "ECHEC : surface de la Tab S10+ attendue en fr"; exit 1; }
+grep -q "446.1" <<< "$en" || { echo "ECHEC : surface de la Tab S10+ attendue en en"; exit 1; }
 
 # La bande de tranche est prerendue comme le reste : un profil par appareil du
 # catalogue, portant son epaisseur dans --ed. Le Fold est deplie au demarrage,

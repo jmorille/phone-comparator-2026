@@ -1,6 +1,6 @@
 {
   "reference": "p7p",
-  "selectionParDefaut": ["p11xl", "fold", "sam8"],
+  "selectionParDefaut": ["p11xl", "fold", "sam8", "tabs10p"],
   "ficheParDefaut": "fold",
   "echelleParDefaut": 2.1,
   "echelleMin": 1.3,

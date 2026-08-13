@@ -36,6 +36,7 @@ export interface Ctx {
   sam8: AppareilPliable;
   p11p: AppareilBarre;
   p11xl: AppareilBarre;
+  tabs10p: AppareilBarre;
   /** dalles interne (I) et externe (C) des trois pliables */
   FI: Ecran;
   FC: Ecran;
@@ -46,6 +47,8 @@ export interface Ctx {
   /** dalles uniques des deux barres recentes */
   P11: Ecran;
   XL: Ecran;
+  /** la dalle de la tablette : le plafond de toutes les surfaces */
+  TAB: Ecran;
 }
 
 /** Un temps de l'animation. La legende est traduite, la mecanique reste en code. */
@@ -81,17 +84,33 @@ export interface Dictionnaire {
   nombreM(n: number): string;
   nombreF(n: number): string;
 
+  /*
+   * Aucune de ces chaines n'enonce la taille du catalogue.
+   *
+   * Elles l'ont fait : le titre etait `titre(nbAppareils)` et rendait « Six
+   * ecrans a l'echelle ». Le compte etait pourtant deja derive -- ce qui ne
+   * suffisait pas, parce qu'ajouter un appareil deplacait alors le titre de la
+   * page, sa description, son referencement et l'accroche, et parce que la meme
+   * habitude avait produit ailleurs des « des six » ecrits en dur qui, eux,
+   * devenaient faux en silence.
+   *
+   * La regle est donc : la prose ne dit jamais combien le catalogue contient
+   * d'appareils ni de dalles. Les comptes qui decrivent la *selection* de
+   * l'utilisateur restent -- ils sont deja dynamiques, et grandir le catalogue
+   * ne les rend pas faux.
+   */
   meta: {
-    titre(nbAppareils: number): string;
-    description(nbAppareils: number, nbDalles: number): string;
+    titre: string;
+    description: string;
   };
 
   entete: {
     eyebrow: string;
-    titre(nbAppareils: number): string;
+    titre: string;
     /** le mot mis en valeur dans le titre */
     titreAccent: string;
-    lede(nbDalles: number, nbDefaut: number): string;
+    /** `nbDefaut` decrit la selection de depart, pas la taille du catalogue */
+    lede(nbDefaut: number): string;
     badgeOfficiel: string;
     badgeCalcule: string;
     badgeRumeur: string;
@@ -161,7 +180,7 @@ export interface Dictionnaire {
   surface: {
     eyebrow: string;
     titre: string;
-    intro(nbDalles: number): string;
+    intro: string;
     affirmations(c: Ctx): Affirmation[];
     externe: string;
     interne: string;

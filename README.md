@@ -1,9 +1,14 @@
-# Six écrans à l'échelle
+# Les écrans à l'échelle
 
-Comparaison des écrans de six smartphones **à l'échelle réelle relative** : chaque rectangle est la
-zone d'affichage active, calculée à partir de la diagonale officielle et de la résolution, dessinée
-sur une grille millimétrique commune. Un curseur de calibration permet de passer en 1:1 en posant une
-carte bancaire sur l'écran.
+Comparaison d'écrans de smartphones, de pliables et de tablettes **à l'échelle réelle relative** :
+chaque rectangle est la zone d'affichage active, calculée à partir de la diagonale officielle et de
+la résolution, dessinée sur une grille millimétrique commune. Un curseur de calibration permet de
+passer en 1:1 en posant une carte bancaire sur l'écran.
+
+Aucun texte de l'interface n'énonce combien d'appareils contient le catalogue : ni le titre, ni la
+description, ni l'accroche, ni les verdicts. C'est délibéré — un ajout d'appareil ne doit demander
+aucune retouche de la prose. Les comptes qui décrivent la *sélection courante* restent, eux, puisque
+grandir le catalogue ne les rend pas faux.
 
 Interface disponible en **français** et en **anglais** — `/fr` et `/en`, la racine redirige selon la
 langue du navigateur.
@@ -18,8 +23,15 @@ langue du navigateur.
 | Pixel 11 Pro Fold | pliable book | 6,5″ externe · 8″ interne |
 | Galaxy Z Fold8 | pliable large | 5,5″ externe · 7,6″ interne (4:3 paysage) |
 | Galaxy Z Fold8 Ultra | pliable book | 6,5″ externe · 8″ interne |
+| Galaxy Tab S10+ | tablette | 12,4″ en 16:10 — l'échelle haute du relevé |
 
-Neuf dalles, uniquement des données officielles : aucune estimation de rumeur.
+Uniquement des données officielles : aucune estimation de rumeur.
+
+La Tab S10+ n'est pas un concurrent des six téléphones, elle sert d'étalon : sa dalle fait 446,1 cm²,
+soit +116 % sur le plus grand pliable déplié. Elle est saisie **en paysage**, l'orientation dans
+laquelle Samsung la spécifie (185,4 × 285,4 mm) — en portrait elle dépasserait la hauteur de la scène.
+Comme la longueur des barres de la section 02 est normée sur la plus grande dalle du catalogue, c'est
+désormais la sienne qui fixe le 100 %.
 
 ## Ajouter un appareil
 

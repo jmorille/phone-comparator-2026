@@ -39,6 +39,7 @@ export function contexte(cat: Catalogue, locale: Locale): Ctx {
   const sam8 = exigerPliable(cat, "sam8");
   const p11p = exigerBarre(cat, "p11p");
   const p11xl = exigerBarre(cat, "p11xl");
+  const tabs10p = exigerBarre(cat, "tabs10p");
 
   return {
     cat,
@@ -53,6 +54,7 @@ export function contexte(cat: Catalogue, locale: Locale): Ctx {
     sam8,
     p11p,
     p11xl,
+    tabs10p,
     FI: fold.screens.inner,
     FC: fold.screens.cover,
     SI: sam.screens.inner,
@@ -61,5 +63,6 @@ export function contexte(cat: Catalogue, locale: Locale): Ctx {
     WC: sam8.screens.cover,
     P11: p11p.screens.main,
     XL: p11xl.screens.main,
+    TAB: tabs10p.screens.main,
   };
 }
