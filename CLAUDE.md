@@ -221,3 +221,27 @@ keys. That is why the repository has no `.npmrc`; one existed briefly and was en
 
 `target`/`lib` are `ES2024`, which both Node 24 and the `browserslist` range cover. Nothing is
 transpiled down to legacy on either side.
+
+Do not read `target` as the browser contract. `noEmit` is `true` and Next transpiles with Turbopack
+from `browserslist`, so **`target`/`lib` never touch what ships** — they set the *authoring* surface,
+i.e. which globals the checker will let you name. The browser contract is `browserslist`, alone. The
+consequence is the trap: `lib` admitting a method is no evidence a browser has it, and client code
+reaching for one Turbopack will not polyfill breaks at runtime, silently, in whatever old Safari the
+range still covers. Server-only code has no such ceiling — Node 24 is the floor there.
+
+`ES2024` was also the hard ceiling of TypeScript 5.9, which had no `es2025` at all. TypeScript 7 does
+(`es2025`, plus `es2025.collection` / `.iterator` / `.promise` / `.regexp`), so the ceiling is now a
+choice rather than a limit.
+
+### Why the floor is 24 and not higher
+
+Vercel is the ceiling, and it is a hard one. Its build and function runtimes stop at **24.x** (`24.x`
+default, then `22.x`, `20.x`); it resolves `engines.node` against that list, and **a range no entry
+satisfies is a build error**, not a fallback. `">=26"` therefore fails the deploy outright — before
+`verifier-node.mjs` ever runs, so its message never appears to explain why.
+
+Local Node may well be newer (26 works fine; the source uses no API past 24). That is not a reason to
+raise the floor: `engines.node` is read by the platform that has to honour it. **Raise it only once
+Vercel lists that major**, and move `.nvmrc` and `@types/node` with it — typing against a Node the
+runtime does not provide lets code compile that crashes on deploy. CI is indifferent either way: it
+reads `.nvmrc` and installs whatever it is told.
