@@ -747,7 +747,7 @@ const DEFAULT_VIS = ["p11xl", "fold", "sam8"];
 const visSet = ids => Object.fromEntries(DEV.map(d => [d.id, ids.includes(d.id)]));
 
 const S = { mode:"side", state:"open", vis:visSet(DEFAULT_VIS),
-            marks:{w:false,h:false,d:false,a:false}, focus:null, sel:"fold", scene:"web",
+            marks:{w:true,h:true,d:true,a:true}, focus:null, sel:"fold", scene:"web",
             fiche:true };
 
 // \u00AB pour chaque appareil, ses dalles \u00BB : ce derive alimente a lui seul les barres
@@ -1383,6 +1383,9 @@ boot();
 // scenes est dessine en var(--u2) et se remet a l'echelle tout seul
 let rid; addEventListener("resize", () => { clearTimeout(rid); rid = setTimeout(() => { autoScale(); scaleScenes(); layout(); }, 140); });
 
-setTimeout(play, 450);
+// La page atterrit directement sur l'etat par defaut -- cote a cote, deplie, cote,
+// fiche ouverte -- plutot que de le masquer derriere 18 s de narration. L'animation
+// reste accessible par le bouton \u00AB Rejouer l'animation \u00BB.
+stop();
 })();
 </script>
