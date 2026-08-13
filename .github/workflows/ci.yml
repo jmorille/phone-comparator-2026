@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["**"]
+  pull_request:
+
+# une nouvelle poussee sur la meme reference annule la precedente : inutile de
+# verifier un etat deja depasse
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verifier:
+    # une PR ouverte depuis ce depot est deja couverte par le push de sa branche ;
+    # on ne garde l'evenement que pour les PR venues d'un fork
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        # la version vient de « packageManager » dans package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Installer
+        # --frozen-lockfile fait echouer la construction si pnpm-lock.yaml
+        # ne correspond plus a package.json
+        run: pnpm install --frozen-lockfile
+
+      - name: Types
+        run: pnpm types
+
+      - name: Construire
+        # « next build » valide aussi le catalogue : chargerCatalogue() lit et
+        # controle data/appareils/*.json, et nomme le fichier et le champ fautifs
+        run: pnpm build
+
+      - name: Test de fumee
+        run: bash scripts/fumee.sh
+
+      - name: Assembler l'instantane
+        run: node scripts/instantane.mjs
+
+      - name: Publier l'instantane
+        uses: actions/upload-artifact@v4
+        with:
+          name: instantane-${{ github.sha }}
+          path: instantane/
+          retention-days: 7

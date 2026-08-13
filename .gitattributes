@@ -1,0 +1,8 @@
+# Tout est stocke en LF. Sans cette regle, un poste Windows peut commiter des
+# fins de ligne CRLF, et un runner Linux refuse alors d'executer scripts/*.sh
+# (« bad interpreter: /usr/bin/env bash^M »).
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
+*.tar.gz binary

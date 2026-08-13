@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+# necessaire pour creer la publication et y joindre l'archive
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # les notes generees comparent l'etiquette a la precedente : il leur
+          # faut tout l'historique, pas seulement le dernier commit
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Verifier que l'etiquette et package.json s'accordent
+        run: |
+          set -euo pipefail
+          etiquette="${GITHUB_REF_NAME#v}"
+          declaree=$(node -p "require('./package.json').version")
+          echo "etiquette : ${etiquette} | package.json : ${declaree}"
+          if [ "$etiquette" != "$declaree" ]; then
+            echo "ECHEC : l'etiquette v${etiquette} ne correspond pas a la version ${declaree}."
+            echo "Mettez a jour package.json, ou reposez l'etiquette."
+            exit 1
+          fi
+
+      - name: Installer
+        run: pnpm install --frozen-lockfile
+
+      - name: Types
+        run: pnpm types
+
+      - name: Construire
+        run: pnpm build
+
+      - name: Test de fumee
+        run: bash scripts/fumee.sh
+
+      - name: Assembler l'instantane
+        run: node scripts/instantane.mjs
+
+      - name: Archiver l'instantane
+        run: tar -czf "instantane-${GITHUB_REF_NAME}.tar.gz" -C instantane .
+
+      - name: Publier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cat > notes.md <<'FIN'
+          ### Instantane joint
+
+          `instantane-<version>.tar.gz` contient les deux langues prerendues et
+          leurs actifs. Servi par n'importe quel serveur de fichiers, il reste
+          pleinement interactif -- c'est le releve fige a la date de cette
+          version, conservable hors de Vercel.
+
+          La negociation de langue a la racine est assuree en production par
+          `proxy.ts` ; dans l'archive, `index.html` redirige vers le francais.
+
+          ---
+          FIN
+          # --verify-tag refuse de publier une etiquette absente du depot
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            --generate-notes \
+            --verify-tag \
+            "instantane-${GITHUB_REF_NAME}.tar.gz"

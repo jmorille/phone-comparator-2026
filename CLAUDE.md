@@ -28,8 +28,20 @@ pnpm types          # tsc --noEmit
 pnpm check          # types + build
 ```
 
-There is no test suite. `pnpm build` is the verification: it type-checks, runs `chargerCatalogue()`
-for both locales, and prerenders `/fr` and `/en`.
+```powershell
+bash scripts/fumee.sh          # test de fumee sur la construction (PORT=3312 pour changer)
+node scripts/instantane.mjs    # assemble instantane/ : les deux langues + leurs actifs
+```
+
+There is no unit test suite. Verification is three layers, and CI runs all three:
+
+1. `pnpm types` — the dictionary contract and the discriminated device union.
+2. `pnpm build` — runs `chargerCatalogue()`, so **it is also the catalogue validator**, and prerenders
+   `/fr` and `/en`.
+3. `scripts/fumee.sh` — boots the built server and asserts that `/` negotiates the language, that both
+   locales are served with their own `lang` attribute, that the table title reflects the startup
+   selection in each language, and that numbers switch separator (`111,5` vs `111.5`). Its patterns
+   are deliberately ASCII so they do not depend on the runner's locale.
 
 ## The millimetre coordinate system
 
@@ -160,3 +172,25 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
 
 Vercel, framework `nextjs` (`vercel.json` keeps only the security headers). Both locales are
 prerendered as static HTML; `proxy.ts` runs for the root redirect.
+
+Vercel deploys from git and is **not** driven by the workflows below — CI verifies, Vercel ships.
+
+## CI and releases
+
+`.github/workflows/ci.yml` runs on every branch: install with `--frozen-lockfile` (so a stale
+`pnpm-lock.yaml` fails), types, build, smoke test, and uploads the snapshot as an artifact for 7 days.
+A pull request opened from this repository is skipped, since the push on its branch already covers it;
+only fork PRs trigger the event.
+
+`.github/workflows/release.yml` runs on a `vX.Y.Z` tag. It **refuses to publish if the tag and
+`package.json`'s `version` disagree** — bump the version in the same commit you tag. It then runs the
+same three verification layers, assembles the snapshot, and creates the GitHub Release with
+auto-generated notes plus `instantane-vX.Y.Z.tar.gz`.
+
+That archive is the two prerendered locales and their `_next/static` assets, served from any file
+server and fully interactive (React hydrates from those same assets). It is an **archive, not the
+deployable**: `proxy.ts` does not run behind a static server, so `index.html` redirects to French
+instead of negotiating.
+
+Node version lives in `.nvmrc` alone; pnpm's version comes from `packageManager` in `package.json`.
+Neither is repeated in the workflows.

@@ -51,8 +51,9 @@ densité recalculée sont **déduites**. `pnpm build` valide le fichier et nomme
 
 ```bash
 pnpm install
-pnpm dev              # http://localhost:3000
-pnpm check            # types + construction (la construction valide le catalogue)
+pnpm dev                      # http://localhost:3000
+pnpm check                    # types + construction (la construction valide le catalogue)
+bash scripts/fumee.sh         # test de fumee sur la construction
 ```
 
 Next.js 16 · React 19 · TypeScript · aucune dépendance d'exécution hors framework. La cible navigateur
@@ -72,6 +73,17 @@ proxy.ts          négociation de langue à la racine
 Voir `CLAUDE.md` pour l'architecture détaillée : système de coordonnées en millimètres, dérivations,
 et contrat d'internationalisation.
 
+## Intégration continue et versions
+
+La CI vérifie chaque branche : types, construction — qui valide aussi le catalogue — puis un test de
+fumée qui démarre le serveur et contrôle que la racine négocie la langue, que les deux langues sont
+servies et que les nombres suivent leur séparateur décimal.
+
+Une version se publie en posant une étiquette `vX.Y.Z`. Le workflow refuse de publier si l'étiquette
+et la `version` de `package.json` divergent, puis crée la publication GitHub avec ses notes et une
+archive `instantane-vX.Y.Z.tar.gz` : les deux langues prérendues et leurs actifs, interactives derrière
+n'importe quel serveur de fichiers. C'est une archive du relevé, pas le déployable.
+
 ## Déploiement
 
-Site statique sur Vercel : les deux langues sont prérendues à la construction.
+Site statique sur Vercel, déployé depuis git : les deux langues sont prérendues à la construction.
