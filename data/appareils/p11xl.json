@@ -1,0 +1,49 @@
+{
+  "id": "p11xl",
+  "order": 30,
+  "name": "Pixel 11 Pro XL",
+  "ref": "Google Pixel 11 Pro XL (G4HCD)",
+  "brand": "Google",
+  "kind": "bar",
+  "weight": 226,
+  "hue": { "light": "#3D7A25", "dark": "#8FD46A" },
+  "role": {
+    "fr": "Grande barre, sortie le 20 août 2026",
+    "en": "Large bar phone, on sale 20 August 2026"
+  },
+  "announced": {
+    "fr": "12 août 2026",
+    "en": "12 August 2026"
+  },
+  "body": {
+    "closed": { "w": 76.5, "h": 162.7, "d": 8.5, "r": 12 }
+  },
+  "screens": {
+    "main": {
+      "label": { "fr": "Écran", "en": "Display" },
+      "diag": 6.8,
+      "px": [1344, 2992],
+      "ppi": 486,
+      "ratio": { "fr": "20:9", "en": "20:9" },
+      "tech": {
+        "fr": "LTPO OLED « Super Actua »",
+        "en": "LTPO OLED “Super Actua”"
+      },
+      "hz": { "fr": "1–120 Hz", "en": "1–120 Hz" },
+      "peak": 3600,
+      "hdr": 2400,
+      "glass": { "fr": "Gorilla Glass Victus 2", "en": "Gorilla Glass Victus 2" },
+      "r": 11
+    }
+  },
+  "sources": [
+    {
+      "who": "GSMArena",
+      "what": {
+        "fr": "Google Pixel 11 Pro XL — fiche complète : G4HCD, 162,7 × 76,5 × 8,5 mm, 1344 × 2992 px, 226 g",
+        "en": "Google Pixel 11 Pro XL — full specifications: G4HCD, 162.7 × 76.5 × 8.5 mm, 1344 × 2992 px, 226 g"
+      },
+      "url": "https://www.gsmarena.com/google_pixel_11_pro_xl_5g-14800.php"
+    }
+  ]
+}

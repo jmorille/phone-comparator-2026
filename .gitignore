@@ -1,3 +1,9 @@
-dist/
-.vercel
 node_modules/
+.next/
+out/
+dist/
+instantane/
+*.tar.gz
+.vercel
+*.tsbuildinfo
+next-env.d.ts
