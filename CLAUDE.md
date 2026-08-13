@@ -22,15 +22,17 @@ Package manager is **pnpm**. Build target is **modern browsers only** — one `b
 
 ```powershell
 pnpm dev            # serveur de developpement
-pnpm build          # construction de production ; valide aussi le catalogue (voir plus bas)
+pnpm build          # construction de production ; verifie Node et valide le catalogue
 pnpm start          # sert la construction ; PORT=3210 pour changer de port
 pnpm types          # tsc --noEmit
+pnpm node           # controle que la version de Node satisfait "engines.node"
 pnpm check          # types + build
 ```
 
-```powershell
-bash scripts/fumee.sh          # test de fumee sur la construction (PORT=3312 pour changer)
-node scripts/instantane.mjs    # assemble instantane/ : les deux langues + leurs actifs
+```bash
+# depuis Git Bash, pas PowerShell : "bash" y resout vers WSL, ou node est absent du PATH
+PORT=3312 bash scripts/fumee.sh   # test de fumee sur la construction
+node scripts/instantane.mjs       # assemble instantane/ : les deux langues + leurs actifs
 ```
 
 There is no unit test suite. Verification is three layers, and CI runs all three:
@@ -192,5 +194,19 @@ server and fully interactive (React hydrates from those same assets). It is an *
 deployable**: `proxy.ts` does not run behind a static server, so `index.html` redirects to French
 instead of negotiating.
 
-Node version lives in `.nvmrc` alone; pnpm's version comes from `packageManager` in `package.json`.
-Neither is repeated in the workflows.
+## Node 24 minimum
+
+Declared in three places, each with a distinct job — and enforced in exactly one:
+
+- `engines.node: ">=24"` — what Vercel reads to pick its runtime.
+- `.nvmrc` — what CI and `nvm` read. The workflows use `node-version-file: .nvmrc`, so the version is
+  never repeated in YAML. pnpm's own version comes from `packageManager`.
+- `scripts/verifier-node.mjs`, wired into `pnpm build` — **the only one that actually fails.**
+
+That last one is not belt-and-braces. `engines` is advisory: npm ignores it without `--engine-strict`,
+and **pnpm 11 no longer reads `engine-strict` (or any other pnpm setting) from `.npmrc`** — it emits
+`[WARN] Unsupported engine` and installs anyway. Verified: `pnpm config list` returns only registry
+keys. That is why the repository has no `.npmrc`; one existed briefly and was entirely inert.
+
+`target`/`lib` are `ES2024`, which both Node 24 and the `browserslist` range cover. Nothing is
+transpiled down to legacy on either side.

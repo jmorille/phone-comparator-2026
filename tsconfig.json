@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    // Cible navigateurs modernes uniquement (voir "browserslist" dans package.json) :
-    // rien n'est transpile vers ES5, les fonctionnalites recentes passent telles quelles.
-    "target": "ES2023",
+    // Deux cibles, une seule ligne de conduite : rien n'est transpile vers du
+    // legacy. Cote serveur, Node 24 minimum ("engines" dans package.json, .nvmrc) ;
+    // cote navigateur, "browserslist" dans package.json. ES2024 est couvert par
+    // les deux.
+    "target": "ES2024",
     "lib": [
-      "ES2023",
+      "ES2024",
       "DOM",
       "DOM.Iterable"
     ],

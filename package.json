@@ -6,14 +6,15 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "node": "node scripts/verifier-node.mjs",
+    "build": "pnpm run node && next build",
     "start": "next start",
     "types": "tsc --noEmit",
     "check": "pnpm run types && pnpm run build"
   },
   "packageManager": "pnpm@11.21.0",
   "engines": {
-    "node": ">=20.9",
+    "node": ">=24",
     "pnpm": ">=11"
   },
   "browserslist": [

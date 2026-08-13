@@ -56,8 +56,9 @@ pnpm check                    # types + construction (la construction valide le 
 bash scripts/fumee.sh         # test de fumee sur la construction
 ```
 
-Next.js 16 · React 19 · TypeScript · aucune dépendance d'exécution hors framework. La cible navigateur
-est déclarée dans `browserslist` : navigateurs récents uniquement.
+**Node 24 minimum** (`.nvmrc`) — la construction refuse de démarrer en deçà. Next.js 16 · React 19 ·
+TypeScript · aucune dépendance d'exécution hors framework. La cible navigateur est déclarée dans
+`browserslist` : navigateurs récents uniquement.
 
 ## Structure
 
