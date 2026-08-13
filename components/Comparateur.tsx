@@ -376,18 +376,35 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
               </div>
             </div>
 
-            <div className="ctl-grp">
-              <span className="ctl-lbl">{dict.ctl.disposition}</span>
-              <div className="chips">
-                {(["side", "stack", "center"] as const).map((m) => (
-                  <button
-                    key={m}
-                    className={puce(s.mode === m)}
-                    onClick={() => agir({ mode: m })}
-                  >
-                    {dict.ctl.modes[m]}
-                  </button>
-                ))}
+            <div className="ctl-col">
+              <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.disposition}</span>
+                <div className="chips">
+                  {(["side", "stack", "center"] as const).map((m) => (
+                    <button
+                      key={m}
+                      className={puce(s.mode === m)}
+                      onClick={() => agir({ mode: m })}
+                    >
+                      {dict.ctl.modes[m]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.reperes}</span>
+                <div className="chips">
+                  {REPERES.map((k) => (
+                    <button
+                      key={k}
+                      className={puce(s.marks[k], "ghost")}
+                      aria-pressed={s.marks[k]}
+                      onClick={() => maj({ marks: { ...s.marks, [k]: !s.marks[k] } })}
+                    >
+                      {dict.ctl.marques[k]}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -443,42 +460,27 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
               </div>
             </div>
 
-            <div className="ctl-grp">
-              <span className="ctl-lbl">{dict.ctl.reperes}</span>
-              <div className="chips">
-                {REPERES.map((k) => (
-                  <button
-                    key={k}
-                    className={puce(s.marks[k], "ghost")}
-                    aria-pressed={s.marks[k]}
-                    onClick={() => maj({ marks: { ...s.marks, [k]: !s.marks[k] } })}
-                  >
-                    {dict.ctl.marques[k]}
+            <div className="ctl-col">
+              <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.animation}</span>
+                <div className="chips">
+                  <button className="chip act" onClick={jouer}>
+                    {dict.ctl.rejouer}
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-
-            <div className="ctl-grp">
-              <span className="ctl-lbl">{dict.ctl.animation}</span>
-              <div className="chips">
-                <button className="chip act" onClick={jouer}>
-                  {dict.ctl.rejouer}
-                </button>
-              </div>
-            </div>
-
-            <div className="ctl-grp">
-              <span className="ctl-lbl">{dict.ctl.ficheTechnique}</span>
-              <div className="chips">
-                <button
-                  className={puce(!s.fiche)}
-                  aria-expanded={s.fiche}
-                  aria-controls="fiche"
-                  onClick={() => maj({ fiche: !s.fiche })}
-                >
-                  {s.fiche ? dict.ctl.replierFiche : dict.ctl.deplierFiche}
-                </button>
+              <div className="ctl-grp">
+                <span className="ctl-lbl">{dict.ctl.ficheTechnique}</span>
+                <div className="chips">
+                  <button
+                    className={puce(!s.fiche)}
+                    aria-expanded={s.fiche}
+                    aria-controls="fiche"
+                    onClick={() => maj({ fiche: !s.fiche })}
+                  >
+                    {s.fiche ? dict.ctl.replierFiche : dict.ctl.deplierFiche}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
