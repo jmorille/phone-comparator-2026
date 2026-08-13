@@ -1,0 +1,1388 @@
+<title>Six &#xE9;crans &#xE0; l'&#xE9;chelle</title>
+<style>
+/* -- tokens --------------------------------------------------------- */
+:root{
+  --bg:#F2F3F7; --bg2:#E7E9F0; --panel:#FFFFFF; --panel2:#FAFBFD;
+  --ink:#14161D; --ink2:#3A404F; --muted:#5C6377;
+  --line:rgba(20,22,29,.14); --line2:rgba(20,22,29,.07); --grid:rgba(20,22,29,.055);
+  --acc:#9A6208; --acc-soft:rgba(154,98,8,.13);
+  --c-p7p:#4A5164; --c-fold:#1E62D8; --c-sam:#7A2FC4; --c-sam8:#0C7A70;
+  --c-p11p:#B0325E; --c-p11xl:#3D7A25;
+  --body:#20242E; --body-edge:rgba(255,255,255,.10);
+  --shade:rgba(20,22,29,.16);
+  --ok:#1B7A4B; --warn:#9A6208;
+  --f-ui:"Segoe UI Variable Display","Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:"Cascadia Mono","Cascadia Code",Consolas,"SF Mono",ui-monospace,"Roboto Mono","DejaVu Sans Mono",monospace;
+  --ease:cubic-bezier(.22,.9,.24,1);
+  --dur:.9s;
+  --hinge:1.25s; --ease-hinge:cubic-bezier(.62,.02,.28,1);
+  --ppmm:3.25; --u:calc(var(--ppmm) * 1px); --dp:calc(.15875 * var(--u));
+  --ppmm2:2.4; --u2:calc(var(--ppmm2) * 1px); --dp2:calc(.15875 * var(--u2));
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#090B11; --bg2:#0D1017; --panel:#10131B; --panel2:#141822;
+    --ink:#E9EBF2; --ink2:#C3C9DA; --muted:#8E96AC;
+    --line:rgba(233,235,242,.15); --line2:rgba(233,235,242,.075); --grid:rgba(233,235,242,.055);
+    --acc:#E0A94A; --acc-soft:rgba(224,169,74,.14);
+    --c-p7p:#B9C0D4; --c-fold:#6FA8FF; --c-sam:#C58BF5; --c-sam8:#3FD8C1;
+    --c-p11p:#FF8FB4; --c-p11xl:#8FD46A;
+    --body:#171B24; --body-edge:rgba(255,255,255,.14);
+    --shade:rgba(0,0,0,.45);
+    --ok:#59D39B; --warn:#E0A94A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#090B11; --bg2:#0D1017; --panel:#10131B; --panel2:#141822;
+  --ink:#E9EBF2; --ink2:#C3C9DA; --muted:#8E96AC;
+  --line:rgba(233,235,242,.15); --line2:rgba(233,235,242,.075); --grid:rgba(233,235,242,.055);
+  --acc:#E0A94A; --acc-soft:rgba(224,169,74,.14);
+  --c-p7p:#B9C0D4; --c-fold:#6FA8FF; --c-sam:#C58BF5; --c-sam8:#3FD8C1;
+  --c-p11p:#FF8FB4; --c-p11xl:#8FD46A;
+  --body:#171B24; --body-edge:rgba(255,255,255,.14);
+  --shade:rgba(0,0,0,.45);
+  --ok:#59D39B; --warn:#E0A94A;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--f-ui); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0; text-wrap:balance; letter-spacing:-.025em; font-weight:650; line-height:1.1}
+p{margin:0}
+a{color:inherit; text-underline-offset:3px; text-decoration-color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc); outline-offset:3px; border-radius:3px}
+
+/* une seule gouttiere pour toute la page : les visualisations a l'echelle prennent
+   toute la largeur disponible, les blocs de texte gardent leur propre mesure */
+.wrap{max-width:1760px; margin:0 auto; padding:0 clamp(20px,3.2vw,60px)}
+/* les scenes a l'echelle vont d'un bord a l'autre : a echelle fixe, chaque pixel compte */
+.wrap.bleed{max-width:none; padding:0 clamp(14px,1.5vw,32px)}
+.eyebrow{
+  font:500 11px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.18em;
+  color:var(--acc);
+}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+.mut{color:var(--muted)}
+
+/* -- masthead ------------------------------------------------------- */
+header.top{
+  border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(1100px 340px at 76% -30%, var(--acc-soft), transparent 70%),
+    var(--bg2);
+}
+.top-in{display:grid; gap:22px; padding:52px 0 40px}
+h1{font-size:clamp(34px,5.6vw,62px); font-weight:700; letter-spacing:-.035em}
+h1 em{font-style:normal; color:var(--acc)}
+.lede{color:var(--ink2); font-size:clamp(15px,1.5vw,18px)}
+.meta-row{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin-top:4px}
+.badge{
+  display:inline-flex; align-items:center; gap:7px;
+  font:500 11.5px/1 var(--f-mono); letter-spacing:.06em; text-transform:uppercase;
+  padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
+  color:var(--ink2);
+}
+.badge b{font-weight:600; color:var(--ink)}
+.badge.ofc{color:var(--ok); border-color:color-mix(in oklab,var(--ok) 40%, transparent)}
+.badge.calc{color:var(--acc); border-color:color-mix(in oklab,var(--acc) 40%, transparent)}
+.dot{width:7px; height:7px; border-radius:50%; background:currentColor; flex:none}
+
+/* -- section frame -------------------------------------------------- */
+.sec{border-bottom:1px solid var(--line); padding:56px 0}
+.sec-head{display:grid; gap:10px; margin-bottom:26px}
+.sec-head h2{font-size:clamp(23px,2.9vw,33px)}
+.sec-head p{color:var(--muted); font-size:15.5px}
+
+/* -- controls ------------------------------------------------------- */
+.ctl-bar{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:flex-start; margin-bottom:22px}
+.ctl-grp{display:grid; gap:8px}
+.ctl-lbl{font:500 10.5px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.16em; color:var(--muted)}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+button{font-family:inherit; cursor:pointer}
+.chip{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink2);
+  padding:8px 13px; border-radius:8px; font-size:13.5px; font-weight:500;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:background .18s, border-color .18s, color .18s;
+}
+.chip:hover{border-color:var(--ink2); color:var(--ink)}
+.chip .sw{width:9px; height:9px; border-radius:2.5px; background:var(--dc,var(--muted)); flex:none; box-shadow:0 0 0 1px color-mix(in oklab,var(--dc,var(--muted)) 45%, transparent)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.chip[aria-pressed="true"] .sw{box-shadow:0 0 0 1px var(--bg)}
+.chip.off{opacity:.42}
+.chip.act{
+  background:var(--acc-soft); border-color:color-mix(in oklab,var(--acc) 55%, transparent); color:var(--ink);
+}
+.chip.ghost{background:transparent}
+
+/* -- stage ---------------------------------------------------------- */
+.stage-shell{
+  position:relative; border:1px solid var(--line); border-radius:14px;
+  background:var(--panel); overflow:hidden;
+}
+.stage-scroll{overflow-x:auto; overflow-y:hidden}
+.stage{
+  position:relative; height:calc(212 * var(--u));
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size:calc(10 * var(--u)) calc(10 * var(--u));
+  background-position:center center;
+}
+.stage-foot{
+  display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between;
+  padding:12px 16px; border-top:1px solid var(--line2); background:var(--panel2);
+  font-size:12.5px; color:var(--muted);
+}
+
+/* narration */
+.narrate{
+  display:flex; gap:13px; align-items:center; min-height:52px;
+  padding:12px 18px; border-bottom:1px solid var(--line2); background:var(--panel2);
+}
+.narrate .step-dots{display:flex; gap:5px; flex:none}
+.narrate .sd{width:16px; height:3px; border-radius:2px; background:var(--line); transition:background .3s}
+.narrate .sd.on{background:var(--acc)}
+.cap{
+  font:500 13.5px/1.35 var(--f-ui); color:var(--ink2);
+  opacity:0; transform:translateY(-4px); transition:opacity .4s, transform .4s;
+  max-width:52ch;
+}
+.cap.show{opacity:1; transform:none}
+.cap b{color:var(--ink); font-weight:600}
+
+/* device */
+.dev{
+  position:absolute; left:0; top:0; z-index:10;
+  transform:translate3d(var(--x,0),var(--y,0),0);
+  transition:transform var(--dur) var(--ease), opacity .5s var(--ease);
+  will-change:transform,opacity;
+}
+.dev[hidden]{display:block !important; opacity:0; pointer-events:none}
+.plate{
+  position:absolute; left:0; top:0;
+  width:calc(var(--pw) * var(--u)); height:calc(var(--ph) * var(--u));
+  border-radius:calc(var(--pr) * var(--u));
+  background:linear-gradient(155deg, color-mix(in oklab,var(--body) 88%, var(--dc)) 0%, var(--body) 55%);
+  box-shadow:inset 0 0 0 1px var(--body-edge), 0 calc(1.5 * var(--u)) calc(4 * var(--u)) var(--shade);
+}
+.scr{
+  position:absolute; overflow:hidden;
+  left:calc(var(--sx) * var(--u)); top:calc(var(--sy) * var(--u));
+  width:calc(var(--sw) * var(--u)); height:calc(var(--sh) * var(--u));
+  border-radius:calc(var(--sr) * var(--u));
+  background:
+    linear-gradient(168deg, color-mix(in oklab,var(--dc) 26%, #05070C), color-mix(in oklab,var(--dc) 8%, #05070C) 62%, #05070C);
+  box-shadow:0 0 0 1px color-mix(in oklab,var(--dc) 55%, transparent);
+}
+.crease{
+  position:absolute; top:0; bottom:0; left:50%; width:calc(2.6 * var(--u)); transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 35%,rgba(0,0,0,.28) 50%,rgba(255,255,255,.10) 65%,transparent);
+  pointer-events:none; z-index:5;
+}
+.punch{
+  position:absolute; top:calc(3.2 * var(--u)); left:50%; transform:translateX(-50%);
+  width:calc(3.4 * var(--u)); height:calc(3.4 * var(--u)); border-radius:50%;
+  background:#04060A; box-shadow:0 0 0 1px rgba(255,255,255,.14); z-index:6;
+}
+
+/* fold mechanics */
+.fold{position:relative; width:calc(var(--ow) * var(--u)); height:calc(var(--oh) * var(--u)); perspective:calc(700 * var(--u))}
+.leaf{position:absolute; top:0; height:100%; width:calc(var(--hw) * var(--u)); overflow:hidden}
+.leaf.l{left:0}
+.leaf.r{
+  left:calc(var(--hw) * var(--u)); transform-origin:0 50%;
+  transform:rotateY(-180deg); opacity:0;
+  transition:transform var(--hinge) var(--ease-hinge), opacity .3s linear;
+}
+.fold.open .leaf.r{transform:rotateY(0deg); opacity:1; transition:transform var(--hinge) var(--ease-hinge), opacity .34s linear .3s}
+.leaf.r::after{
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:8;
+  background:linear-gradient(90deg, rgba(0,0,0,.34), transparent 52%);
+  opacity:0; transition:opacity var(--hinge) var(--ease-hinge);
+}
+.fold:not(.open) .leaf.r::after{opacity:1}
+.leaf .plate{transform:translateX(var(--ox,0))}
+.face-inner{opacity:0; transition:opacity .4s linear}
+.fold.open .face-inner{opacity:1; transition:opacity .45s linear .3s}
+.plate.cover{z-index:20; opacity:1; transition:opacity .4s linear .3s}
+.fold.open .plate.cover{opacity:0; transition:opacity .4s linear .1s}
+
+/* overlay modes */
+.stage[data-mode="side"] .dev{--fill:1}
+.stage:not([data-mode="side"]) .dev .plate{opacity:var(--fill,.17)}
+.stage:not([data-mode="side"]) .dev .scr{
+  box-shadow:0 0 0 2px var(--dc);
+  background:color-mix(in oklab, var(--dc) 15%, transparent);
+}
+.stage:not([data-mode="side"]) .dev.focus .scr{background:color-mix(in oklab, var(--dc) 34%, transparent)}
+.stage:not([data-mode="side"]) .dev.focus{--fill:1; z-index:40}
+.dev .plate{transition:opacity .35s}
+
+/* marks */
+.marks{
+  position:absolute; pointer-events:none; z-index:50;
+  left:calc(var(--mx) * var(--u)); top:calc(var(--my) * var(--u));
+  width:calc(var(--mw) * var(--u)); height:calc(var(--mh) * var(--u));
+  transition:left var(--dur) var(--ease), top var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease);
+  color:var(--acc);
+}
+.mk{opacity:0; transition:opacity .35s}
+.marks.m-w .mk-w,.marks.m-h .mk-h,.marks.m-d .mk-d,.marks.m-a .mk-a{opacity:1}
+.mk-w{
+  position:absolute; left:0; right:0;
+  bottom:calc(-1 * var(--woff,6) * var(--u));
+  height:calc(4 * var(--u));
+  border-left:1px solid currentColor; border-right:1px solid currentColor;
+}
+.mk-w::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:1px dashed currentColor}
+.mk-h{
+  position:absolute; top:0; bottom:0;
+  right:calc(-1 * var(--hoff,6) * var(--u));
+  width:calc(4 * var(--u));
+  border-top:1px solid currentColor; border-bottom:1px solid currentColor;
+}
+.mk-h::before{content:""; position:absolute; top:0; bottom:0; left:50%; border-left:1px dashed currentColor}
+.tag{
+  position:absolute; font:600 13px/1 var(--f-mono); letter-spacing:.01em; white-space:nowrap;
+  background:var(--panel); color:var(--acc); padding:5px 7px 5px 6px; border-radius:5px;
+  border:1px solid color-mix(in oklab,var(--acc) 34%, transparent);
+  border-left:4px solid var(--dc);
+}
+.mk-w .tag{left:50%; top:50%; transform:translate(-50%,-50%)}
+.mk-h .tag{left:50%; top:50%; transform:translate(-50%,-50%) rotate(90deg)}
+.mk-d{position:absolute; inset:0}
+.mk-d svg{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.mk-d line{stroke:currentColor; stroke-width:1.2; stroke-dasharray:5 4; vector-effect:non-scaling-stroke}
+.mk-d .tag{left:calc(72% - var(--stag) * 17%); top:calc(72% - var(--stag) * 17%)}
+/* la cote de surface se loge dans le coin bas-gauche, la ou la diagonale ne passe
+   jamais : les deux etiquettes d'un meme ecran ne peuvent plus se recouvrir, y
+   compris sur une dalle courte et large comme celle du Z Fold8 ouvert */
+.mk-a{position:absolute; left:3%; bottom:calc(3% + var(--stag) * 13%)}
+.mk-a .tag{position:static; display:block}
+
+/* legend / fiche */
+.stage-grid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start}
+@media (max-width:940px){.stage-grid{grid-template-columns:minmax(0,1fr)}}
+/* fiche repliee : la scene reprend toute la largeur et l'echelle est recalculee,
+   les cotes essentielles passant sur une ligne sous la scene */
+.stage-grid.solo{grid-template-columns:minmax(0,1fr)}
+.stage-grid.solo > .fiche{display:none}
+.fiche{
+  border:1px solid var(--line); border-radius:14px; background:var(--panel); overflow:hidden;
+  position:sticky; top:16px;
+}
+.fiche-hd{padding:14px 16px; border-bottom:1px solid var(--line2); display:grid; gap:5px; position:relative}
+.fiche-hd{padding-right:48px}
+.fiche-x{
+  position:absolute; top:11px; right:11px; width:27px; height:27px; display:grid; place-items:center;
+  border:1px solid var(--line); border-radius:7px; background:var(--panel2); color:var(--muted);
+  font:500 15px/1 var(--f-mono);
+  transition:color .18s, border-color .18s, background .18s;
+}
+.fiche-x:hover{color:var(--ink); border-color:var(--ink2); background:var(--panel)}
+
+/* bandeau de remplacement quand la fiche est repliee */
+.slim{
+  display:flex; flex-wrap:wrap; gap:6px 15px; align-items:baseline;
+  padding:11px 18px; border-bottom:1px solid var(--line2); background:var(--panel2);
+  font:500 12.5px/1.4 var(--f-mono); font-variant-numeric:tabular-nums; color:var(--ink2);
+}
+.slim[hidden]{display:none}
+.slim .nm{
+  display:flex; align-items:center; gap:8px; flex:none;
+  font-family:var(--f-ui); font-size:13.5px; font-weight:650; letter-spacing:-.015em; color:var(--ink);
+}
+.slim .nm .sw{width:9px; height:9px; border-radius:2.5px; background:var(--dc); flex:none}
+.slim .k{color:var(--muted)}
+.slim b{color:var(--ink); font-weight:600}
+.fiche-hd .nm{font-size:17px; font-weight:650; letter-spacing:-.02em; display:flex; gap:9px; align-items:center}
+.fiche-hd .nm .sw{width:10px; height:10px; border-radius:3px; background:var(--dc); flex:none}
+.fiche-hd .rf{font:500 11px/1.4 var(--f-mono); color:var(--muted); letter-spacing:.03em}
+.fiche dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:0}
+.fiche dt,.fiche dd{margin:0; padding:7px 16px; border-bottom:1px solid var(--line2); font-size:13px}
+.fiche dt{color:var(--muted); white-space:nowrap}
+.fiche dd{text-align:right; font-family:var(--f-mono); font-size:12.5px; font-variant-numeric:tabular-nums; color:var(--ink)}
+.fiche .sub{padding:9px 16px 6px; font:500 10.5px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.15em; color:var(--acc); border-bottom:1px solid var(--line2); background:var(--panel2)}
+
+/* calibration */
+.calib{display:flex; flex-wrap:wrap; gap:14px; align-items:center}
+.calib label{font:500 11px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.14em; color:var(--muted)}
+input[type=range]{accent-color:var(--acc); width:150px}
+.scrollhint{
+  font:500 11px/1.3 var(--f-mono); letter-spacing:.06em; text-transform:uppercase; color:var(--acc);
+  border:1px solid color-mix(in oklab,var(--acc) 34%, transparent); border-radius:999px; padding:5px 11px;
+}
+.card-ref{
+  height:calc(54 * var(--u)); width:calc(85.6 * var(--u)); border:1px dashed color-mix(in oklab,var(--acc) 60%, transparent);
+  border-radius:calc(3 * var(--u)); display:grid; place-items:center; flex:none;
+  font:500 9.5px/1.2 var(--f-mono); color:var(--acc); text-align:center; padding:2px;
+}
+
+/* -- surface bars --------------------------------------------------- */
+.bars{display:grid; gap:14px}
+.bar-row{display:grid; grid-template-columns:190px minmax(0,1fr) auto; gap:14px; align-items:center}
+@media (max-width:700px){.bar-row{grid-template-columns:minmax(0,1fr); gap:5px}}
+.bar-lbl{font-size:13.5px; display:flex; gap:8px; align-items:center; color:var(--ink2)}
+.bar-lbl .sw{width:9px; height:9px; border-radius:2.5px; background:var(--dc); flex:none}
+.bar-track{height:26px; background:var(--bg2); border-radius:5px; position:relative; overflow:hidden; border:1px solid var(--line2)}
+.bar-fill{
+  position:absolute; left:0; top:0; bottom:0; border-radius:4px;
+  background:linear-gradient(90deg, color-mix(in oklab,var(--dc) 70%, transparent), color-mix(in oklab,var(--dc) 34%, transparent));
+  box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--dc) 60%, transparent);
+  width:0; transition:width 1.1s var(--ease);
+}
+.bar-ref{position:absolute; top:-1px; bottom:-1px; border-right:1.5px dashed var(--acc); pointer-events:none}
+.bar-val{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:13px; white-space:nowrap}
+.bar-val .pc{color:var(--acc); font-weight:600}
+.bar-val .pc.neg{color:var(--muted)}
+/* etat vide : aucune puce d'appareil active */
+.empty{
+  border:1px dashed var(--line); border-radius:12px; padding:30px 20px;
+  text-align:center; color:var(--muted); font-size:14px;
+}
+.claims{display:grid; gap:12px; margin-top:26px}
+.claim{
+  border:1px solid var(--line); border-left:3px solid var(--dc); border-radius:0 10px 10px 0;
+  background:var(--panel); padding:14px 18px; font-size:15px; color:var(--ink2);
+}
+.claim b{color:var(--ink); font-weight:650}
+.claim .big{font-family:var(--f-mono); font-size:19px; font-weight:600; color:var(--dc); letter-spacing:-.01em}
+
+/* -- table ---------------------------------------------------------- */
+.tbl-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--panel)}
+table{border-collapse:collapse; width:100%; min-width:1080px; font-size:13px}
+th,td{padding:9px 13px; text-align:left; border-bottom:1px solid var(--line2); white-space:nowrap}
+thead th{
+  position:sticky; top:0; background:var(--panel2); z-index:2;
+  font:600 11px/1.35 var(--f-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink);
+  border-bottom:1px solid var(--line); vertical-align:bottom;
+}
+thead th .sub2{display:block; font-weight:400; letter-spacing:.04em; text-transform:none; color:var(--muted)}
+thead th.dev-col{box-shadow:inset 0 3px 0 var(--dc)}
+tbody th{font-weight:500; color:var(--muted); font-size:12.5px; white-space:normal; min-width:150px}
+td{font-family:var(--f-mono); font-variant-numeric:tabular-nums; color:var(--ink2)}
+td.hi{color:var(--ink); font-weight:600}
+tr.grp th{
+  font:600 10.5px/1 var(--f-mono); text-transform:uppercase; letter-spacing:.15em;
+  color:var(--acc); background:var(--panel2); padding-top:13px;
+}
+tr.grp td{background:var(--panel2)}
+
+/* -- scenario ------------------------------------------------------- */
+.scenes{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:26px 20px 20px}
+.scene-row{display:flex; gap:calc(14 * var(--u2)); align-items:flex-end; justify-content:center; min-height:calc(170 * var(--u2))}
+.scene-col{display:grid; gap:10px; justify-items:center; flex:none}
+.scene-cap{display:grid; gap:3px; justify-items:center; text-align:center}
+.scene-cap .n{font-size:12.5px; font-weight:600; color:var(--ink)}
+.scene-cap .m{font:500 11px/1.35 var(--f-mono); color:var(--acc); font-variant-numeric:tabular-nums}
+.scene-cap .s{font:400 10.5px/1.3 var(--f-mono); color:var(--muted)}
+.wsc{
+  display:inline-block; font:500 9.5px/1 var(--f-mono); letter-spacing:.06em; text-transform:uppercase;
+  padding:3px 6px; border-radius:4px; border:1px solid var(--line); color:var(--muted);
+}
+.wsc.exp{color:var(--ok); border-color:color-mix(in oklab,var(--ok) 45%, transparent)}
+
+/* mock UI (sizes in dp) */
+.ui{position:absolute; inset:0; overflow:hidden; background:#0B0E14; color:#E8EBF3; font-family:var(--f-ui)}
+.ui.light{background:#F7F8FB; color:#131720}
+.ui *{box-sizing:border-box}
+.ui-bar{
+  height:calc(48 * var(--dp2)); display:flex; align-items:center; gap:calc(10 * var(--dp2));
+  padding:0 calc(14 * var(--dp2)); border-bottom:1px solid rgba(255,255,255,.10); flex:none;
+}
+.ui.light .ui-bar{border-color:rgba(0,0,0,.10)}
+.ui-col{position:absolute; inset:0; display:flex; flex-direction:column}
+.ui-body{flex:1; overflow:hidden; padding:calc(14 * var(--dp2))}
+.ui-t{font-weight:650; letter-spacing:-.02em; line-height:1.15; font-size:calc(26 * var(--dp2))}
+.ui-k{font-family:var(--f-mono); font-size:calc(13 * var(--dp2)); letter-spacing:.1em; text-transform:uppercase; color:#8CA6D8}
+.ui.light .ui-k{color:#3E62B8}
+.ln{height:calc(9 * var(--dp2)); border-radius:calc(4 * var(--dp2)); background:currentColor; opacity:.20; margin-bottom:calc(15 * var(--dp2))}
+.ui-img{
+  border-radius:calc(10 * var(--dp2)); height:calc(150 * var(--dp2)); margin:calc(14 * var(--dp2)) 0;
+  background:linear-gradient(135deg,#2A3E6E,#6E3E7A 55%,#B0762E); opacity:.85;
+}
+.ui-row{display:flex; gap:calc(12 * var(--dp2)); align-items:center; height:calc(72 * var(--dp2)); flex:none}
+.ui-av{width:calc(40 * var(--dp2)); height:calc(40 * var(--dp2)); border-radius:50%; background:currentColor; opacity:.22; flex:none}
+.ui-rl{flex:1; display:grid; gap:calc(8 * var(--dp2))}
+.ui-rl .ln{margin:0}
+.ui-vid{position:absolute; inset:0; display:grid; place-items:center; background:#04060A}
+.ui-frame{background:linear-gradient(135deg,#20325C,#5B2F6B 50%,#A5652A); position:relative; overflow:hidden}
+.ui-frame::after{
+  content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:calc(46 * var(--dp2)); height:calc(46 * var(--dp2)); border-radius:50%;
+  background:rgba(255,255,255,.86);
+  clip-path:polygon(38% 30%,38% 70%,72% 50%);
+}
+.ui-split{position:absolute; inset:0; display:flex; gap:calc(3 * var(--dp2)); background:#04060A}
+.ui-split.stack{flex-direction:column}
+.ui-pane{flex:1; position:relative; overflow:hidden; min-width:0; min-height:0}
+.pane-tag{
+  position:absolute; left:calc(8 * var(--dp2)); bottom:calc(8 * var(--dp2)); z-index:4;
+  font:500 max(9.5px, calc(13 * var(--dp2)))/1 var(--f-mono); padding:calc(4 * var(--dp2)) calc(7 * var(--dp2));
+  border-radius:calc(5 * var(--dp2)); background:rgba(0,0,0,.62); color:#FFD79A; white-space:nowrap;
+}
+
+/* -- conclusion ----------------------------------------------------- */
+.verdicts{display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.verdict{background:var(--panel); padding:18px 20px; display:grid; gap:7px}
+.verdict .q{font:500 11px/1.3 var(--f-mono); text-transform:uppercase; letter-spacing:.14em; color:var(--muted)}
+.verdict .a{font-size:18px; font-weight:650; letter-spacing:-.02em; color:var(--dc); display:flex; gap:9px; align-items:baseline}
+.verdict .a .sw{width:9px; height:9px; border-radius:2.5px; background:var(--dc); flex:none; transform:translateY(-2px)}
+.verdict .w{font-size:13.5px; color:var(--ink2)}
+.verdict .w .num{color:var(--ink); font-weight:600}
+@media (min-width:820px){.verdicts{grid-template-columns:1fr 1fr}}
+@media (min-width:1400px){.verdicts{grid-template-columns:repeat(3,1fr)}}
+
+.notes{display:grid; gap:9px; font-size:13.5px; color:var(--muted)}
+.notes li{margin-left:2px}
+ul.notes{padding-left:18px}
+.src-list{display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.src{background:var(--panel); padding:11px 16px; display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; font-size:13.5px}
+.src .who{font:500 11px/1.4 var(--f-mono); letter-spacing:.06em; text-transform:uppercase; color:var(--acc); min-width:112px}
+.src .what{color:var(--ink2); flex:1; min-width:220px}
+footer.end{padding:34px 0 60px; color:var(--muted); font-size:12.5px; display:grid; gap:6px}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important; animation-duration:.01ms !important}
+}
+</style>
+
+<header class="top">
+  <div class="wrap top-in">
+    <span class="eyebrow">Banc de mesure &#xB7; relev&#xE9; du 13 ao&#xFB;t 2026</span>
+    <h1>Six &#xE9;crans <em>&#xE0; l'&#xE9;chelle</em></h1>
+    <p class="lede">Google a pr&#xE9;sent&#xE9; hier le Pixel 11 Pro Fold, le Pixel 11 Pro et le Pixel 11 Pro XL. Face &#xE0; eux, les deux pliables de Samsung &#x2014; le Galaxy Z Fold8 Ultra, qui plie comme un livre, et le Galaxy Z Fold8, qui plie en largeur &#x2014; et le Pixel 7 Pro comme m&#xE8;tre-&#xE9;talon du smartphone classique. Neuf dalles au total, toutes dessin&#xE9;es ici &#xE0; l'&#xE9;chelle r&#xE9;elle relative, mesur&#xE9;es sur la m&#xEA;me grille millim&#xE9;trique. La sc&#xE8;ne d&#xE9;marre sur trois d'entre eux : ajoutez les autres d'un clic, les sections suivantes suivent votre s&#xE9;lection.</p>
+    <div class="meta-row">
+      <span class="badge ofc"><span class="dot"></span>Toutes les fiches techniques sont <b>officielles</b></span>
+      <span class="badge calc"><span class="dot"></span>Les cotes en mm, cm&#xB2; et dp sont <b>calcul&#xE9;es</b></span>
+      <span class="badge">Aucune donn&#xE9;e de rumeur</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- -- STAGE -- -->
+<section class="sec" id="banc">
+  <div class="wrap bleed">
+    <div class="sec-head">
+      <span class="eyebrow">01 &#x2014; Superposition</span>
+      <h2>Le m&#xEA;me millim&#xE8;tre pour tout le monde</h2>
+      <p>Chaque rectangle est la zone d'affichage active, calcul&#xE9;e &#xE0; partir de la diagonale officielle et de la r&#xE9;solution. D&#xE9;pliez, superposez, centrez &#x2014; et posez une carte bancaire sur l'&#xE9;cran pour passer en 1:1.</p>
+    </div>
+
+    <div class="ctl-bar" id="ctl">
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Appareils</span>
+        <div class="chips" id="devChips"></div>
+      </div>
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Disposition</span>
+        <div class="chips" id="modeChips">
+          <button class="chip" data-mode="side">C&#xF4;te &#xE0; c&#xF4;te</button>
+          <button class="chip" data-mode="stack">Superposition</button>
+          <button class="chip" data-mode="center">Centr&#xE9;</button>
+        </div>
+      </div>
+      <div class="ctl-grp">
+        <span class="ctl-lbl">&#xC9;cran des pliables</span>
+        <div class="chips" id="stateChips">
+          <button class="chip" data-state="closed">Ferm&#xE9; (externe)</button>
+          <button class="chip" data-state="open">Ouvert (interne)</button>
+        </div>
+      </div>
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Rep&#xE8;res</span>
+        <div class="chips" id="markChips">
+          <button class="chip ghost" data-mark="w">Largeur</button>
+          <button class="chip ghost" data-mark="h">Hauteur</button>
+          <button class="chip ghost" data-mark="d">Diagonale</button>
+          <button class="chip ghost" data-mark="a">Surface</button>
+        </div>
+      </div>
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Animation</span>
+        <div class="chips">
+          <button class="chip act" id="replay">&#x21BB; Rejouer l'animation</button>
+        </div>
+      </div>
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Fiche technique</span>
+        <div class="chips">
+          <button class="chip" id="ficheToggle" aria-expanded="true" aria-controls="fiche"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-grid">
+      <div>
+        <div class="stage-shell">
+          <div class="stage-scroll" id="scroll">
+            <div class="stage" id="stage" data-mode="side"></div>
+          </div>
+          <div class="narrate">
+            <div class="step-dots" id="dots"></div>
+            <div class="cap" id="cap"></div>
+          </div>
+          <div class="slim" id="slim" hidden></div>
+          <div class="stage-foot">
+            <div class="calib">
+              <label for="cal">&#xC9;chelle</label>
+              <input type="range" id="cal" min="1.3" max="6" step="0.05" value="3.25" aria-describedby="calHint">
+              <span class="num" id="calOut">3,25 px/mm</span>
+              <button class="chip ghost" id="calReset" style="padding:5px 10px;font-size:12px">R&#xE9;initialiser</button>
+            </div>
+            <span class="scrollhint" id="scrollHint" hidden>&#x2194; la sc&#xE8;ne d&#xE9;file lat&#xE9;ralement &#xE0; cette &#xE9;chelle</span>
+            <div class="card-ref">Carte bancaire<br>85,6 &#xD7; 54 mm</div>
+          </div>
+        </div>
+        <p class="mut" id="calHint" style="font-size:12.5px;margin-top:10px">Grille = 10 mm. Faites glisser l'&#xE9;chelle jusqu'&#xE0; ce que le gabarit corresponde &#xE0; une vraie carte bancaire pos&#xE9;e sur l'&#xE9;cran : la comparaison devient alors grandeur nature.</p>
+      </div>
+
+      <aside class="fiche" id="fiche"></aside>
+    </div>
+  </div>
+</section>
+
+<!-- -- SURFACE -- -->
+<section class="sec" id="surface">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">02 &#x2014; Surface d'affichage</span>
+      <h2>Ce que le pli rend, en centim&#xE8;tres carr&#xE9;s</h2>
+      <p>Surface du rectangle actif, coins arrondis non d&#xE9;duits. Le rep&#xE8;re ambr&#xE9; marque les 100 % du Pixel 7 Pro. Les dalles list&#xE9;es suivent votre s&#xE9;lection d'appareils ; la longueur des barres, elle, reste norm&#xE9;e sur la plus grande des neuf, pour rester comparable d'une s&#xE9;lection &#xE0; l'autre.</p>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="claims" id="claims"></div>
+  </div>
+</section>
+
+<!-- -- SCENARIO -- -->
+<section class="sec" id="usage">
+  <div class="wrap bleed">
+    <div class="sec-head">
+      <span class="eyebrow">03 &#x2014; Mise en situation</span>
+      <h2>La m&#xEA;me interface, du plus petit au plus grand</h2>
+      <p>Les contenus sont dessin&#xE9;s &#xE0; taille physique constante &#x2014; c'est exactement ce que fait Android avec ses <span class="num">dp</span> (1 dp &#x2248; 0,159 mm sur toutes les dalles). Le plus grand &#xE9;cran ne grossit donc pas l'interface : il en montre davantage.</p>
+    </div>
+    <div class="ctl-bar">
+      <div class="ctl-grp">
+        <span class="ctl-lbl">Contenu</span>
+        <div class="chips" id="sceneChips">
+          <button class="chip" data-scene="web">Page web</button>
+          <button class="chip" data-scene="video">Vid&#xE9;o 16:9</button>
+          <button class="chip" data-scene="list">Liste d'une app</button>
+          <button class="chip" data-scene="multi">Deux apps en multit&#xE2;che</button>
+        </div>
+      </div>
+    </div>
+    <div class="scenes"><div class="scene-row" id="sceneRow"></div></div>
+    <p class="mut" style="font-size:12.5px;margin-top:12px" id="sceneNote"></p>
+  </div>
+</section>
+
+<!-- -- TABLE -- -->
+<section class="sec" id="fiches">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">04 &#x2014; Relev&#xE9; complet</span>
+      <h2 id="tblTitle">Les neuf dalles, ligne par ligne</h2>
+      <p>Les valeurs marqu&#xE9;es <span class="num" style="color:var(--acc)">&#x25C6;</span> sont calcul&#xE9;es &#xE0; partir des donn&#xE9;es officielles, pas publi&#xE9;es par le constructeur.</p>
+    </div>
+    <div class="tbl-scroll"><table id="tbl"></table></div>
+  </div>
+</section>
+
+<!-- -- VERDICT -- -->
+<section class="sec" id="verdict">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">05 &#x2014; Cinq r&#xE9;ponses, deux nuances</span>
+      <h2>Le r&#xE9;sum&#xE9;</h2>
+    </div>
+    <div class="verdicts" id="verdicts"></div>
+  </div>
+</section>
+
+<!-- -- SOURCES -- -->
+<section class="sec" id="sources">
+  <div class="wrap" style="display:grid;gap:26px">
+    <div class="sec-head" style="margin:0">
+      <span class="eyebrow">06 &#x2014; M&#xE9;thode et sources</span>
+      <h2>D'o&#xF9; viennent ces chiffres</h2>
+    </div>
+
+    <ul class="notes">
+      <li><b>Statut des donn&#xE9;es.</b> Les six appareils sont commercialis&#xE9;s ou annonc&#xE9;s officiellement : Pixel 7 Pro (6 oct. 2022), Galaxy Z Fold8 et Z Fold8 Ultra (Unpacked du 22 juil. 2026, sortie le jour m&#xEA;me), Pixel 11 Pro Fold, Pixel 11 Pro et Pixel 11 Pro XL (annonc&#xE9;s le 12 ao&#xFB;t 2026, ventes ouvertes le 20 ao&#xFB;t). Aucune estimation de rumeur n'entre dans cette comparaison.</li>
+      <li><b>Zone d'affichage.</b> Largeur et hauteur du rectangle actif d&#xE9;duites de la diagonale officielle et de la r&#xE9;solution : <span class="num">L = D &#xD7; l<sub>px</sub> / &#x221A;(l<sub>px</sub>&#xB2; + h<sub>px</sub>&#xB2;)</span>. Les coins arrondis et, sur le Pixel 7 Pro, la l&#xE9;g&#xE8;re courbure des bords ne sont pas d&#xE9;duits &#x2014; les surfaces r&#xE9;elles sont donc de 1 &#xE0; 3 % inf&#xE9;rieures, de fa&#xE7;on comparable pour tous.</li>
+      <li><b>Densit&#xE9;s.</b> Les ppi affich&#xE9;s sont ceux publi&#xE9;s par les constructeurs ; le recalcul g&#xE9;om&#xE9;trique donne &#xB1;1 % (par ex. 397 au lieu de 399 sur l'&#xE9;cran externe du Pixel 11 Pro Fold, la diagonale &#xE9;tant arrondie &#xE0; 6,5&#x2033;). L'&#xE9;cart le plus large du relev&#xE9; est celui du <b>Pixel 11 Pro XL</b> : 482 ppi recalcul&#xE9;s contre 486 publi&#xE9;s, soit 0,8 %, l&#xE0; encore par arrondi de la diagonale &#xE0; 6,8&#x2033;.</li>
+      <li><b>R&#xE9;solution interne du Pixel 11 Pro Fold.</b> Le Google Store indique 2152 &#xD7; 2076 px ; certaines reprises presse &#xE9;crivent 2151 &#xD7; 2076. L'&#xE9;cart d'un pixel est sans effet sur les mesures.</li>
+      <li><b>Bordures.</b> Les &#xE9;crans sont dessin&#xE9;s centr&#xE9;s dans le ch&#xE2;ssis, les bordures r&#xE9;parties sym&#xE9;triquement &#x2014; approximation graphique, les cotes chiffr&#xE9;es n'en d&#xE9;pendent pas.</li>
+      <li><b>R&#xE9;f&#xE9;rences Samsung.</b> Les deux pliables de juillet 2026 sont les mod&#xE8;les Samsung les plus r&#xE9;cents : le <b>Galaxy Z Fold8</b> est r&#xE9;f&#xE9;renc&#xE9; <span class="num">SM-F971</span> (d&#xE9;clinaisons SM-F971B, SM-F971B/DS, SM-F971U, SM-F971U1) et le <b>Galaxy Z Fold8 Ultra</b> <span class="num">SM-F976</span> (SM-F976B / U / N), d'apr&#xE8;s les bases de donn&#xE9;es sp&#xE9;cialis&#xE9;es ; Samsung ne publie pas ces codes sur ses pages produit.</li>
+      <li><b>Deux sens de pliage.</b> Le Z Fold8 Ultra plie comme un livre : la hauteur reste constante (158,4 mm) et la largeur double. Le Z Fold8 plie en largeur : c'est sa hauteur qui reste constante (123,9 mm) tandis que la largeur passe de 81,9 &#xE0; 161,4 mm. Son &#xE9;cran interne s'ouvre donc en <b>paysage</b> &#x2014; c'est pourquoi il appara&#xEE;t plus large et plus court que les autres dans la sc&#xE8;ne, et pourquoi son ratio est not&#xE9; 4:3 paysage.</li>
+      <li><b>R&#xE9;solution du Z Fold8.</b> Samsung et les bases de donn&#xE9;es publient <span class="num">1848 &#xD7; 2448 px</span> pour la dalle interne et <span class="num">1248 &#xD7; 1972 px</span> pour l'&#xE9;cran externe. La dalle interne est ici report&#xE9;e dans son orientation d'usage (2448 px sur la largeur physique de 154,4 mm) : le nombre de pixels et la densit&#xE9; sont identiques, seule l'orientation de lecture change.</li>
+      <li><b>Luminosit&#xE9; du Z Fold8.</b> Samsung annonce <b>2 600 nits</b> de cr&#xEA;te sur les deux dalles ; GSMArena cr&#xE9;dite la dalle interne de 3 000 nits. La valeur officielle du constructeur est retenue. La luminosit&#xE9; HDR de ce mod&#xE8;le n'est pas publi&#xE9;e, d'o&#xF9; la mention &#xAB; non communiqu&#xE9;e &#xBB;.</li>
+      <li><b>Rafra&#xEE;chissement du Z Fold8.</b> Samsung ne publie que &#xAB; 120 Hz &#xBB; ; le plancher adaptatif de 1 Hz, propre au LTPO et annonc&#xE9; sur le Fold8 Ultra, n'est pas confirm&#xE9; pour ce mod&#xE8;le. Il est donc not&#xE9; <span class="num">120 Hz (LTPO)</span> plut&#xF4;t que 1&#x2013;120 Hz.</li>
+      <li><b>Estimations d'usage.</b> Lignes de texte, &#xE9;l&#xE9;ments de liste et caract&#xE8;res visibles sont mod&#xE9;lis&#xE9;s (corps 16 dp, interligne 24 dp, ligne de liste 72 dp, largeur moyenne de caract&#xE8;re 8,2 dp) &#x2014; ordres de grandeur, pas des mesures. La classe de largeur Android (compact &lt; 600 dp, medium 600&#x2013;840, expanded &#x2265; 840) est en revanche un seuil r&#xE9;el du syst&#xE8;me.</li>
+    </ul>
+
+    <div class="src-list">
+      <div class="src"><span class="who">Google Store</span><span class="what">Pixel 11 Pro Fold &#x2014; fiche technique compl&#xE8;te</span><a class="num" href="https://store.google.com/product/pixel_11_pro_fold_specs">store.google.com</a></div>
+      <div class="src"><span class="who">Blog Google</span><span class="what">Annonce du Pixel 11 Pro Fold, 12 ao&#xFB;t 2026</span><a class="num" href="https://blog.google/products-and-platforms/devices/pixel/pixel-11-pro-fold/">blog.google</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Couverture de l'annonce Pixel 11 Pro / Pro XL / Pro Fold</span><a class="num" href="https://www.gsmarena.com/google_unveils_the_pixel_11_pro_and_11_pro_xl_the_new_pixel_11_pro_fold_joins_them-news-74139.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">Google Store</span><span class="what">Pixel 11 Pro et 11 Pro XL &#x2014; fiche technique commune</span><a class="num" href="https://store.google.com/us/product/pixel_11_pro_specs">store.google.com</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Google Pixel 11 Pro &#x2014; fiche compl&#xE8;te : GM45K, 152,7 &#xD7; 71,9 &#xD7; 8,4 mm, 1280 &#xD7; 2856 px, 204 g</span><a class="num" href="https://www.gsmarena.com/google_pixel_11_pro_5g-14801.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Google Pixel 11 Pro XL &#x2014; fiche compl&#xE8;te : G4HCD, 162,7 &#xD7; 76,5 &#xD7; 8,5 mm, 1344 &#xD7; 2992 px, 226 g</span><a class="num" href="https://www.gsmarena.com/google_pixel_11_pro_xl_5g-14800.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">Wikip&#xE9;dia</span><span class="what">Pixel 11 Pro / 11 Pro XL &#x2014; diagonales, ppi publi&#xE9;s (495 et 486), 1&#x2013;120 Hz, 3 600 / 2 400 nits</span><a class="num" href="https://en.wikipedia.org/wiki/Pixel_11_Pro">en.wikipedia.org</a></div>
+      <div class="src"><span class="who">Wikip&#xE9;dia</span><span class="what">Pixel 11 Pro Fold &#x2014; dimensions repli&#xE9;es / d&#xE9;pli&#xE9;es, ratios, ppi</span><a class="num" href="https://en.wikipedia.org/wiki/Pixel_11_Pro_Fold">en.wikipedia.org</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Samsung Galaxy Z Fold8 Ultra &#x2014; fiche compl&#xE8;te</span><a class="num" href="https://www.gsmarena.com/samsung_galaxy_z_fold8_ultra_5g-14802.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">Samsung</span><span class="what">Galaxy Unpacked juillet 2026 &#x2014; Z Fold8 Ultra, Z Fold8, Z Flip8</span><a class="num" href="https://news.samsung.com/global/galaxy-unpacked-july-2026-a-first-look-at-galaxy-z-fold8-ultra-galaxy-z-fold8-and-galaxy-z-flip8">news.samsung.com</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Samsung Galaxy Z Fold8 &#x2014; fiche compl&#xE8;te : SM-F971, cotes repli&#xE9;es / d&#xE9;pli&#xE9;es, r&#xE9;solutions, ppi, protections</span><a class="num" href="https://www.gsmarena.com/samsung_galaxy_z_fold_wide_5g-14673.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">Samsung</span><span class="what">Galaxy Z Fold8 &#x2014; fiche officielle : 5,5&#x2033; en 10:16, 7,6&#x2033; en 4:3, 120 Hz, 2 600 nits, 201 g</span><a class="num" href="https://www.samsung.com/ph/mobile/mobile-phone-buying-guide/galaxy-z-fold8-features-specs/">samsung.com</a></div>
+      <div class="src"><span class="who">Samsung US</span><span class="what">Galaxy Z Fold8 &#x2014; page produit : ratios d'&#xE9;cran, 4,5 mm d&#xE9;pli&#xE9;</span><a class="num" href="https://www.samsung.com/us/smartphones/galaxy-z-fold8/">samsung.com</a></div>
+      <div class="src"><span class="who">GSMArena</span><span class="what">Google Pixel 7 Pro &#x2014; fiche compl&#xE8;te</span><a class="num" href="https://www.gsmarena.com/google_pixel_7_pro-11908.php">gsmarena.com</a></div>
+      <div class="src"><span class="who">PhoneArena</span><span class="what">Pixel 11 Pro Fold &#x2014; luminosit&#xE9; Super Actua, 3 600 nits</span><a class="num" href="https://www.phonearena.com/news/pixel-11-pro-fold-is-here_id182546">phonearena.com</a></div>
+      <div class="src"><span class="who">TechCrunch</span><span class="what">Pixel 11 Pro Fold &#x2014; ch&#xE2;ssis renforc&#xE9;, &#xE9;crans plus lumineux</span><a class="num" href="https://techcrunch.com/2026/08/12/google-launches-the-pixel-11-pro-fold-with-a-stronger-build-and-brighter-screens/">techcrunch.com</a></div>
+      <div class="src"><span class="who">Android</span><span class="what">Classes de taille de fen&#xEA;tre (compact / medium / expanded)</span><a class="num" href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes">developer.android.com</a></div>
+    </div>
+  </div>
+</section>
+
+<footer class="end"><div class="wrap">
+  <div>Relev&#xE9; &#xE9;tabli le 13 ao&#xFB;t 2026. Les fiches techniques des trois Pixel annonc&#xE9;s la veille peuvent encore &#xEA;tre pr&#xE9;cis&#xE9;es par le constructeur.</div>
+  <div class="num">Zones d'affichage, surfaces, dp et &#xE9;carts en pourcentage recalcul&#xE9;s dans la page &#xE0; partir des seules donn&#xE9;es officielles.</div>
+</div></footer>
+
+</main>
+
+<script>
+(() => {
+"use strict";
+const MM_DP = 25.4/160;                       // 0.15875 mm par dp
+const rmotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* -- g\u00E9om\u00E9trie ------------------------------------------------------ */
+function geom(diagIn, px){
+  const d = diagIn*25.4, pd = Math.hypot(px[0],px[1]);
+  const w = d*px[0]/pd, h = d*px[1]/pd;
+  return { w, h, diagMm:d, area:w*h/100, ppiCalc:pd/diagIn,
+           dpW:w/MM_DP, dpH:h/MM_DP, ratioNum:px[1]/px[0] };
+}
+const f1 = n => n.toFixed(1).replace(".",",");
+const f2 = n => n.toFixed(2).replace(".",",");
+const f0 = n => Math.round(n).toLocaleString("fr-FR");
+const dg = n => f1(n).replace(",0","")+"\u2033";
+const pc = n => (n>=0?"+":"\u2212")+f1(Math.abs(n))+" %";
+const NUM = ["", "une", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"];
+
+/* -- donn\u00E9es (officielles) ------------------------------------------ */
+const DEV = [
+  { id:"p7p", name:"Pixel 7 Pro", ref:"Google Pixel 7 Pro (GE2AE)", brand:"Google",
+    hue:"var(--c-p7p)", kind:"bar", role:"R\u00E9f\u00E9rence non pliable",
+    announced:"6 octobre 2022", weight:212,
+    body:{ closed:{w:76.6,h:162.9,d:8.9,r:12} },
+    screens:{ main:{ label:"\u00C9cran", diag:6.7, px:[1440,3120], ppi:512, ratio:"19,5:9",
+      tech:"LTPO AMOLED", hz:"10\u2013120 Hz", peak:1500, hdr:1000, glass:"Gorilla Glass Victus", stb:88.7, r:11 } } },
+
+  { id:"p11p", name:"Pixel 11 Pro", ref:"Google Pixel 11 Pro (GM45K)", brand:"Google",
+    hue:"var(--c-p11p)", kind:"bar", role:"Barre compacte, sortie le 20 ao\u00FBt 2026",
+    announced:"12 ao\u00FBt 2026", weight:204,
+    body:{ closed:{w:71.9,h:152.7,d:8.4,r:12} },
+    screens:{ main:{ label:"\u00C9cran", diag:6.3, px:[1280,2856], ppi:495, ratio:"20:9",
+      tech:"LTPO OLED \u00AB Super Actua \u00BB", hz:"1\u2013120 Hz", peak:3600, hdr:2400, glass:"Gorilla Glass Victus 2", r:11 } } },
+
+  { id:"p11xl", name:"Pixel 11 Pro XL", ref:"Google Pixel 11 Pro XL (G4HCD)", brand:"Google",
+    hue:"var(--c-p11xl)", kind:"bar", role:"Grande barre, sortie le 20 ao\u00FBt 2026",
+    announced:"12 ao\u00FBt 2026", weight:226,
+    body:{ closed:{w:76.5,h:162.7,d:8.5,r:12} },
+    screens:{ main:{ label:"\u00C9cran", diag:6.8, px:[1344,2992], ppi:486, ratio:"20:9",
+      tech:"LTPO OLED \u00AB Super Actua \u00BB", hz:"1\u2013120 Hz", peak:3600, hdr:2400, glass:"Gorilla Glass Victus 2", r:11 } } },
+
+  { id:"fold", name:"Pixel 11 Pro Fold", ref:"Google Pixel 11 Pro Fold", brand:"Google",
+    hue:"var(--c-fold)", kind:"fold", role:"Pliable book, sorti le 20 ao\u00FBt 2026",
+    announced:"12 ao\u00FBt 2026", weight:239,
+    body:{ closed:{w:76.0,h:155.2,d:10.1,r:9}, open:{w:150.4,h:155.2,d:5.0,r:8} },
+    screens:{
+      cover:{ label:"\u00C9cran externe", diag:6.5, px:[1080,2342], ppi:399, ratio:"19,5:9",
+        tech:"LTPO OLED \u00AB Super Actua \u00BB", hz:"1\u2013120 Hz", peak:3600, hdr:2400, glass:"Gorilla Glass Victus 2", r:8 },
+      inner:{ label:"\u00C9cran interne", diag:8.0, px:[2076,2152], ppi:372, ratio:"1,04:1",
+        tech:"LTPO OLED pliable \u00AB Super Actua Flex \u00BB", hz:"1\u2013120 Hz", peak:3600, hdr:2400, glass:"Ultra-thin glass", r:6 } } },
+
+  { id:"sam8", name:"Galaxy Z Fold8", ref:"Samsung Galaxy Z Fold8 \u2014 SM-F971 (B / B DS / U / U1)", brand:"Samsung",
+    hue:"var(--c-sam8)", kind:"fold", role:"Pliable large, sorti le 22 juillet 2026",
+    announced:"22 juillet 2026", weight:201,
+    body:{ closed:{w:81.9,h:123.9,d:9.7,r:8}, open:{w:161.4,h:123.9,d:4.5,r:7} },
+    screens:{
+      cover:{ label:"\u00c9cran externe", diag:5.5, px:[1248,1972], ppi:428, ratio:"10:16",
+        tech:"Dynamic LTPO AMOLED 2X", hz:"120 Hz (LTPO)", peak:2600, hdr:null, glass:"Gorilla Glass Ceramic 3", r:6 },
+      inner:{ label:"\u00c9cran interne", diag:7.6, px:[2448,1848], ppi:404, ratio:"4:3 (paysage)",
+        tech:"Dynamic LTPO AMOLED 2X pliable, HDR10+", hz:"120 Hz (LTPO)", peak:2600, hdr:null, glass:"Flex Titanium / anti-reflet", r:5 } } },
+
+  { id:"sam", name:"Galaxy Z Fold8 Ultra", ref:"Samsung Galaxy Z Fold8 Ultra \u2014 SM-F976", brand:"Samsung",
+    hue:"var(--c-sam)", kind:"fold", role:"Pliable book, sorti le 22 juillet 2026",
+    announced:"22 juillet 2026", weight:215,
+    body:{ closed:{w:72.8,h:158.4,d:8.9,r:7}, open:{w:143.2,h:158.4,d:4.1,r:6} },
+    screens:{
+      cover:{ label:"\u00C9cran externe", diag:6.5, px:[1080,2520], ppi:422, ratio:"21:9",
+        tech:"Dynamic LTPO AMOLED 2X", hz:"1\u2013120 Hz", peak:3000, hdr:3000, glass:"Gorilla Glass Ceramic 3", r:6 },
+      inner:{ label:"\u00C9cran interne", diag:8.0, px:[2256,2504], ppi:422, ratio:"1,11:1",
+        tech:"Dynamic LTPO AMOLED 2X pliable, HDR10+", hz:"1\u2013120 Hz", peak:3000, hdr:3000, glass:"Flex Titanium / anti-reflet", r:5 } } }
+];
+DEV.forEach(d => Object.values(d.screens).forEach(s => Object.assign(s, geom(s.diag, s.px))));
+const byId = Object.fromEntries(DEV.map(d=>[d.id,d]));
+const REF  = byId.p7p.screens.main;                       // m\u00E8tre-\u00E9talon
+const scr  = (d,st) => d.kind==="bar" ? d.screens.main : (st==="open" ? d.screens.inner : d.screens.cover);
+const bod  = (d,st) => d.kind==="bar" ? d.body.closed    : (st==="open" ? d.body.open    : d.body.closed);
+const delta= a => (a/REF.area - 1)*100;
+const wsClass = dp => dp>=840 ? ["expanded","Expanded \u2265 840 dp"] : dp>=600 ? ["medium","Medium 600\u2013840 dp"] : ["compact","Compact < 600 dp"];
+
+/* -- \u00E9tat ----------------------------------------------------------- */
+// Selection de depart. Source de verite unique : l'etat initial, l'echelle
+// automatique et le dernier temps de l'animation lisent tous cette liste.
+const DEFAULT_VIS = ["p7p", "fold", "sam8"];
+const visSet = ids => Object.fromEntries(DEV.map(d => [d.id, ids.includes(d.id)]));
+
+const S = { mode:"side", state:"open", vis:visSet(DEFAULT_VIS),
+            marks:{w:false,h:false,d:false,a:false}, focus:null, sel:"fold", scene:"web",
+            fiche:true };
+
+// \u00AB pour chaque appareil, ses dalles \u00BB : ce derive alimente a lui seul les barres
+// de surface, la mise en situation et le tableau -- plus aucune liste en dur a
+// tenir synchronisee avec DEV.
+const panelsOf = list => list.flatMap(d =>
+  d.kind === "bar" ? [[d, "main"]] : [[d, "cover"], [d, "inner"]]);
+const ALL_PANELS = panelsOf(DEV);                     // les neuf dalles du catalogue
+const panels = () => panelsOf(DEV.filter(d => S.vis[d.id]));
+const shownDev = () => DEV.filter(d => S.vis[d.id]);
+
+/* -- construction d'un appareil ------------------------------------- */
+function screenEl(d, s, body, content, unit){
+  const el = document.createElement("div");
+  el.className = "scr";
+  el.style.cssText = `--sx:${(body.w-s.w)/2};--sy:${(body.h-s.h)/2};--sw:${s.w};--sh:${s.h};--sr:${s.r}`;
+  if (content) el.appendChild(content(s));
+  return el;
+}
+function plate(d, body, s, cls, content){
+  const p = document.createElement("div");
+  p.className = "plate" + (cls?" "+cls:"");
+  p.style.cssText = `--pw:${body.w};--ph:${body.h};--pr:${body.r}`;
+  p.appendChild(screenEl(d, s, body, content));
+  return p;
+}
+function buildDevice(d, opt){
+  const content = opt.content || null;
+  const wrap = document.createElement("div");
+  wrap.className = "dev"; wrap.dataset.dev = d.id;
+  wrap.style.setProperty("--dc", d.hue);
+
+  if (d.kind === "bar"){
+    const b = d.body.closed, s = d.screens.main;
+    const p = plate(d, b, s, "", content);
+    p.querySelector(".scr").insertAdjacentHTML("beforeend",
+      `<div class="punch"></div>`);
+    wrap.appendChild(p);
+    wrap.style.width  = `calc(${b.w} * var(${opt.unit}))`;
+    wrap.style.height = `calc(${b.h} * var(${opt.unit}))`;
+  } else {
+    const co = d.body.closed, op = d.body.open;
+    const cs = d.screens.cover, is = d.screens.inner;
+    const fold = document.createElement("div");
+    fold.className = "fold";
+    fold.style.cssText = `--ow:${op.w};--oh:${op.h};--hw:${op.w/2}`;
+
+    const mkLeaf = (side) => {
+      const leaf = document.createElement("div");
+      leaf.className = "leaf " + side;
+      const p = plate(d, op, is, "face-inner", content);
+      if (side === "r") p.style.setProperty("--ox", `calc(${-op.w/2} * var(${opt.unit}))`);
+      p.querySelector(".scr").insertAdjacentHTML("beforeend", `<div class="crease"></div>`);
+      leaf.appendChild(p);
+      return leaf;
+    };
+    fold.appendChild(mkLeaf("l"));
+    fold.appendChild(mkLeaf("r"));
+    const cov = plate(d, co, cs, "cover", content);
+    cov.querySelector(".scr").insertAdjacentHTML("beforeend", `<div class="punch"></div>`);
+    fold.appendChild(cov);
+    wrap.appendChild(fold);
+    wrap.style.width  = `calc(${op.w} * var(${opt.unit}))`;
+    wrap.style.height = `calc(${op.h} * var(${opt.unit}))`;
+  }
+  if (opt.unit !== "--u") wrap.style.setProperty("--u", `var(${opt.unit})`);
+  return wrap;
+}
+
+/* -- sc\u00E8ne principale ----------------------------------------------- */
+const stage = document.getElementById("stage");
+const scroll = document.getElementById("scroll");
+const scrollHint = document.getElementById("scrollHint");
+const els = {};
+DEV.forEach(d => {
+  const el = buildDevice(d, {unit:"--u"});
+  const marks = document.createElement("div");
+  marks.className = "marks";
+  marks.innerHTML =
+    `<div class="mk mk-w"><span class="tag" data-w></span></div>
+     <div class="mk mk-h"><span class="tag" data-h></span></div>
+     <div class="mk mk-d"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="0" x2="100" y2="100"/></svg><span class="tag" data-d></span></div>
+     <div class="mk mk-a"><span class="tag" data-a></span></div>`;
+  el.appendChild(marks);
+  el.addEventListener("pointerenter", () => { S.focus = d.id; S.sel = d.id; paint(); });
+  el.addEventListener("pointerleave", () => { S.focus = null; paint(); });
+  stage.appendChild(el);
+  els[d.id] = el;
+});
+
+const PPMM = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ppmm"));
+
+function visBox(d){
+  const b = bod(d, S.state);
+  return { w: b.w, h: b.h };
+}
+function layout(){
+  const u = PPMM();
+  const shown = DEV.filter(d => S.vis[d.id]);
+  const boxes = DEV.map(d => ({ d, ...visBox(d), on:S.vis[d.id] }));
+  const live  = boxes.filter(b=>b.on);
+  const GAP = 10;
+  const need = live.reduce((a,b)=>a+b.w,0) + GAP*Math.max(0,live.length-1);
+  const availMm = scroll.clientWidth / u;
+  const widest = Math.max(...boxes.map(b=>b.w));
+  // superpose : il faut de la place a droite pour les rails de cotes de hauteur
+  const canvasMm = S.mode==="side" ? Math.max(availMm, need+10) : Math.max(availMm, widest + 2*(14 + 10*DEV.length));
+  stage.style.width = `calc(${canvasMm} * var(--u))`;
+  // a echelle fixe, la scene peut depasser la fenetre : on le dit plutot que de reduire l'echelle
+  scrollHint.hidden = canvasMm * u <= scroll.clientWidth + 1;
+  const H = 212, BIAS = 17;                    // marge basse pour les cotes de largeur
+  const cy = h => (H-h)/2 - BIAS;
+
+  if (S.mode === "side"){
+    let x = (canvasMm - need)/2;
+    live.forEach(b => { b.x = x; b.y = cy(b.h); x += b.w + GAP; });
+  } else if (S.mode === "stack"){
+    const mw = Math.max(...live.map(b=>b.w), 1), mh = Math.max(...live.map(b=>b.h), 1);
+    const ox = (canvasMm-mw)/2, oy = cy(mh);
+    live.forEach(b => { b.x = ox; b.y = oy; });
+  } else {
+    live.forEach(b => { b.x = (canvasMm-b.w)/2; b.y = cy(b.h); });
+  }
+  boxes.filter(b=>!b.on).forEach(b => { b.x = (canvasMm-b.w)/2; b.y = cy(b.h); });
+
+  // z : la plus grande surface derri\u00E8re
+  const order = [...boxes].sort((a,b)=> (b.w*b.h)-(a.w*a.h));
+  order.forEach((b,i) => els[b.d.id].style.zIndex = 10+i);
+
+  // Cotes de largeur : toujours sur quatre lignes communes, au bas de la scene.
+  // Cotes de hauteur : quatre colonnes communes a droite quand les appareils se
+  // superposent, sinon au contact de chaque appareil (sinon la scene deborde).
+  const ROWS = [176, 186, 196, 206];
+  const sharedRails = S.mode !== "side";
+  const maxRight = Math.max(...(live.length?live:boxes).map(b => {
+    const s = scr(b.d, S.state), bb = bod(b.d, S.state);
+    return b.x + (bb.w + s.w)/2;
+  }));
+
+  boxes.forEach((b,i) => {
+    const el = els[b.d.id], d = b.d, s = scr(d, S.state), body = bod(d, S.state);
+    const sBot = b.y + (body.h + s.h)/2, sRight = b.x + (body.w + s.w)/2;
+    const woff = ROWS[i] - sBot;
+    const hoff = sharedRails ? (maxRight + 8 + 10*i) - sRight : 5.5;
+    el.style.setProperty("--x", `calc(${b.x} * var(--u))`);
+    el.style.setProperty("--y", `calc(${b.y} * var(--u))`);
+    el.style.opacity = b.on ? "" : "0";
+    el.style.pointerEvents = b.on ? "" : "none";
+    // un appareil seul en sc\u00E8ne n'a rien \u00E0 laisser voir derri\u00E8re : on le rend opaque
+    el.classList.toggle("focus", S.focus === d.id || (live.length === 1 && b.on));
+    const fold = el.querySelector(".fold");
+    if (fold) fold.classList.toggle("open", S.state === "open");
+
+    const m = el.querySelector(".marks");
+    m.style.cssText = `--mx:${(body.w-s.w)/2};--my:${(body.h-s.h)/2};--mw:${s.w};--mh:${s.h};`+
+                      `--stag:${i};--woff:${woff.toFixed(2)};--hoff:${hoff.toFixed(2)}`;
+    m.className = "marks" + Object.entries(S.marks).filter(([,v])=>v).map(([k])=>" m-"+k).join("");
+    m.querySelector("[data-w]").textContent = f1(s.w)+" mm";
+    m.querySelector("[data-h]").textContent = f1(s.h)+" mm";
+    m.querySelector("[data-d]").textContent = dg(s.diag);
+    m.querySelector("[data-a]").textContent = f1(s.area)+" cm\u00B2";
+  });
+}
+
+/* -- fiche ---------------------------------------------------------- */
+const slim = document.getElementById("slim");
+function paintFiche(){
+  const d = byId[S.focus || S.sel];
+  const s = scr(d, S.state), body = bod(d, S.state);
+  const [wc, wl] = wsClass(s.dpW);
+  // fiche repliee : les memes cotes, mais sur une ligne, sans voler de largeur
+  if (!S.fiche){
+    slim.innerHTML =
+      `<span class="nm" style="--dc:${d.hue}"><span class="sw"></span>${d.name}</span>
+       <span class="k">${s.label}${d.kind==="bar" ? "" : " \u00B7 "+(S.state==="open"?"d\u00E9pli\u00E9":"repli\u00E9")}</span>
+       <span><b>${dg(s.diag)}</b></span>
+       <span>${s.px[0]} \u00D7 ${s.px[1]} px</span>
+       <span>${s.ppi} ppi</span>
+       <span>${s.ratio}</span>
+       <span>${s.hz}</span>
+       <span>${f0(s.peak)} nits</span>
+       <span><b>${f1(s.w)} \u00D7 ${f1(s.h)} mm</b></span>
+       <span><b>${f1(s.area)} cm\u00B2</b></span>
+       <span class="k">vs 7 Pro <b>${d.id==="p7p" ? "r\u00E9f\u00E9rence" : pc(delta(s.area))}</b></span>
+       <span class="k">${f0(s.dpW)} dp \u00B7 ${wl.replace(" dp","")}</span>
+       <span class="k">${f1(body.h)} \u00D7 ${f1(body.w)} \u00D7 ${f1(body.d)} mm</span>`;
+    return;
+  }
+  const dl = [
+    ["Dalle", `<span style="font-size:11px">${s.tech}</span>`],
+    ["Diagonale", dg(s.diag)],
+    ["R\u00E9solution", s.px[0]+" \u00D7 "+s.px[1]+" px"],
+    ["Densit\u00E9", s.ppi+" ppi"],
+    ["Ratio", s.ratio],
+    ["Fr\u00E9quence", s.hz],
+    ["Cr\u00EAte", f0(s.peak)+" nits"],
+    ["Zone active", f1(s.w)+" \u00D7 "+f1(s.h)+" mm"],
+    ["Surface", f1(s.area)+" cm\u00B2"],
+    ["vs 7 Pro", d.id==="p7p" ? "r\u00E9f\u00E9rence" : pc(delta(s.area))],
+    ["Largeur logique", f0(s.dpW)+" dp"],
+    ["Classe Android", wl.replace(" dp","")]
+  ];
+  document.getElementById("fiche").innerHTML =
+    `<div class="fiche-hd" style="--dc:${d.hue}">
+       <button class="fiche-x" data-fiche-x title="Replier la fiche" aria-label="Replier la fiche technique">\u00D7</button>
+       <div class="nm"><span class="sw"></span>${d.name}</div>
+       <div class="rf">${d.ref}</div>
+       <div class="rf">${d.role} \u00B7 annonc\u00E9 le ${d.announced} \u00B7 ${d.weight} g</div>
+     </div>
+     <div class="sub">${s.label} \u2014 ${d.kind==="bar" ? "unique" : (S.state==="open"?"d\u00E9pli\u00E9":"repli\u00E9")}</div>
+     <dl>${dl.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+     <div class="sub">Ch\u00E2ssis ${d.kind==="bar" ? "" : (S.state==="open"?"d\u00E9pli\u00E9":"repli\u00E9")}</div>
+     <dl>
+       <dt>Dimensions</dt><dd>${f1(body.h)} \u00D7 ${f1(body.w)} \u00D7 ${f1(body.d)} mm</dd>
+       <dt>Protection</dt><dd style="font-size:11.5px">${s.glass}</dd>
+     </dl>`;
+}
+
+/* -- chips ---------------------------------------------------------- */
+const devChips = document.getElementById("devChips");
+DEV.forEach(d => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.dataset.dev = d.id; b.style.setProperty("--dc", d.hue);
+  b.innerHTML = `<span class="sw"></span>${d.name}`;
+  b.setAttribute("aria-pressed","true");
+  b.addEventListener("click", () => { S.vis[d.id] = !S.vis[d.id]; if(S.vis[d.id]) S.sel = d.id; stop(); paint(); });
+  b.addEventListener("pointerenter", () => { S.focus = d.id; paint(); });
+  b.addEventListener("pointerleave", () => { S.focus = null; paint(); });
+  devChips.appendChild(b);
+});
+document.querySelectorAll("#modeChips .chip").forEach(b =>
+  b.addEventListener("click", () => { S.mode = b.dataset.mode; stop(); paint(); }));
+document.querySelectorAll("#stateChips .chip").forEach(b =>
+  b.addEventListener("click", () => { S.state = b.dataset.state; stop(); paint(); }));
+document.querySelectorAll("#markChips .chip").forEach(b =>
+  b.addEventListener("click", () => { S.marks[b.dataset.mark] = !S.marks[b.dataset.mark]; paint(); }));
+
+/* -- repli de la fiche technique ------------------------------------- */
+const stageGrid = document.querySelector(".stage-grid");
+const ficheBtn = document.getElementById("ficheToggle");
+function setFiche(on){
+  S.fiche = on;
+  paint();
+  // la colonne de droite a disparu (ou repris sa place) : l'echelle par defaut
+  // se recalcule sur la largeur reellement disponible, une fois le reflow fait
+  requestAnimationFrame(autoScale);
+}
+ficheBtn.addEventListener("click", () => setFiche(!S.fiche));
+document.getElementById("fiche").addEventListener("click", e => {
+  if (e.target.closest("[data-fiche-x]")) setFiche(false);
+});
+
+function paintChips(){
+  devChips.querySelectorAll(".chip").forEach(b => {
+    const on = S.vis[b.dataset.dev];
+    b.setAttribute("aria-pressed", on);
+    b.classList.toggle("off", !on);
+  });
+  document.querySelectorAll("#modeChips .chip").forEach(b => b.classList.toggle("act", b.dataset.mode===S.mode));
+  document.querySelectorAll("#stateChips .chip").forEach(b => b.classList.toggle("act", b.dataset.state===S.state));
+  document.querySelectorAll("#markChips .chip").forEach(b => b.classList.toggle("act", !!S.marks[b.dataset.mark]));
+  stageGrid.classList.toggle("solo", !S.fiche);
+  ficheBtn.classList.toggle("act", !S.fiche);
+  ficheBtn.setAttribute("aria-expanded", S.fiche);
+  ficheBtn.textContent = S.fiche ? "Replier la fiche" : "D\u00E9plier la fiche";
+  slim.hidden = S.fiche;
+  stage.dataset.mode = S.mode;
+}
+// Les sections 02, 03 et 04 suivent la selection, mais paint() est aussi appele au
+// simple survol d'une puce : on ne les reconstruit donc que si la selection (ou le
+// choix de contenu / d'etat de la section 03) a reellement change.
+let sectionsKey = null;
+function paintSections(){
+  const key = DEV.map(d => S.vis[d.id] ? "1" : "0").join("") + "|" + sceneState + "|" + S.scene;
+  if (key === sectionsKey) return;
+  sectionsKey = key;
+  paintBars();
+  scaleScenes();
+  buildScenes();
+  paintTable();
+}
+function paint(){ paintChips(); layout(); paintFiche(); paintSections(); }
+
+/* -- animation ------------------------------------------------------ */
+const STEPS = [
+  { cap:`<b>Le Pixel 7 Pro.</b> 6,7 pouces, ${f1(REF.area)} cm\u00B2 d'affichage \u2014 notre m\u00E8tre-\u00E9talon.`,
+    apply(){ S.vis=visSet(["p7p"]); S.mode="center"; S.state="closed"; S.marks={w:false,h:false,d:false,a:false}; S.sel="p7p"; } , t:1500 },
+  { cap:`<b>Quatre ans plus tard, les Pixel 11 Pro et 11 Pro XL s'y superposent.</b> Le XL passe \u00E0 6,8 pouces et n'y gagne que <b>${pc(delta(byId.p11xl.screens.main.area))}</b> de surface : son 20:9 est plus \u00E9troit que le 19,5:9 du 7 Pro. Le 11 Pro, lui, redescend \u00E0 ${pc(delta(byId.p11p.screens.main.area))}.`,
+    apply(){ S.vis.p11p=true; S.vis.p11xl=true; S.sel="p11xl"; }, t:2700 },
+  { cap:"<b>Le Pixel 11 Pro Fold vient se poser dessus, repli\u00E9.</b> Presque le m\u00EAme gabarit : 6,5\u2033 contre 6,7\u2033, et le m\u00EAme ratio 19,5:9.",
+    apply(){ S.vis.fold=true; S.mode="center"; S.state="closed"; S.sel="fold"; }, t:2100 },
+  { cap:`<b>Il se d\u00E9plie.</b> 8 pouces, ${f1(byId.fold.screens.inner.area)} cm\u00B2 : la surface d'affichage double presque d'un seul geste.`,
+    apply(){ S.state="open"; }, t:2300 },
+  { cap:"<b>Le Galaxy Z Fold8 Ultra entre en sc\u00E8ne.</b> M\u00EAme diagonale interne de 8 pouces, mais un \u00E9cran plus allong\u00E9 et un ch\u00E2ssis plus \u00E9troit.",
+    apply(){ S.vis.sam=true; S.sel="sam"; }, t:2300 },
+  { cap:"<b>Et le Galaxy Z Fold8, qui plie dans l'autre sens.</b> Repli\u00E9, il est court et large ; d\u00E9pli\u00E9, il s'\u00E9tale \u00E0 l'horizontale en 4:3 \u2014 le plus large des six.",
+    apply(){ S.vis.sam8=true; S.sel="sam8"; }, t:2500 },
+  { cap:"<b>Les six appareils s'alignent</b>, centr\u00E9s les uns sur les autres et rendus translucides.",
+    apply(){ S.mode="center"; }, t:1900 },
+  { cap:"<b>Les rep\u00E8res tombent :</b> largeur, hauteur, diagonale et surface, dalle par dalle.",
+    apply(){ S.marks={w:true,h:true,d:true,a:true}; }, t:2500 },
+  { cap:"<b>Et c\u00F4te \u00E0 c\u00F4te, cot\u00E9s, \u00E0 l'\u00E9chelle.</b> La vue s'arr\u00EAte sur le m\u00E8tre-\u00E9talon et les deux pliables les plus oppos\u00E9s. <b>Les trois autres appareils restent \u00E0 un clic</b> dans \u00AB Appareils \u00BB \u2014 et les sections suivantes ne montrent que ce que vous s\u00E9lectionnez ici.",
+    apply(){ S.vis=visSet(DEFAULT_VIS); S.mode="side"; S.sel="fold"; }, t:0 }
+];
+const dots = document.getElementById("dots"), cap = document.getElementById("cap");
+STEPS.forEach(() => dots.insertAdjacentHTML("beforeend", `<span class="sd"></span>`));
+let timers = [], playing = false;
+const IDLE = `Exploration libre \u2014 <b>disposition</b>, <b>\u00E9tat du pli</b> et <b>rep\u00E8res</b> pilotent la sc\u00E8ne. Survolez un appareil pour sa fiche.`;
+function stop(quiet){
+  timers.forEach(clearTimeout); timers=[]; playing=false;
+  dots.querySelectorAll(".sd").forEach(s=>s.classList.remove("on"));
+  if (!quiet){ cap.innerHTML = IDLE; cap.classList.add("show"); }
+}
+function play(){
+  stop(true); playing = true;
+  if (rmotion){ STEPS.forEach(s=>s.apply()); cap.innerHTML = STEPS[STEPS.length-1].cap; cap.classList.add("show");
+                dots.querySelectorAll(".sd").forEach(s=>s.classList.add("on")); paint(); return; }
+  let t = 0;
+  STEPS.forEach((st,i) => {
+    timers.push(setTimeout(() => {
+      if (!playing) return;
+      st.apply();
+      cap.classList.remove("show");
+      cap.innerHTML = st.cap;
+      requestAnimationFrame(()=>cap.classList.add("show"));
+      dots.querySelectorAll(".sd").forEach((s,j)=>s.classList.toggle("on", j<=i));
+      paint();
+    }, t));
+    t += st.t + (i===0?350:0);
+  });
+  timers.push(setTimeout(()=>{ playing=false; }, t));
+}
+document.getElementById("replay").addEventListener("click", play);
+
+/* -- calibration ---------------------------------------------------- */
+const cal = document.getElementById("cal"), calOut = document.getElementById("calOut");
+function setPpmm(v){
+  document.documentElement.style.setProperty("--ppmm", v);
+  calOut.textContent = f2(v)+" px/mm";
+  layout();
+}
+cal.addEventListener("input", () => setPpmm(parseFloat(cal.value)));
+const PPMM_DEF = 3.25;                 // echelle de reference de la scene
+function autoScale(){
+  // L'echelle est unique et stable : elle ne change ni au depliage, ni au changement
+  // de disposition, ni quand on coche un appareil -- sinon la comparaison ne veut
+  // plus rien dire. On la cale sur la seule selection de depart, deplice et cote a
+  // cote : la vue d'arrivee est ainsi la plus grande possible. Cocher un appareil de
+  // plus fait defiler la scene lateralement plutot que de tout retrecir, et le
+  // curseur permet toujours de monter jusqu'au 1:1.
+  const base = DEV.filter(d => DEFAULT_VIS.includes(d.id));
+  const byHeight = Math.max(360, innerHeight * .82)/212;
+  const needMm = base.reduce((a,d) => a + Math.max(bod(d,"open").w, bod(d,"closed").w), 0)
+               + 10*(base.length-1) + 12;
+  const byWidth = Math.max(240, scroll.clientWidth)/needMm;
+  const v = Math.max(1.4, Math.min(PPMM_DEF, byHeight, byWidth));
+  cal.value = v; setPpmm(v);
+}
+document.getElementById("calReset").addEventListener("click", autoScale);
+
+/* -- barres de surface ---------------------------------------------- */
+const EMPTY = `<div class="empty">Aucun appareil s\u00E9lectionn\u00E9 \u2014 activez-en un dans <b>Appareils</b>, tout en haut de la page.</div>`;
+const panelLabel = (d, k) =>
+  `${d.name} \u2014 ${k === "cover" ? "externe " : k === "inner" ? "interne " : ""}${dg(d.screens[k].diag)}`;
+
+// La barre la plus longue est toujours normee sur les neuf dalles du catalogue,
+// jamais sur la seule selection : sinon les longueurs changeraient a chaque clic
+// et la comparaison d'un etat a l'autre ne voudrait plus rien dire.
+const maxArea = Math.max(...ALL_PANELS.map(([d, k]) => d.screens[k].area));
+const barsEl = document.getElementById("bars");
+let barsSeen = false;
+
+function paintBars(){
+  const list = panels();
+  if (!list.length){ barsEl.innerHTML = EMPTY; return; }
+  barsEl.innerHTML = "";
+  list.forEach(([d, k]) => {
+    const s = d.screens[k], dv = delta(s.area);
+    barsEl.insertAdjacentHTML("beforeend",
+      `<div class="bar-row" style="--dc:${d.hue}">
+         <div class="bar-lbl"><span class="sw"></span>${panelLabel(d, k)}</div>
+         <div class="bar-track">
+           <div class="bar-fill" data-w="${(s.area/maxArea*100).toFixed(2)}"></div>
+           <div class="bar-ref" style="left:${(REF.area/maxArea*100).toFixed(2)}%"></div>
+         </div>
+         <div class="bar-val">${f1(s.area)} cm\u00B2 <span class="pc${dv<0?" neg":""}">${d.id==="p7p"?"r\u00E9f\u00E9rence":pc(dv)}</span></div>
+       </div>`);
+  });
+  // les remplissages partent de 0 : on attend une frame pour que la transition joue
+  if (barsSeen) requestAnimationFrame(fillBars);
+}
+function fillBars(){
+  barsEl.querySelectorAll(".bar-fill").forEach(f => f.style.width = f.dataset.w+"%");
+}
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  barsSeen = true;
+  fillBars();
+}), {threshold:.25});
+io.observe(barsEl);
+
+/* -- affirmations chiffr\u00E9es ----------------------------------------- */
+const FI = byId.fold.screens.inner, FC = byId.fold.screens.cover;
+const SI = byId.sam.screens.inner,  SC = byId.sam.screens.cover;
+const WI = byId.sam8.screens.inner, WC = byId.sam8.screens.cover;
+// quel pliable gagne le plus au depliage : calcule, jamais ecrit en dur
+const GAIN_MAX = DEV.filter(d => d.kind==="fold")
+  .map(d => ({ name:d.name, gain:d.screens.inner.area/d.screens.cover.area, cw:d.screens.cover.w }))
+  .reduce((a,b) => b.gain > a.gain ? b : a);
+document.getElementById("claims").innerHTML = [
+  [byId.fold.hue, `L'\u00E9cran ouvert du <b>Pixel 11 Pro Fold</b> offre <span class="big">${pc(delta(FI.area))}</span> de surface d'affichage par rapport au Pixel 7 Pro \u2014 ${f1(FI.area)} cm\u00B2 contre ${f1(REF.area)} cm\u00B2. Referm\u00E9, il en perd ${pc(delta(FC.area))}.`],
+  [byId.sam.hue,  `L'\u00E9cran ouvert du <b>Galaxy Z Fold8 Ultra</b> offre <span class="big">${pc(delta(SI.area))}</span> par rapport au Pixel 7 Pro \u2014 ${f1(SI.area)} cm\u00B2, \u00E0 ${pc((SI.area/FI.area-1)*100)} du Pixel. Son \u00E9cran externe, en 21:9, est le plus \u00E9troit du lot : ${f1(SC.w)} mm de large.`],
+  [byId.sam8.hue, `L'\u00E9cran ouvert du <b>Galaxy Z Fold8</b> n'offre que <span class="big">${pc(delta(WI.area))}</span> \u2014 ${f1(WI.area)} cm\u00B2, la plus petite dalle interne des trois pliables. Mais c'est la plus <b>large</b> : ${f1(WI.w)} mm d'affichage utile, soit ${pc((WI.w/FI.w-1)*100)} sur le Pixel 11 Pro Fold. Il \u00E9change de la hauteur contre de la largeur.`],
+  [byId.sam8.hue, `Repli\u00E9, ce m\u00EAme Z Fold8 est le seul \u00E0 ne pas ressembler \u00E0 un t\u00E9l\u00E9phone : ${f1(WC.w)} \u00D7 ${f1(WC.h)} mm d'\u00E9cran en 10:16, <b>${pc(delta(WC.area))}</b> de surface par rapport au Pixel 7 Pro. C'est le plus petit des ${NUM[ALL_PANELS.length]} \u00E9crans mesur\u00E9s ici.`],
+  [byId.fold.hue, `Le geste d'ouverture rapporte <b>${pc((FI.area/FC.area-1)*100)}</b> sur le Pixel 11 Pro Fold, <b>${pc((SI.area/SC.area-1)*100)}</b> sur le Z Fold8 Ultra et <b>${pc((WI.area/WC.area-1)*100)}</b> sur le Z Fold8 : c'est le <b>${GAIN_MAX.name}</b> qui gagne le plus au d\u00E9pliage, parce qu'il part de l'\u00E9cran externe le plus \u00E9troit (${f1(GAIN_MAX.cw)} mm de large).`],
+  ["var(--acc)",  `Entre les deux dalles de 8 pouces, l'\u00E9cart est infime : <b>${f1(FI.area)} cm\u00B2</b> contre <b>${f1(SI.area)} cm\u00B2</b>, soit ${pc((FI.area/SI.area-1)*100)} en faveur du Pixel. Le Z Fold8 et ses 7,6 pouces restent ${pc((WI.area/FI.area-1)*100)} en dessous. La diff\u00E9rence se joue ailleurs \u2014 sur la forme.`]
+].map(([c,t]) => `<div class="claim" style="--dc:${c}">${t}</div>`).join("");
+
+/* -- mise en situation ---------------------------------------------- */
+const SCENES = {
+  web:{
+    note:"Estimation \u00E0 corps 16 dp et interligne 24 dp. Le Pixel 7 Pro affiche presque autant de lignes qu'un pliable ouvert en format livre \u2014 mais deux fois moins large, donc deux fois moins de texte par ligne. Le Z Fold8, ouvert en paysage, affiche au contraire moins de lignes que le Pixel 7 Pro, mais deux fois plus longues.",
+    metric(s){ const lines = Math.max(0,Math.floor((s.dpH-96)/24)), chars = Math.round(lines*(s.dpW/8.2));
+               return [f0(chars)+" caract\u00E8res", `\u2248 ${lines} lignes \u00D7 ${Math.round(s.dpW/8.2)} car.`]; },
+    ui(s){ const n=document.createElement("div"); n.className="ui light";
+      const need = Math.ceil(s.dpH/24) + 4;
+      let body = "";
+      for (let i=0; i<need; i++) body += (i%7===6)
+        ? `<div class="ln" style="width:${48+(i*13)%22}%"></div>` : `<div class="ln"></div>`;
+      n.innerHTML = `<div class="ui-col">
+        <div class="ui-bar"><span class="ui-k">actualit\u00E9</span><div class="ln" style="flex:1;margin:0"></div></div>
+        <div class="ui-body">
+          <div class="ui-t">Charni\u00E8res : ce que dix ans de plis ont appris aux ing\u00E9nieurs</div>
+          <div class="ln" style="margin-top:calc(14 * var(--dp2));width:70%"></div>
+          <div class="ui-img"></div>${body}
+        </div></div>`; return n; }
+  },
+  video:{
+    note:"Image 16:9 en plein \u00E9cran, appareil tourn\u00E9 en paysage. Le rectangle utile est calcul\u00E9 par inscription dans la dalle \u2014 un \u00E9cran plus carr\u00E9 perd davantage en bandes noires.",
+    metric(s){ const W=Math.max(s.w,s.h), H=Math.min(s.w,s.h);
+               let vw,vh; if (W/H > 16/9){ vh=H; vw=vh*16/9; } else { vw=W; vh=vw*9/16; }
+               const a=vw*vh/100, refA=(()=>{const W2=Math.max(REF.w,REF.h),H2=Math.min(REF.w,REF.h);
+                 let a2,b2; if(W2/H2>16/9){b2=H2;a2=b2*16/9;}else{a2=W2;b2=a2*9/16;} return a2*b2/100;})();
+               const rel = Math.abs(a-refA) < .05 ? "r\u00E9f\u00E9rence" : pc((a/refA-1)*100)+" vs 7 Pro";
+               return [f1(a)+" cm\u00B2 d'image", `${Math.round(a/s.area*100)} % de la dalle \u00B7 ${rel}`]; },
+    ui(s){ const n=document.createElement("div"); n.className="ui";
+      const W=Math.max(s.w,s.h), H=Math.min(s.w,s.h);
+      let vw,vh; if (W/H > 16/9){ vh=H; vw=vh*16/9; } else { vw=W; vh=vw*9/16; }
+      // rendu en portrait : la vid\u00E9o garde son ratio, largeur = min(largeur \u00E9cran, \u2026)
+      let bw = Math.min(s.w, s.h*16/9), bh = bw*9/16;
+      n.innerHTML = `<div class="ui-vid"><div class="ui-frame" style="width:calc(${bw} * var(--u2));height:calc(${bh} * var(--u2))"></div></div>
+        <div class="pane-tag">${f1(bw)} \u00D7 ${f1(bh)} mm</div>`;
+      return n; }
+  },
+  list:{
+    note:"Lignes de 72 dp, la hauteur standard d'un \u00E9l\u00E9ment de liste Android \u00E0 deux niveaux de texte.",
+    metric(s){ const rows = Math.max(0,Math.floor((s.dpH-56)/72));
+               return [rows+" \u00E9l\u00E9ments visibles", `${f0(s.dpH)} dp de haut`]; },
+    ui(s){ const n=document.createElement("div"); n.className="ui";
+      const rows = Math.max(1,Math.floor((s.dpH-56)/72)+1);
+      let r=""; for(let i=0;i<rows;i++) r += `<div class="ui-row"><div class="ui-av"></div><div class="ui-rl"><div class="ln" style="width:${45+(i*17)%40}%"></div><div class="ln" style="width:${62+(i*23)%30}%;opacity:.12"></div></div></div>`;
+      n.innerHTML = `<div class="ui-col"><div class="ui-bar"><span class="ui-k">bo\u00EEte de r\u00E9ception</span></div><div class="ui-body" style="padding-top:calc(6 * var(--dp2))">${r}</div></div>`;
+      return n; }
+  },
+  multi:{
+    note:"Android partage en haut/bas sur un \u00E9cran allong\u00E9, et c\u00F4te \u00E0 c\u00F4te d\u00E8s que la dalle s'approche du carr\u00E9. Les deux volets d'un pliable ouvert valent chacun un \u00E9cran de t\u00E9l\u00E9phone entier ; sur le Pixel 7 Pro, chaque volet perd la moiti\u00E9 de sa hauteur.",
+    metric(s){ const side = s.dpW/s.dpH > .8;
+               const pw = side ? s.dpW/2 : s.dpW, ph = side ? s.dpH : s.dpH/2;
+               return [`2 \u00D7 ${f0(pw)} \u00D7 ${f0(ph)} dp`, side ? "volets c\u00F4te \u00E0 c\u00F4te" : "volets superpos\u00E9s"]; },
+    ui(s){ const n=document.createElement("div"); n.className="ui";
+      const side = s.dpW/s.dpH > .8;
+      const pane = (kind) => kind==="list"
+        ? `<div class="ui-pane"><div class="ui light" style="background:#F7F8FB"><div class="ui-col"><div class="ui-bar"><span class="ui-k">messages</span></div><div class="ui-body">${'<div class="ui-row"><div class="ui-av"></div><div class="ui-rl"><div class="ln" style="width:70%"></div><div class="ln" style="width:90%;opacity:.12"></div></div></div>'.repeat(16)}</div></div></div></div>`
+        : `<div class="ui-pane"><div class="ui"><div class="ui-col"><div class="ui-bar"><span class="ui-k">article</span></div><div class="ui-body"><div class="ui-t" style="font-size:calc(20 * var(--dp2))">Charni\u00E8res : dix ans de plis</div><div class="ui-img" style="height:calc(90 * var(--dp2))"></div>${'<div class="ln"></div>'.repeat(26)}</div></div></div></div>`;
+      n.innerHTML = `<div class="ui-split${side?"":" stack"}">${pane("list")}${pane("art")}</div>`;
+      return n; }
+  }
+};
+let sceneState = "closed";
+const sceneRow = document.getElementById("sceneRow");
+function buildScenes(){
+  const sc = SCENES[S.scene];
+  sceneRow.innerHTML = "";
+  // une barre est toujours la ; un pliable ne montre que la dalle correspondant
+  // a l'etat choisi pour cette section
+  const list = panels().filter(([d,k]) =>
+    d.kind === "bar" || (k === "inner") === (sceneState === "open"));
+
+  document.getElementById("sceneNote").textContent = sc.note;
+  document.querySelectorAll("#sceneChips .chip").forEach(b => b.classList.toggle("act", b.dataset.scene===S.scene));
+  if (!list.length){ sceneRow.innerHTML = EMPTY; return; }
+
+  list.forEach(([d,key]) => {
+    const st = key === "inner" ? "open" : "closed";
+    const label = d.kind === "bar" ? d.name
+                : `${d.name} \u00B7 ${key === "inner" ? "ouvert" : "ferm\u00E9"}`;
+    const s = d.screens[key], body = bod(d, st==="open"?"open":"closed");
+    const col = document.createElement("div"); col.className="scene-col";
+    const dv = document.createElement("div");
+    dv.className="dev"; dv.style.setProperty("--dc", d.hue); dv.style.position="relative";
+    dv.style.setProperty("--u","var(--u2)");
+    dv.style.width  = `calc(${body.w} * var(--u2))`;
+    dv.style.height = `calc(${body.h} * var(--u2))`;
+    const p = plate(d, body, s, "", () => sc.ui(s));
+    if (key==="inner") p.querySelector(".scr").insertAdjacentHTML("beforeend", `<div class="crease"></div>`);
+    dv.appendChild(p);
+    col.appendChild(dv);
+    const [m1,m2] = sc.metric(s);
+    const [wc,wl] = wsClass(s.dpW);
+    col.insertAdjacentHTML("beforeend",
+      `<div class="scene-cap"><span class="n">${label}</span><span class="m">${m1}</span><span class="s">${m2}</span>
+       <span class="wsc ${wc==="expanded"?"exp":""}">${wl}</span></div>`);
+    sceneRow.appendChild(col);
+  });
+}
+document.querySelectorAll("#sceneChips .chip").forEach(b =>
+  b.addEventListener("click", () => { S.scene = b.dataset.scene; paint(); }));
+
+// toggle ferm\u00E9 / ouvert propre \u00E0 la section
+const stateGrp = document.createElement("div");
+stateGrp.className = "ctl-grp";
+stateGrp.innerHTML = `<span class="ctl-lbl">Pliables</span><div class="chips">
+  <button class="chip" data-ss="closed">Ferm\u00E9</button><button class="chip act" data-ss="open">Ouvert</button></div>`;
+document.getElementById("sceneChips").parentElement.parentElement.appendChild(stateGrp);
+sceneState = "open";
+stateGrp.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+  sceneState = b.dataset.ss;
+  stateGrp.querySelectorAll(".chip").forEach(x => x.classList.toggle("act", x===b));
+  paint();
+}));
+
+function scaleScenes(){
+  const box = document.querySelector(".scenes");
+  // Meme principe qu'au banc de mesure : l'echelle se cale une fois sur la selection
+  // de depart et ne bouge plus. Au-dela, la rangee defile (overflow-x sur .scenes).
+  // largeur des deux jeux de colonnes (replie / deplie) : on tient la plus large des deux
+  const base = DEV.filter(d => DEFAULT_VIS.includes(d.id));
+  const setW = st => base.reduce((a,d) => a + bod(d, st).w, 0) + 14*(base.length-1) + 40;
+  const need = Math.max(setW("closed"), setW("open"));
+  const tallest = Math.max(...base.flatMap(d => Object.values(d.body).map(b => b.h)));
+  const byHeight = Math.min(660, Math.max(340, innerHeight * .70))/tallest;
+  const v = Math.max(1.5, Math.min(4.4, (box.clientWidth-40)/need, byHeight));
+  document.documentElement.style.setProperty("--ppmm2", v);
+}
+
+/* -- tableau -------------------------------------------------------- */
+const DIA = "<span style=\"color:var(--acc)\">\u25C6</span> ";
+const TROWS = [
+  ["grp","Identit\u00E9"],
+  ["R\u00E9f\u00E9rence exacte", (d)=>d.ref, true],
+  ["Annonce officielle", (d)=>d.announced],
+  ["Statut de la donn\u00E9e", ()=>"officielle"],
+  ["Poids", (d)=>d.weight+" g"],
+  ["grp","Dalle"],
+  ["Technologie", (d,s)=>s.tech, true],
+  ["Diagonale", (d,s)=>dg(s.diag), false, true],
+  ["R\u00E9solution", (d,s)=>s.px[0]+" \u00D7 "+s.px[1]+" px"],
+  ["Densit\u00E9 publi\u00E9e", (d,s)=>s.ppi+" ppi"],
+  ["Densit\u00E9 recalcul\u00E9e "+DIA, (d,s)=>Math.round(s.ppiCalc)+" ppi"],
+  ["Ratio", (d,s)=>s.ratio],
+  ["Rafra\u00EEchissement", (d,s)=>s.hz],
+  ["Luminosit\u00E9 de cr\u00EAte", (d,s)=>f0(s.peak)+" nits", false, true],
+  ["Luminosit\u00E9 HDR", (d,s)=> s.hdr ? f0(s.hdr)+" nits" : "non communiqu\u00E9e"],
+  ["Protection", (d,s)=>s.glass, true],
+  ["grp","G\u00E9om\u00E9trie calcul\u00E9e"],
+  ["Zone d'affichage "+DIA, (d,s)=>f1(s.w)+" \u00D7 "+f1(s.h)+" mm", false, true],
+  ["Surface "+DIA, (d,s)=>f1(s.area)+" cm\u00B2", false, true],
+  ["\u00C9cart vs Pixel 7 Pro "+DIA, (d,s)=> d.id==="p7p" ? "r\u00E9f\u00E9rence" : pc(delta(s.area))],
+  ["Largeur logique "+DIA, (d,s)=>f0(s.dpW)+" dp"],
+  ["Hauteur logique "+DIA, (d,s)=>f0(s.dpH)+" dp"],
+  ["Classe de largeur Android", (d,s)=>wsClass(s.dpW)[1]],
+  ["grp","Ch\u00E2ssis"],
+  ["Hauteur \u00D7 largeur \u00D7 \u00E9paisseur", (d,s,st)=>{const b=bod(d,st); return f1(b.h)+" \u00D7 "+f1(b.w)+" \u00D7 "+f1(b.d)+" mm";}, true]
+];
+const tbl = document.getElementById("tbl");
+const tblTitle = document.getElementById("tblTitle");
+
+function paintTable(){
+  const cols = panels();
+  // le titre annonce ce qui est reellement au tableau, pas le catalogue
+  tblTitle.textContent = cols.length === 1
+    ? "La dalle, ligne par ligne"
+    : `Les ${NUM[cols.length] || cols.length} dalles, ligne par ligne`;
+
+  if (!cols.length){
+    tblTitle.textContent = "Les dalles, ligne par ligne";
+    tbl.innerHTML = `<tbody><tr><td style="padding:0;border:0">${EMPTY}</td></tr></tbody>`;
+    return;
+  }
+  tbl.innerHTML =
+    `<thead><tr><th style="min-width:190px">Caract\u00E9ristique</th>${
+      cols.map(([d,k]) => { const s=d.screens[k];
+        return `<th class="dev-col" style="--dc:${d.hue}">${d.name}<span class="sub2">${s.label} \u00B7 ${f1(s.diag).replace(",0","")}\u2033</span></th>`;
+      }).join("")}</tr></thead>
+     <tbody>${TROWS.map(r => {
+       if (r[0]==="grp") return `<tr class="grp"><th>${r[1]}</th>${cols.map(()=>`<td></td>`).join("")}</tr>`;
+       const [label, fn, wrap, hi] = r;
+       return `<tr><th${wrap?' style="white-space:normal"':""}>${label}</th>${
+         cols.map(([d,k]) => { const s=d.screens[k], st = k==="inner"?"open":"closed";
+           return `<td class="${hi?"hi":""}"${wrap?' style="white-space:normal"':""}>${fn(d,s,st)}</td>`;
+         }).join("")}</tr>`;
+     }).join("")}</tbody>`;
+}
+
+/* -- verdicts ------------------------------------------------------- */
+const vidArea = s => { const W=Math.max(s.w,s.h), H=Math.min(s.w,s.h);
+  let vw,vh; if(W/H>16/9){vh=H;vw=vh*16/9;}else{vw=W;vh=vw*9/16;} return vw*vh/100; };
+const paneArea = s => s.area/2;                      // surface physique d'un volet de multitache
+document.getElementById("verdicts").innerHTML = [
+  { q:"Le plus grand \u00E9cran", d:byId.fold, a:"Pixel 11 Pro Fold",
+    w:`<span class="num">${f1(FI.area)} cm\u00B2</span> d\u00E9pli\u00E9, contre <span class="num">${f1(SI.area)} cm\u00B2</span> au Z Fold8 Ultra : l'\u00E9cart n'est que de <span class="num">${pc((FI.area/SI.area-1)*100)}</span>, \u00E0 diagonale identique de 8 pouces. Le Z Fold8 et ses 7,6 pouces restent loin derri\u00E8re avec <span class="num">${f1(WI.area)} cm\u00B2</span>.` },
+  { q:"Le plus large une fois ouvert", d:byId.sam8, a:"Galaxy Z Fold8",
+    w:`<span class="num">${f1(WI.w)} mm</span> d'affichage utile en largeur, contre <span class="num">${f1(FI.w)} mm</span> au Pixel et <span class="num">${f1(SI.w)} mm</span> au Fold8 Ultra \u2014 et <span class="num">161,4 mm</span> de ch\u00E2ssis, le plus large des six. C'est le seul \u00E0 s'ouvrir en ${WI.ratio} : il gagne en largeur ce qu'il perd en hauteur (<span class="num">${f1(WI.h)} mm</span> contre ${f1(FI.h)}).` },
+  { q:"Le pliable le plus proche du Pixel 7 Pro, ferm\u00E9", d:byId.fold, a:"Pixel 11 Pro Fold",
+    w:`M\u00EAme ratio <span class="num">19,5:9</span> que le Pixel 7 Pro et <span class="num">${f1(FC.w)} mm</span> de large contre <span class="num">${f1(REF.w)} mm</span> \u2014 un simple <span class="num">${pc(delta(FC.area))}</span> de surface. Le Fold8 Ultra, en <span class="num">21:9</span>, est plus \u00E9troit ; le Fold8, court et large en <span class="num">10:16</span>, ne ressemble plus du tout \u00E0 un t\u00E9l\u00E9phone classique.` },
+  { q:"Le plus de surface utile en multit\u00E2che", d:byId.fold, a:"Pixel 11 Pro Fold",
+    w:`Deux volets c\u00F4te \u00E0 c\u00F4te de <span class="num">${f0(FI.dpW/2)} \u00D7 ${f0(FI.dpH)} dp</span>, soit <span class="num">${f1(paneArea(FI))} cm\u00B2</span> chacun, contre <span class="num">${f1(paneArea(SI))} cm\u00B2</span> au Fold8 Ultra et <span class="num">${f1(paneArea(WI))} cm\u00B2</span> au Fold8. Le Fold8 offre les volets les plus <b>larges</b> (<span class="num">${f0(WI.dpW/2)} dp</span> contre ${f0(FI.dpW/2)}) mais les plus courts (<span class="num">${f0(WI.dpH)} dp</span> contre ${f0(FI.dpH)}). Les trois franchissent le seuil \u00AB expanded \u00BB de 840 dp qui d\u00E9clenche les mises en page tablette.` },
+  { q:"Ce que quatre ans de barres ont rendu", d:byId.p11xl, a:"Pixel 11 Pro XL",
+    w:`Du Pixel 7 Pro de 2022 au Pixel 11 Pro XL, la diagonale monte de 6,7 \u00E0 6,8 pouces mais la surface ne gagne que <span class="num">${pc(delta(byId.p11xl.screens.main.area))}</span> \u2014 <span class="num">${f1(byId.p11xl.screens.main.area)} cm\u00B2</span> contre ${f1(REF.area)}. Le 20:9, plus \u00E9troit que le 19,5:9, absorbe le pouce gagn\u00E9. Le Pixel 11 Pro redescend m\u00EAme \u00E0 <span class="num">${f1(byId.p11p.screens.main.area)} cm\u00B2</span>, soit ${pc(delta(byId.p11p.screens.main.area))}. C'est tout l'argument du pliable : d'un seul geste, le Pixel 11 Pro Fold offre <span class="num">${pc(delta(FI.area))}</span>.` },
+  { q:"La nuance : la vid\u00E9o", d:byId.sam8, a:"Galaxy Z Fold8",
+    w:`Le plus petit \u00E9cran interne donne la plus grande image 16:9 : <span class="num">${f1(vidArea(WI))} cm\u00B2</span>, contre <span class="num">${f1(vidArea(SI))} cm\u00B2</span> au Fold8 Ultra et <span class="num">${f1(vidArea(FI))} cm\u00B2</span> au Pixel. Un \u00E9cran presque carr\u00E9 perd tout en bandes noires ; un 4:3 paysage, beaucoup moins.` },
+  { q:"La nuance : la luminosit\u00E9", d:byId.fold, a:"Pixel 11 Pro Fold",
+    w:`<span class="num">3 600 nits</span> de cr\u00EAte sur les deux dalles, contre <span class="num">3 000</span> au Fold8 Ultra et <span class="num">2 600</span> au Fold8. Le Fold8 Ultra tient en revanche ses 3 000 nits en HDR, l\u00E0 o\u00F9 le Pixel redescend \u00E0 <span class="num">2 400</span>. Le Fold8 Ultra reste le plus fin d\u00E9pli\u00E9 (<span class="num">4,1 mm</span>) et sa dalle interne la plus dense (<span class="num">422 ppi</span>, contre ${WI.ppi} au Fold8 et ${FI.ppi} au Pixel) ; le Fold8 est le plus l\u00E9ger des trois (<span class="num">201 g</span>).` }
+].map(v => `<div class="verdict" style="--dc:${v.d.hue}">
+    <span class="q">${v.q}</span>
+    <span class="a"><span class="sw"></span>${v.a}</span>
+    <span class="w">${v.w}</span></div>`).join("");
+
+/* -- boot ----------------------------------------------------------- */
+function boot(){ autoScale(); paint(); }
+boot();
+// au redimensionnement, seules les deux echelles sont a revoir : le contenu des
+// scenes est dessine en var(--u2) et se remet a l'echelle tout seul
+let rid; addEventListener("resize", () => { clearTimeout(rid); rid = setTimeout(() => { autoScale(); scaleScenes(); layout(); }, 140); });
+
+setTimeout(play, 450);
+})();
+</script>
