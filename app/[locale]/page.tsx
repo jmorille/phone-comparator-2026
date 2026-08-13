@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { Comparateur } from "@/components/Comparateur";
 import { Riche } from "@/components/primitives";
 import { Sources } from "@/components/Sources";
-import { Verdicts } from "@/components/Verdicts";
 import { contexte, dictionnaire, estLocale, langues } from "@/i18n";
 import { chargerCatalogue } from "@/lib/catalogue";
 import type { Locale } from "@/lib/types";
@@ -61,9 +60,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       </header>
 
       <main>
-        {/* sections 01 a 04 : elles partagent un seul etat, donc un seul composant */}
+        {/*
+          Sections 01 a 05 : elles partagent un seul etat -- dont la dalle de
+          reference, que la section 02 laisse choisir -- donc un seul composant.
+          La 05 en fait partie parce que ses verdicts chiffrent des ecarts.
+
+          La 06 reste au serveur : ses notes de methode n'utilisent ni delta(), ni
+          REF, ni nomRef, donc la reference ne les change pas. Le ctx qu'elle
+          recoit est construit sans reference choisie, c'est-a-dire sur celle du
+          catalogue. Si une note venait a citer un ecart, il faudrait la deplacer.
+        */}
         <Comparateur cat={cat} locale={locale} />
-        <Verdicts ctx={ctx} dict={dict} />
         <Sources cat={cat} ctx={ctx} dict={dict} locale={locale} />
       </main>
 

@@ -180,6 +180,50 @@ export function bod(d: Appareil, st: EtatPli): Chassis {
 /** Cle de dalle -> etat du pli correspondant. */
 export const etatDe = (k: CleEcran): EtatPli => (k === "inner" ? "open" : "closed");
 
+/** Etat du pli -> cle de la dalle active. L'inverse exact de etatDe(). */
+export const cleActive = (d: Appareil, st: EtatPli): CleEcran =>
+  d.kind === "bar" ? "main" : st === "open" ? "inner" : "cover";
+
+/**
+ * Designation d'une dalle : quel appareil, et laquelle de ses dalles. C'est ce
+ * que l'etat de l'interface retient de la reference -- deux chaines plutot qu'un
+ * `Panneau`, qui porte des objets resolus et n'a rien a faire dans un etat.
+ */
+export interface CleDalle {
+  id: string;
+  k: CleEcran;
+}
+
+export const cleDe = (p: Panneau): CleDalle => ({ id: p.d.id, k: p.k });
+export const memeDalle = (a: CleDalle, b: CleDalle) => a.id === b.id && a.k === b.k;
+
+/**
+ * La dalle qui sert de 100 % a tous les ecarts.
+ *
+ * La reference du catalogue (`data/reglages.json`) vaut **meme decochee**. Ce
+ * n'est pas un oubli : c'est le comportement d'origine de la page, ou le Pixel
+ * 7 Pro restait le metre-etalon sans etre en scene, et c'est ce que l'accroche
+ * et la narration annoncent. Un etalon absent de la scene reste un etalon,
+ * puisque son nom est affiche partout ou son pourcentage l'est.
+ *
+ * Un choix explicite de l'utilisateur, lui, ne survit pas au decochage de son
+ * appareil : la page comparerait alors a une dalle qu'il vient de retirer, sans
+ * l'avoir demande. On retombe sur la reference du catalogue.
+ *
+ *  1. la dalle demandee, si c'est la reference du catalogue ou si elle est visible ;
+ *  2. sinon la reference du catalogue.
+ */
+export function resoudreRef(
+  cat: Catalogue,
+  visibles: Record<string, boolean>,
+  souhait: CleDalle,
+): Panneau {
+  const defaut = cat.tousPanneaux.find((p) => p.d.id === cat.refId)!;
+  const demandee = cat.tousPanneaux.find((p) => memeDalle(cleDe(p), souhait));
+  if (!demandee) return defaut;
+  return demandee.d.id === cat.refId || visibles[demandee.d.id] ? demandee : defaut;
+}
+
 /**
  * Acces nomme, avec une erreur explicite. La prose editoriale (i18n/) cite des
  * appareils par leur id : ajouter un appareil au catalogue est libre, en retirer

@@ -5,12 +5,15 @@ import type { Formats } from "@/lib/format";
 import { classeAndroid } from "@/lib/geometrie";
 import {
   bod,
+  cleActive,
+  cleDe,
+  memeDalle,
   scr,
   teinte,
   type Appareil,
-  type Catalogue,
   type EtatPli,
   type Locale,
+  type Panneau,
 } from "@/lib/types";
 
 import { vars } from "./primitives";
@@ -18,21 +21,40 @@ import { vars } from "./primitives";
 interface Props {
   d: Appareil;
   etat: EtatPli;
-  cat: Catalogue;
+  /** la dalle qui vaut 100 % */
+  dalleRef: Panneau;
+  /** son nom, qualifiant de dalle compris (vient de Ctx) */
+  nomRef: string;
   dict: Dictionnaire;
   f: Formats;
   locale: Locale;
 }
+
+/**
+ * L'ecart de la dalle affichee a la dalle de reference. La comparaison porte sur
+ * la *dalle* et non sur l'appareil : sur un pliable dont l'ecran interne est la
+ * reference, l'ecran externe a bien un ecart a afficher.
+ */
+const ecart = (d: Appareil, etat: EtatPli, dalleRef: Panneau) =>
+  memeDalle({ id: d.id, k: cleActive(d, etat) }, cleDe(dalleRef));
 
 /** Le mot qui qualifie l'etat du pli, ou rien du tout pour une barre. */
 const qualifier = (d: Appareil, etat: EtatPli, dict: Dictionnaire) =>
   d.kind === "bar" ? "" : etat === "open" ? dict.fiche.deplie : dict.fiche.replie;
 
 /** La fiche complete, colonne de droite. */
-export function Fiche({ d, etat, cat, dict, f, locale, surRepli }: Props & { surRepli(): void }) {
+export function Fiche({
+  d,
+  etat,
+  dalleRef,
+  nomRef,
+  dict,
+  f,
+  locale,
+  surRepli,
+}: Props & { surRepli(): void }) {
   const s = scr(d, etat);
   const body = bod(d, etat);
-  const nomRef = cat.parId[cat.refId]!.name;
   const classe = classeAndroid(s.dpW);
 
   const lignes: [string, ReactNode][] = [
@@ -47,7 +69,9 @@ export function Fiche({ d, etat, cat, dict, f, locale, surRepli }: Props & { sur
     [dict.fiche.surface, `${f.f1(s.area)} cm²`],
     [
       dict.fiche.ecartRef(nomRef),
-      d.id === cat.refId ? dict.fiche.reference : f.pc((s.area / cat.ref.area - 1) * 100),
+      ecart(d, etat, dalleRef)
+        ? dict.fiche.reference
+        : f.pc((s.area / dalleRef.s.area - 1) * 100),
     ],
     [dict.fiche.largeurLogique, `${f.f0(s.dpW)} dp`],
     [dict.fiche.classeAndroid, dict.classesCourtes[classe]],
@@ -103,10 +127,9 @@ export function Fiche({ d, etat, cat, dict, f, locale, surRepli }: Props & { sur
  * Le meme releve quand la fiche est repliee : une seule ligne sous la scene, qui
  * ne vole pas de largeur a la comparaison.
  */
-export function Bandeau({ d, etat, cat, dict, f, locale }: Props) {
+export function Bandeau({ d, etat, dalleRef, nomRef, dict, f, locale }: Props) {
   const s = scr(d, etat);
   const body = bod(d, etat);
-  const nomRef = cat.parId[cat.refId]!.name;
   const classe = classeAndroid(s.dpW);
   const q = qualifier(d, etat, dict);
 
@@ -137,9 +160,9 @@ export function Bandeau({ d, etat, cat, dict, f, locale }: Props) {
       <span className="k">
         {dict.fiche.ecartRef(nomRef)}{" "}
         <b>
-          {d.id === cat.refId
+          {ecart(d, etat, dalleRef)
             ? dict.fiche.reference
-            : f.pc((s.area / cat.ref.area - 1) * 100)}
+            : f.pc((s.area / dalleRef.s.area - 1) * 100)}
         </b>
       </span>
       <span className="k">{`${f.f0(s.dpW)} dp · ${dict.classesCourtes[classe]}`}</span>

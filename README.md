@@ -57,7 +57,11 @@ situation et le tableau se déduisent tous du catalogue.
 Seules la diagonale et la résolution sont saisies : largeur et hauteur en mm, surface en cm², dp et
 densité recalculée sont **déduites**. `pnpm build` valide le fichier et nomme le champ fautif.
 
-`data/reglages.json` fixe l'appareil de référence, la sélection de départ et les bornes de l'échelle.
+`data/reglages.json` fixe l'appareil de référence **de départ**, la sélection de départ et les bornes
+de l'échelle. La section 02 laisse ensuite prendre n'importe quelle dalle en scène comme repère des
+100 % : rien n'oblige à toujours comparer au même appareil. Barres, tableau, fiche, mises en situation
+et verdicts suivent le choix ; les textes qui parlent du Pixel 7 Pro *lui-même* continuent, eux, de se
+calculer contre lui.
 
 ## Développement
 

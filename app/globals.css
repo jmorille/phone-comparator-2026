@@ -126,6 +126,13 @@ button{font-family:inherit; cursor:pointer}
   background:var(--acc-soft); border-color:color-mix(in oklab,var(--acc) 55%, transparent); color:var(--ink);
 }
 .chip.ghost{background:transparent}
+/* Mention portee par la puce de reference dont l'appareil n'est pas coche. La
+   reference du catalogue reste l'etalon meme absente de la scene : on l'annonce,
+   sans en faire un avertissement. */
+.chip .hors{
+  font:500 10px/1 var(--f-mono); letter-spacing:.05em; text-transform:uppercase;
+  opacity:.6; margin-left:-2px;
+}
 
 /* -- stage ---------------------------------------------------------- */
 .stage-shell{

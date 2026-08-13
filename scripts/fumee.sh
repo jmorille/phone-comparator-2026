@@ -96,6 +96,22 @@ for langue in fr en; do
     || { echo "ECHEC : ${langue}, le Fold devrait etre deplie (--ed:5)"; exit 1; }
 done
 
+# Le 100 % est choisi par l'utilisateur en section 02, mais il part de la
+# reference du catalogue, qui n'est pas dans la selection de depart : la puce doit
+# donc etre proposee avec sa mention « hors scene ». Et +87,2 % est l'ecart de la
+# dalle interne du Fold *au Pixel 7 Pro* -- contre +85,0 % si la reference avait
+# glisse sur un autre appareil. Ce chiffre atteste donc du repere de depart.
+echo "> le 100 % part de la reference du catalogue"
+for langue in fr en; do
+  page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")
+  grep -q 'class="hors"' <<< "$page" \
+    || { echo "ECHEC : ${langue}, la reference hors scene n'est pas proposee"; exit 1; }
+  grep -q 'Pixel 7 Pro' <<< "$page" \
+    || { echo "ECHEC : ${langue}, la reference de depart n'est pas nommee"; exit 1; }
+done
+grep -q "+87,2" <<< "$fr" || { echo "ECHEC : ecart au Pixel 7 Pro attendu en fr"; exit 1; }
+grep -q "+87.2" <<< "$en" || { echo "ECHEC : ecart au Pixel 7 Pro attendu en en"; exit 1; }
+
 echo "> les nombres suivent la langue"
 grep -q "111,5 cm" <<< "$fr" || { echo "ECHEC : virgule decimale attendue"; exit 1; }
 grep -q "111.5 cm" <<< "$en" || { echo "ECHEC : point decimal attendu"; exit 1; }

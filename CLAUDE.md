@@ -75,11 +75,12 @@ swallow exceptions: `localStorage` can throw in private browsing or a sandboxed 
 
 ```
 data/appareils/*.json  ─┐
-data/reglages.json     ─┴─> chargerCatalogue()  ->  Catalogue  ─┬─> page.tsx (serveur) ─> Verdicts, Sources
+data/reglages.json     ─┴─> chargerCatalogue()  ->  Catalogue  ─┬─> page.tsx (serveur) ─> Sources (06)
                             (lib/catalogue.ts)                  │
                                                                 └─> Comparateur (client)
-                                                                      EtatUI ─> disposer() ─> Banc
-                                                                             └─> panneaux() ─> 02 / 03 / 04
+                                                                      EtatUI ─> disposer() ─> Banc (01)
+                                                                             ├─> panneaux() ─> 02 / 03 / 04
+                                                                             └─> resoudreRef() ─> Ctx ─> Verdicts (05)
 ```
 
 ### Where the data lives
@@ -156,6 +157,28 @@ produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew p
   components import it directly and rebuild `Ctx` from the catalogue they receive. Keep `node:fs` out
   of anything a client component imports — that is why `exiger*()` lives in `lib/types.ts` and not in
   `lib/catalogue.ts`.
+- **The 100 % is the reader's choice, so prose must say whose it is.** `EtatUI.ref` holds a
+  `CleDalle` and section 02 lets the reader point it at any panel on stage; `resoudreRef()` resolves
+  it. Three rules follow, and the compiler enforces none of them:
+  - A sentence that quotes `c.delta()` must name the reference through `c.nomRef`, never in
+    hardcoded text.
+  - A sentence about the **Pixel 7 Pro itself** — its 2022 yardstick role, its curved edges, the
+    four-years-of-bars verdict — must compute with `c.deltaP7()` / `c.P7`, which do not move. Writing
+    `c.delta()` there silently rewrites the argument when the reader changes the reference.
+  - A sentence comparing panel *X* to the reference must use `c.ecartCite(X)`, not `c.delta(X)` plus
+    `c.nomRef`. When the reader makes *X* itself the reference, the naive form renders
+    "+0,0 % vs Galaxy Tab S10+" inside a verdict about the Tab S10+. `ecartCite()` falls back to the
+    Pixel 7 Pro in exactly that case.
+
+  `resoudreRef()` keeps the catalogue reference valid **even unchecked** — the original page used the
+  Pixel 7 Pro as the yardstick without it being on stage, and the lede still says so. An explicit
+  reader choice, by contrast, does not survive unchecking its device. That is why the picker also
+  offers the current reference when it is off stage, marked `dict.surface.horsScene`: otherwise no
+  chip would look active while a reference was plainly in force.
+
+  Section 05 (`Verdicts`) is rendered from `Comparateur`, not `page.tsx`, because its figures depend
+  on that state. Section 06 (`Sources`) stays on the server — its notes use neither `delta()`, `REF`
+  nor `nomRef`. Adding a note that quotes a difference means moving it too.
 - **No string states how large the catalogue is.** Not the page title, not the meta description, not
   the lede, not a verdict. `meta.titre` and `entete.titre` are plain strings, not `titre(n)`; the
   title is "Les écrans à l'échelle", never "Sept écrans". Deriving the count was not enough: it kept

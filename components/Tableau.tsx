@@ -5,10 +5,12 @@ import type { Formats } from "@/lib/format";
 import { classeAndroid } from "@/lib/geometrie";
 import {
   bod,
+  cleDe,
   etatDe,
+  memeDalle,
   teinte,
   type Appareil,
-  type Catalogue,
+  type CleDalle,
   type Locale,
   type Panneau,
 } from "@/lib/types";
@@ -48,11 +50,13 @@ function lignes(
   dict: Dictionnaire,
   f: Formats,
   ctx: Ctx,
-  cat: Catalogue,
+  cleRef: CleDalle,
   locale: Locale,
 ): Ligne[] {
   const L = dict.tableau.lignes;
-  const nomRef = cat.parId[cat.refId]!.name;
+  // le nom vient du contexte : il porte deja le qualifiant de dalle quand
+  // l'appareil de reference en a deux
+  const nomRef = ctx.nomRef;
 
   return [
     { cle: "g1", groupe: dict.tableau.groupes.identite },
@@ -93,7 +97,7 @@ function lignes(
       cle: "ecart",
       label: calcule(L.ecart(nomRef)),
       valeur: (p) =>
-        p.d.id === cat.refId ? dict.tableau.reference : f.pc(ctx.delta(p.s.area)),
+        memeDalle(cleDe(p), cleRef) ? dict.tableau.reference : f.pc(ctx.delta(p.s.area)),
     },
     { cle: "dpw", label: calcule(L.largeurLogique), valeur: (p) => `${f.f0(p.s.dpW)} dp` },
     { cle: "dph", label: calcule(L.hauteurLogique), valeur: (p) => `${f.f0(p.s.dpH)} dp` },
@@ -118,14 +122,15 @@ function lignes(
 
 export function Tableau({
   panneaux,
-  cat,
+  dalleRef,
   ctx,
   dict,
   f,
   locale,
 }: {
   panneaux: Panneau[];
-  cat: Catalogue;
+  /** la dalle qui vaut 100 % : la ligne d'ecart s'y rapporte */
+  dalleRef: Panneau;
   ctx: Ctx;
   dict: Dictionnaire;
   f: Formats;
@@ -175,7 +180,7 @@ export function Tableau({
     n += g.ps.length;
   }
 
-  const rangs = lignes(dict, f, ctx, cat, locale);
+  const rangs = lignes(dict, f, ctx, cleDe(dalleRef), locale);
 
   return (
     <table ref={tbl}>

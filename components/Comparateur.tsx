@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { contexte, dictionnaire } from "@/i18n";
+import { contexte, dictionnaire, nomDalle } from "@/i18n";
 import { formats } from "@/lib/format";
 import { disposer, echelleAuto, echelleScenes } from "@/lib/scene";
 import {
   REPERES,
+  cleDe,
+  memeDalle,
   panneauxDe,
+  resoudreRef,
   teinte,
   type Catalogue,
   type Locale,
@@ -19,6 +22,7 @@ import { Bandeau, Fiche } from "./Fiche";
 import { Banc } from "./Scene";
 import { Tableau } from "./Tableau";
 import { RangeeScenes } from "./Usage";
+import { Verdicts } from "./Verdicts";
 import { CLES_SCENE, TEMPS, etatInitial, type EtatUI } from "./etat";
 import { Riche, vars } from "./primitives";
 
@@ -57,10 +61,22 @@ const oublierEchelle = () => {
 export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale }) {
   const dict = useMemo(() => dictionnaire(locale), [locale]);
   const f = useMemo(() => formats(locale), [locale]);
-  const ctx = useMemo(() => contexte(cat, locale), [cat, locale]);
 
   const [s, setS] = useState<EtatUI>(() => etatInitial(cat));
   const maj = useCallback((p: Partial<EtatUI>) => setS((x) => ({ ...x, ...p })), []);
+
+  /*
+   * La dalle de reference, et le contexte qu'elle determine. Tout ce qui affiche
+   * un pourcentage en depend -- les barres, le tableau, la fiche, les mises en
+   * situation et les verdicts -- donc les deux se calculent ici, une fois, et
+   * descendent en props.
+   *
+   * resoudreRef() garantit que la dalle rendue est cochee : le choix ne survit
+   * pas au decochage de son appareil, sinon la page comparerait a une dalle
+   * absente de la scene.
+   */
+  const dalleRef = useMemo(() => resoudreRef(cat, s.vis, s.ref), [cat, s.vis, s.ref]);
+  const ctx = useMemo(() => contexte(cat, locale, dalleRef), [cat, locale, dalleRef]);
 
   const { echelleParDefaut, echelleMin, echelleMax } = cat.reglages;
   const [ppmm, setPpmm] = useState(echelleParDefaut);
@@ -208,6 +224,18 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
     () => cat.appareils.filter((d) => s.vis[d.id]).flatMap(panneauxDe),
     [cat, s.vis],
   );
+
+  /*
+   * Les dalles proposees comme repere : celles en scene, plus la reference
+   * courante si elle n'y est pas. Ce second cas n'est pas theorique -- la
+   * reference du catalogue reste l'etalon meme decochee (voir resoudreRef), et
+   * elle ne fait pas partie de la selection de depart. Sans elle dans la liste,
+   * aucune puce ne serait active au chargement alors qu'un repere est bien actif.
+   */
+  const optionsRef: Panneau[] = useMemo(() => {
+    const cle = cleDe(dalleRef);
+    return panneaux.some((p) => memeDalle(cleDe(p), cle)) ? panneaux : [dalleRef, ...panneaux];
+  }, [panneaux, dalleRef]);
 
   const dispo = useMemo(
     () =>
@@ -375,7 +403,8 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                   <Bandeau
                     d={affiche}
                     etat={s.etat}
-                    cat={cat}
+                    dalleRef={dalleRef}
+                    nomRef={ctx.nomRef}
                     dict={dict}
                     f={f}
                     locale={locale}
@@ -424,7 +453,8 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
               <Fiche
                 d={affiche}
                 etat={s.etat}
-                cat={cat}
+                dalleRef={dalleRef}
+                nomRef={ctx.nomRef}
                 dict={dict}
                 f={f}
                 locale={locale}
@@ -441,12 +471,48 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
           <div className="sec-head">
             <span className="eyebrow">{dict.surface.eyebrow}</span>
             <h2>{dict.surface.titre}</h2>
-            <p>{dict.surface.intro}</p>
+            <Riche tag="p" html={dict.surface.intro(ctx.nomRef)} />
           </div>
+
+          {/*
+            Le choix du 100 %. Il porte sur les *dalles* et non sur les appareils :
+            se comparer a l'ecran externe ou a l'ecran interne d'un pliable sont
+            deux questions differentes, et la section 02 est justement une liste de
+            dalles. La liste suit la selection -- on ne peut pas se comparer a une
+            dalle qui n'est pas en scene.
+          */}
+          <div className="ctl-bar">
+            <div className="ctl-grp">
+              <span className="ctl-lbl">{dict.ctl.comparerA}</span>
+              <div className="chips">
+                {optionsRef.map((p) => {
+                  const actif = memeDalle(cleDe(p), cleDe(dalleRef));
+                  const enScene = !!s.vis[p.d.id];
+                  return (
+                    <button
+                      key={`${p.d.id}:${p.k}`}
+                      className={"chip" + (actif ? " act" : "")}
+                      aria-pressed={actif}
+                      style={vars({ "--dc": teinte(p.d.id) })}
+                      onClick={() => maj({ ref: cleDe(p) })}
+                    >
+                      <span className="sw" />
+                      {nomDalle(p, locale)}
+                      {!enScene && (
+                        <span className="hors">{dict.surface.horsScene}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
           <Barres
             panneaux={panneaux}
             cat={cat}
             ctx={ctx}
+            dalleRef={dalleRef}
             dict={dict}
             f={f}
             locale={locale}
@@ -507,7 +573,8 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
             panneaux={panneaux}
             etatScene={s.etatScene}
             scene={s.scene}
-            cat={cat}
+            dalleRef={dalleRef}
+            nomRef={ctx.nomRef}
             dict={dict}
             f={f}
             locale={locale}
@@ -530,7 +597,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
           <div className="tbl-scroll">
             <Tableau
               panneaux={panneaux}
-              cat={cat}
+              dalleRef={dalleRef}
               ctx={ctx}
               dict={dict}
               f={f}
@@ -539,6 +606,14 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
           </div>
         </div>
       </section>
+
+      {/*
+        Section 05. Elle est rendue ici et non plus dans page.tsx : ses verdicts
+        citent des ecarts, donc ils dependent de la dalle de reference, donc de
+        l'etat de cette page. La section 06 reste au serveur -- ses notes de
+        methode n'utilisent ni delta(), ni REF, ni nomRef.
+      */}
+      <Verdicts ctx={ctx} dict={dict} />
     </>
   );
 }

@@ -24,8 +24,8 @@ export const en: Dictionnaire = {
     lede: (defaut) =>
       `Google unveiled the Pixel 11 Pro Fold, the Pixel 11 Pro and the Pixel 11 Pro XL yesterday. ` +
       `Facing them, Samsung's two foldables — the Galaxy Z Fold8 Ultra, which folds like a book, and ` +
-      `the Galaxy Z Fold8, which folds across its width — plus the Pixel 7 Pro as the yardstick for a ` +
-      `conventional phone. The Galaxy Tab S10+ brings up the rear: it is not a phone, and that is ` +
+      `the Galaxy Z Fold8, which folds across its width — plus the Pixel 7 Pro as the starting ` +
+      `benchmark for a conventional phone, which section 02 lets you swap for any other panel. The Galaxy Tab S10+ brings up the rear: it is not a phone, and that is ` +
       `precisely the point — it sets the scale an unfolded foldable reaches towards without ever ` +
       `arriving. Every panel is drawn here at true relative scale on the same millimetre grid. The ` +
       `stage opens on ${N[defaut] ?? defaut} devices: add the rest with a click, and the following ` +
@@ -40,6 +40,7 @@ export const en: Dictionnaire = {
     appareils: "Devices",
     disposition: "Layout",
     ecranPliables: "Foldable display",
+    comparerA: "Compare against",
     reperes: "Dimensions",
     animation: "Animation",
     ficheTechnique: "Spec panel",
@@ -85,13 +86,15 @@ export const en: Dictionnaire = {
       "Hover a device for its specifications.",
     etapes: (c) => [
       {
-        cap: `<b>The Pixel 7 Pro.</b> 6.7 inches, ${c.f.f1(c.REF.area)} cm² of display — our yardstick.`,
+        cap:
+          `<b>The Pixel 7 Pro.</b> 6.7 inches, ${c.f.f1(c.P7.area)} cm² of display — the starting ` +
+          `benchmark, the one everything below is measured against.`,
       },
       {
         cap:
           `<b>Four years on, the Pixel 11 Pro and 11 Pro XL settle on top of it.</b> The XL grows to ` +
-          `6.8 inches and gains just <b>${c.f.pc(c.delta(c.XL.area))}</b> of area: its 20:9 is narrower ` +
-          `than the 7 Pro's 19.5:9. The 11 Pro actually falls back to ${c.f.pc(c.delta(c.P11.area))}.`,
+          `6.8 inches and gains just <b>${c.f.pc(c.deltaP7(c.XL.area))}</b> of area: its 20:9 is narrower ` +
+          `than the 7 Pro's 19.5:9. The 11 Pro actually falls back to ${c.f.pc(c.deltaP7(c.P11.area))}.`,
       },
       {
         cap:
@@ -129,9 +132,9 @@ export const en: Dictionnaire = {
         cap:
           "<b>And side by side, open, dimensioned, to scale.</b> The view settles on the largest bar " +
           "phone of the moment, the two most opposed foldables and the tablet. <b>The other devices " +
-          "stay one click away</b> under “Devices” — including the Pixel 7 Pro, which remains the " +
-          "reference for every percentage even when it is not on stage. The sections below show only " +
-          "what you select here.",
+          "stay one click away</b> under “Devices” — including the Pixel 7 Pro, the starting reference for " +
+          "every percentage. Section 02 lets any checked panel take its place. The sections below " +
+          "show only what you select here.",
       },
     ],
   },
@@ -162,33 +165,36 @@ export const en: Dictionnaire = {
   surface: {
     eyebrow: "02 — Display area",
     titre: "What folding buys, in square centimetres",
-    intro:
-      "Area of the active rectangle, rounded corners not deducted. The amber marker sits at the Pixel " +
-      "7 Pro's 100 %. The panels listed follow your device selection; bar lengths, however, stay " +
-      "normalised against the largest panel in the catalogue, so they remain comparable from one " +
-      "selection to the next — that is the tablet's panel today, which is why the phones' bars fill " +
-      "less than half the track.",
+    intro: (nomRef) =>
+      `Area of the active rectangle, rounded corners not deducted. The amber marker sits at the ` +
+      `100 % line — the <b>${nomRef}</b>'s, which you can change above: nothing says the comparison ` +
+      `must always run against the same device. The panels listed follow your selection; bar ` +
+      `lengths, however, stay normalised against the largest panel in the catalogue, so they remain ` +
+      `comparable from one selection to the next — that is the tablet's panel today, which is why ` +
+      `the phones' bars fill less than half the track.`,
+    horsScene: "off stage",
     externe: "cover",
     interne: "inner",
     affirmations: (c) => [
       {
         deviceId: c.fold.id,
         texte:
-          `The open display of the <b>Pixel 11 Pro Fold</b> offers <span class="big">${c.f.pc(c.delta(c.FI.area))}</span> ` +
-          `more display area than the Pixel 7 Pro — ${c.f.f1(c.FI.area)} cm² against ` +
-          `${c.f.f1(c.REF.area)} cm². Closed, it gives back ${c.f.pc(c.delta(c.FC.area))}.`,
+          `The open display of the <b>Pixel 11 Pro Fold</b> offers <span class="big">${c.ecartCite(c.FI).pc}</span> ` +
+          `more display area than the ${c.ecartCite(c.FI).nom} — ${c.f.f1(c.FI.area)} cm² against ` +
+          `${c.f.f1(c.ecartCite(c.FI).contre.area)} cm². Closed, it gives back ` +
+          `${c.f.pc(c.delta(c.FC.area))}.`,
       },
       {
         deviceId: c.sam.id,
         texte:
-          `The open display of the <b>Galaxy Z Fold8 Ultra</b> offers <span class="big">${c.f.pc(c.delta(c.SI.area))}</span> ` +
-          `against the Pixel 7 Pro — ${c.f.f1(c.SI.area)} cm², within ${c.f.pc((c.SI.area / c.FI.area - 1) * 100)} ` +
+          `The open display of the <b>Galaxy Z Fold8 Ultra</b> offers <span class="big">${c.ecartCite(c.SI).pc}</span> ` +
+          `against the ${c.ecartCite(c.SI).nom} — ${c.f.f1(c.SI.area)} cm², within ${c.f.pc((c.SI.area / c.FI.area - 1) * 100)} ` +
           `of the Pixel. Its 21:9 cover display is the narrowest of the lot: ${c.f.f1(c.SC.w)} mm wide.`,
       },
       {
         deviceId: c.sam8.id,
         texte:
-          `The open display of the <b>Galaxy Z Fold8</b> offers only <span class="big">${c.f.pc(c.delta(c.WI.area))}</span> ` +
+          `The open display of the <b>Galaxy Z Fold8</b> offers only <span class="big">${c.ecartCite(c.WI).pc}</span> ` +
           `— ${c.f.f1(c.WI.area)} cm², the smallest inner panel of the three foldables. But it is the ` +
           `<b>widest</b>: ${c.f.f1(c.WI.w)} mm of usable display, or ${c.f.pc((c.WI.w / c.FI.w - 1) * 100)} ` +
           `on the Pixel 11 Pro Fold. It trades height for width.`,
@@ -197,8 +203,8 @@ export const en: Dictionnaire = {
         deviceId: c.sam8.id,
         texte:
           `Closed, that same Z Fold8 is the only one that does not look like a phone: ${c.f.f1(c.WC.w)} × ` +
-          `${c.f.f1(c.WC.h)} mm of display at 10:16, <b>${c.f.pc(c.delta(c.WC.area))}</b> of area against ` +
-          `the Pixel 7 Pro. It is the smallest screen measured here.`,
+          `${c.f.f1(c.WC.h)} mm of display at 10:16, <b>${c.ecartCite(c.WC).pc}</b> of area against ` +
+          `the ${c.ecartCite(c.WC).nom}. It is the smallest screen measured here.`,
       },
       {
         deviceId: c.fold.id,
@@ -348,7 +354,7 @@ export const en: Dictionnaire = {
         w:
           `<span class="num">${c.f.f1(c.TAB.area)} cm²</span> — ` +
           `<b>${c.f.pc((c.TAB.area / c.FI.area - 1) * 100)}</b> on the largest foldable unfolded, and ` +
-          `<b>${c.f.pc(c.delta(c.TAB.area))}</b> on the Pixel 7 Pro. It is not a win on equal terms: ` +
+          `<b>${c.ecartCite(c.TAB).pc}</b> on the ${c.ecartCite(c.TAB).nom}. It is not a win on equal terms: ` +
           `the tablet does not fold, does not go in a pocket, and weighs ` +
           `<span class="num">${c.tabs10p.weight} g</span> — ` +
           `<span class="num">${c.f.pc((c.tabs10p.weight / c.fold.weight - 1) * 100)}</span> more than ` +
@@ -386,8 +392,8 @@ export const en: Dictionnaire = {
         w:
           `The same <span class="num">19.5:9</span> ratio as the Pixel 7 Pro and ` +
           `<span class="num">${c.f.f1(c.FC.w)} mm</span> wide against ` +
-          `<span class="num">${c.f.f1(c.REF.w)} mm</span> — a mere ` +
-          `<span class="num">${c.f.pc(c.delta(c.FC.area))}</span> of area. The Fold8 Ultra, at ` +
+          `<span class="num">${c.f.f1(c.P7.w)} mm</span> — a mere ` +
+          `<span class="num">${c.f.pc(c.deltaP7(c.FC.area))}</span> of area. The Fold8 Ultra, at ` +
           `<span class="num">21:9</span>, is narrower; the Fold8, short and wide at ` +
           `<span class="num">10:16</span>, no longer looks like a conventional phone at all.`,
       },
@@ -411,12 +417,12 @@ export const en: Dictionnaire = {
         a: "Pixel 11 Pro XL",
         w:
           `From the 2022 Pixel 7 Pro to the Pixel 11 Pro XL the diagonal climbs from 6.7 to 6.8 inches, ` +
-          `but the area gains only <span class="num">${c.f.pc(c.delta(c.XL.area))}</span> — ` +
-          `<span class="num">${c.f.f1(c.XL.area)} cm²</span> against ${c.f.f1(c.REF.area)}. The 20:9 ` +
+          `but the area gains only <span class="num">${c.f.pc(c.deltaP7(c.XL.area))}</span> — ` +
+          `<span class="num">${c.f.f1(c.XL.area)} cm²</span> against ${c.f.f1(c.P7.area)}. The 20:9 ` +
           `ratio, narrower than 19.5:9, absorbs the inch gained. The Pixel 11 Pro even falls back to ` +
-          `<span class="num">${c.f.f1(c.P11.area)} cm²</span>, or ${c.f.pc(c.delta(c.P11.area))}. That is ` +
+          `<span class="num">${c.f.f1(c.P11.area)} cm²</span>, or ${c.f.pc(c.deltaP7(c.P11.area))}. That is ` +
           `the whole argument for folding: in a single gesture the Pixel 11 Pro Fold delivers ` +
-          `<span class="num">${c.f.pc(c.delta(c.FI.area))}</span>.`,
+          `<span class="num">${c.f.pc(c.deltaP7(c.FI.area))}</span>.`,
       },
       {
         q: "The caveat: video",

@@ -1,5 +1,11 @@
 import type { Mode } from "@/lib/scene";
-import { REPERES, type Catalogue, type EtatPli, type Marques } from "@/lib/types";
+import {
+  REPERES,
+  type Catalogue,
+  type CleDalle,
+  type EtatPli,
+  type Marques,
+} from "@/lib/types";
 
 export type CleScene = "web" | "video" | "list" | "multi";
 export const CLES_SCENE: CleScene[] = ["web", "video", "list", "multi"];
@@ -14,6 +20,13 @@ export interface EtatUI {
   mode: Mode;
   etat: EtatPli;
   vis: Record<string, boolean>;
+  /**
+   * La dalle qui vaut 100 %. Le catalogue en fixe une par defaut
+   * (`data/reglages.json`), mais rien ne justifie qu'elle soit imposee : la
+   * section 02 laisse choisir parmi les dalles cochees. Voir resoudreRef() pour
+   * ce qui se passe quand l'appareil choisi est decoche.
+   */
+  ref: CleDalle;
   marks: Marques;
   /** appareil survole : il prend la fiche sans changer la selection */
   focus: string | null;
@@ -43,6 +56,8 @@ export function etatInitial(cat: Catalogue): EtatUI {
     mode: "side",
     etat: "open",
     vis: jeuVisible(cat, selectionParDefaut),
+    // la reference du catalogue est une barre (le chargeur l'exige), donc "main"
+    ref: { id: cat.refId, k: "main" },
     marks: marquesToutes(true),
     focus: null,
     sel: ficheParDefaut,

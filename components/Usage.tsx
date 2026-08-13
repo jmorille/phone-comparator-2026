@@ -25,7 +25,8 @@ export function RangeeScenes({
   panneaux,
   etatScene,
   scene,
-  cat,
+  dalleRef,
+  nomRef,
   dict,
   f,
   locale,
@@ -34,7 +35,9 @@ export function RangeeScenes({
   panneaux: Panneau[];
   etatScene: EtatPli;
   scene: CleScene;
-  cat: Catalogue;
+  /** la dalle qui vaut 100 % : les metriques de scene s'y comparent */
+  dalleRef: Panneau;
+  nomRef: string;
   dict: Dictionnaire;
   f: Formats;
   locale: Locale;
@@ -43,7 +46,6 @@ export function RangeeScenes({
   const liste = panneaux.filter(
     (p) => p.d.kind === "bar" || (p.k === "inner") === (etatScene === "open"),
   );
-  const nomRef = cat.parId[cat.refId]!.name;
 
   return (
     <div className="scenes" ref={refBoite}>
@@ -54,7 +56,7 @@ export function RangeeScenes({
           liste.map((p) => {
             const st = etatDe(p.k);
             const body = bod(p.d, st);
-            const [m1, m2] = metriqueScene(scene, p.s, cat.ref, nomRef, dict, f);
+            const [m1, m2] = metriqueScene(scene, p.s, dalleRef.s, nomRef, dict, f);
             const classe = classeAndroid(p.s.dpW);
             const nom =
               p.d.kind === "bar"

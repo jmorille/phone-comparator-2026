@@ -17,16 +17,26 @@ import type {
 export interface Ctx {
   cat: Catalogue;
   f: Formats;
-  /** ecart de surface en % par rapport a la dalle de reference */
+  /**
+   * Ecart de surface en % par rapport a la dalle de reference -- celle que
+   * l'utilisateur a choisie dans la section 02, pas celle du catalogue.
+   *
+   * Consequence pour la prose : une phrase qui cite `delta()` ne peut plus nommer
+   * le Pixel 7 Pro en dur, elle doit passer par `nomRef`. Une phrase qui parle du
+   * Pixel 7 Pro *lui-meme* -- son role d'etalon de 2022, la courbure de ses
+   * bords -- doit au contraire calculer contre `P7`, qui ne bouge pas.
+   */
   delta(aire: number): number;
   /** resout une chaine traduite dans la langue courante */
   t(v: Traduit): string;
   /** surface d'une image 16:9 inscrite dans la dalle, en cm2 */
   vid(s: Ecran): number;
-  /** la dalle de reference (Pixel 7 Pro par defaut) */
+  /** la dalle de reference : celle que l'utilisateur a choisie */
   REF: Ecran;
-  /** nom de l'appareil de reference, cite par les libelles d'ecart */
+  /** nom de la dalle de reference, cite par les libelles d'ecart et par la prose */
   nomRef: string;
+  /** vrai quand la reference est encore celle du catalogue, personne n'y ayant touche */
+  refParDefaut: boolean;
   /**
    * Raccourcis vers les appareils cites nommement par la prose editoriale.
    * Ils sont deja discrimines : `fold.body.open` est accessible sans test.
@@ -37,6 +47,12 @@ export interface Ctx {
   p11p: AppareilBarre;
   p11xl: AppareilBarre;
   tabs10p: AppareilBarre;
+  /**
+   * Le Pixel 7 Pro nomme, et non plus seulement « la reference ». Depuis que la
+   * reference est un choix de l'utilisateur, les textes qui l'invoquent comme
+   * temoin de 2022 doivent le designer explicitement : `REF` bougerait sous eux.
+   */
+  p7p: AppareilBarre;
   /** dalles interne (I) et externe (C) des trois pliables */
   FI: Ecran;
   FC: Ecran;
@@ -49,6 +65,24 @@ export interface Ctx {
   XL: Ecran;
   /** la dalle de la tablette : le plafond de toutes les surfaces */
   TAB: Ecran;
+  /** la dalle du Pixel 7 Pro, fixe quelle que soit la reference courante */
+  P7: Ecran;
+  /** ecart de surface en % par rapport au Pixel 7 Pro, insensible a la reference */
+  deltaP7(aire: number): number;
+  /**
+   * De quoi ecrire « X % par rapport au N » sans jamais produire de tautologie.
+   *
+   * Une phrase qui compare une dalle a la reference se degrade des que
+   * l'utilisateur choisit cette dalle *comme* reference : « +0,0 % par rapport au
+   * Galaxy Tab S10+ » dans un verdict qui parle de la Tab S10+. Ce cas est
+   * atteignable en deux clics, et il touchait les quatre affirmations de la
+   * section 02 autant que le verdict de la tablette.
+   *
+   * On cite donc le Pixel 7 Pro dans ce cas : c'est l'etalon historique, et
+   * aucun texte ne decrit le 7 Pro lui-meme, donc le repli ne peut pas retomber
+   * dans la meme tautologie.
+   */
+  ecartCite(s: Ecran): { pc: string; nom: string; contre: Ecran };
 }
 
 /** Un temps de l'animation. La legende est traduite, la mecanique reste en code. */
@@ -121,6 +155,8 @@ export interface Dictionnaire {
     appareils: string;
     disposition: string;
     ecranPliables: string;
+    /** intitule du choix de la dalle qui vaut 100 %, en section 02 */
+    comparerA: string;
     reperes: string;
     animation: string;
     ficheTechnique: string;
@@ -180,10 +216,20 @@ export interface Dictionnaire {
   surface: {
     eyebrow: string;
     titre: string;
-    intro: string;
+    /**
+     * `nomRef` est le nom de la dalle choisie comme 100 %. C'est un nom, pas un
+     * compte : la regle « aucune prose n'enonce la taille du catalogue » tient.
+     */
+    intro(nomRef: string): string;
     affirmations(c: Ctx): Affirmation[];
     externe: string;
     interne: string;
+    /**
+     * Mention portee par la puce de reference quand son appareil n'est pas coche.
+     * La reference du catalogue reste l'etalon meme absente de la scene, il faut
+     * donc pouvoir la proposer -- et dire qu'elle n'y est pas.
+     */
+    horsScene: string;
   };
 
   usage: {

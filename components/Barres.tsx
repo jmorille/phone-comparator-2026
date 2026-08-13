@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { Ctx, Dictionnaire } from "@/i18n";
 import type { Formats } from "@/lib/format";
-import { teinte, type Catalogue, type Locale, type Panneau } from "@/lib/types";
+import { cleDe, memeDalle, teinte, type Catalogue, type Locale, type Panneau } from "@/lib/types";
 
 import { Riche, vars } from "./primitives";
 
@@ -71,6 +71,7 @@ export function Barres({
   panneaux,
   cat,
   ctx,
+  dalleRef,
   dict,
   f,
   locale,
@@ -78,6 +79,8 @@ export function Barres({
   panneaux: Panneau[];
   cat: Catalogue;
   ctx: Ctx;
+  /** la dalle qui vaut 100 %, choisie par l'utilisateur */
+  dalleRef: Panneau;
   dict: Dictionnaire;
   f: Formats;
   locale: Locale;
@@ -98,10 +101,17 @@ export function Barres({
     return () => io.disconnect();
   }, []);
 
-  // La longueur de reference est celle de la plus grande dalle du catalogue, pas
-  // de la selection : sinon les barres changeraient de longueur a chaque clic et
+  // Deux normalisations differentes, et il faut les garder distinctes.
+  //
+  // La *longueur* des barres est normee sur la plus grande dalle du catalogue,
+  // pas sur la selection : sinon elles changeraient de longueur a chaque clic et
   // ne seraient plus comparables d'un etat a l'autre.
-  const posRef = (cat.ref.area / cat.maxArea) * 100;
+  //
+  // Le *repere ambre* des 100 %, lui, marque la dalle de reference -- celle que
+  // l'utilisateur a choisie. Il se deplace donc, et c'est voulu : c'est le seul
+  // element de la section qui doit suivre le choix.
+  const posRef = (dalleRef.s.area / cat.maxArea) * 100;
+  const cleRef = cleDe(dalleRef);
 
   return (
     <div className="bars" ref={boite}>
@@ -118,7 +128,7 @@ export function Barres({
             dict={dict}
             f={f}
             locale={locale}
-            estRef={p.d.id === cat.refId}
+            estRef={memeDalle(cleDe(p), cleRef)}
             ecart={ctx.delta(p.s.area)}
           />
         ))
