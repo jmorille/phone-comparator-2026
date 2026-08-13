@@ -52,7 +52,7 @@ is laid out in **millimetres of real device**, converted by one CSS variable:
 
 - `--ppmm` (px per mm) → `--u: calc(var(--ppmm) * 1px)`; `--dp` is one Android dp in those units.
 - Every geometric value is `calc(<millimetres> * var(--u))` — plate size, screen inset, corner radius,
-  the 10 mm background grid, the fixed 212 mm stage height.
+  the 10 mm background grid, the fixed 240 mm stage height.
 - `--ppmm2` / `--u2` is a **second, independent scale** used only by the "mise en situation" section.
   Inside that section each device wrapper redefines `--u: var(--u2)`, so components can always write
   `var(--u)` and get the right scale for their context.
@@ -135,6 +135,10 @@ at the same `--u`, on a shared baseline, at the same `x` as the device above it.
 Its height reserve, `TRANCHE_MM`, is a **constant** in `echelleAuto()`'s budget — it does not shrink
 when the band is toggled off, for the same reason the scale itself is fixed. Toggling the band gives
 back screen space, never scale.
+
+The band carries the same 10 mm grid as the stage (`.quadrille` on both), so a thickness profile is
+read on the same trame as the panel above it. Continuity is not free: it holds because the two boxes
+share a width — hence a horizontal phase — and because the stage height is a multiple of the pitch.
 
 `.prof` is the **cote**, not the drawing: its box is exactly `bod(d, etat)`, which is what carries the
 mm label and what moves. What paints is a `.sect` inside it — one for a bar, two hinged leaves for a
@@ -335,10 +339,13 @@ beats one of them makes it silently false; the build stays green. Before adding 
 The fix is usually to narrow the claim to the class it is really about (a foldable, a phone) rather
 than to delete it.
 
-*The stage is 212 mm tall and does not grow.* A device taller than that is clipped — `disposer()`
-centres it on a fixed canvas. Enter it in the orientation the vendor specifies; for tablets that is
-landscape, which is what makes the Tab S10+ fit at 185.4 mm. A genuinely taller device needs
-`HAUTEUR_MM` raised, which rescales the whole comparison for everyone.
+*The stage is 240 mm tall and does not grow by itself.* `disposer()` centres devices on a fixed
+canvas and lifts them by `BIAIS`, so the room above the tallest one is `(240 - h) / 2 - 17` — about
+one 10 mm square at h = 185.4 mm (the Tab S10+, landscape as Samsung specifies it). **A device above
+~186 mm has no headroom, and above ~206 mm it is clipped outright.** Raising `HAUTEUR_MM` is the fix,
+deliberately and by hand: a canvas that grew with the catalogue would change the scale in silence.
+Keep it a multiple of 10 mm, or the background grid gains a phase break where the thickness band
+starts. It was 212 mm until the Tab S10+ turned out to be losing 3.3 mm off its top edge.
 
 Also worth knowing: `maxArea` normalises the area bars over the **whole catalogue**, not the
 selection. A device with a much larger panel shortens every other bar, even while it is unchecked.

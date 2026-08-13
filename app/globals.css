@@ -148,14 +148,23 @@ button{font-family:inherit; cursor:pointer}
   background:var(--panel); overflow:hidden;
 }
 .stage-scroll{overflow-x:auto; overflow-y:hidden}
-.stage{
-  position:relative; height:calc(212 * var(--u));
+/* Le quadrillage de mesure : 10 mm de reel. Il ne s'arrete pas au bas de la
+   scene -- la bande de tranche le reprend a l'identique, si bien qu'un profil
+   d'epaisseur se lit sur la meme trame que la dalle au-dessus de lui.
+   La continuite tient a deux choses : les deux boites ont la meme largeur (donc
+   la meme phase horizontale avec `center`), et la hauteur de la scene est un
+   multiple de 10 mm, donc `top` suffit a raccorder la phase verticale. Changer
+   HAUTEUR_MM pour une valeur non multiple de 10 rouvrirait un decalage a la
+   jonction. */
+.quadrille{
   background-image:
     linear-gradient(to right, var(--grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
   background-size:calc(10 * var(--u)) calc(10 * var(--u));
-  background-position:center center;
+  background-position:center top;
 }
+/* la hauteur vient de lib/scene.ts, posee en ligne par le composant */
+.stage{position:relative}
 .stage-foot{
   display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between;
   padding:12px 16px; border-top:1px solid var(--line2); background:var(--panel2);
@@ -360,7 +369,7 @@ button{font-family:inherit; cursor:pointer}
    rend le geste credible. Il ne masque la scene que le temps de son arc. */
 .tranche{
   position:relative; z-index:60; height:calc(var(--epmax) * var(--u) + 34px);
-  border-top:1px solid var(--line2); background:var(--panel2);
+  border-top:1px solid var(--line2); background-color:var(--panel2);
 }
 .tranche::after{
   content:""; position:absolute; left:0; right:0; bottom:0;

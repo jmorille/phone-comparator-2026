@@ -1,6 +1,6 @@
 import type { Dictionnaire } from "@/i18n";
 import type { Formats } from "@/lib/format";
-import type { Disposition, Mode } from "@/lib/scene";
+import { HAUTEUR_MM, type Disposition, type Mode } from "@/lib/scene";
 import { teinte, type Appareil, type AppareilPliable, type Marques } from "@/lib/types";
 
 import { Plaque, vars } from "./primitives";
@@ -162,7 +162,7 @@ function Tranche({
 }) {
   return (
     <div
-      className="tranche"
+      className="tranche quadrille"
       data-mode={mode}
       role="img"
       aria-label={etiquette}
@@ -260,9 +260,14 @@ export function Banc({
       style={vars({ "--pli": pli })}
     >
       <div
-        className="stage"
+        className="stage quadrille"
         data-mode={mode}
-        style={{ width: `calc(${dispo.canvasMm} * var(--u))` }}
+        // la hauteur vient de lib/scene.ts, qui la fait deja entrer dans le
+        // budget d'echelle : la redire en CSS, c'est la laisser diverger
+        style={{
+          width: `calc(${dispo.canvasMm} * var(--u))`,
+          height: `calc(${HAUTEUR_MM} * var(--u))`,
+        }}
       >
         {dispo.boites.map((b) => {
           const d = b.d;

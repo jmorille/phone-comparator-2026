@@ -2,8 +2,22 @@ import { bod, scr, type Appareil, type Chassis, type Ecran, type EtatPli } from 
 
 export type Mode = "side" | "stack" | "center";
 
-/** Hauteur fixe de la scene, en mm de reel. */
-export const HAUTEUR_MM = 212;
+/**
+ * Hauteur fixe de la scene, en mm de reel. Elle ne suit pas le catalogue -- une
+ * toile qui grandirait toute seule changerait l'echelle en silence a chaque
+ * ajout. On la releve donc a la main, et voici le calcul qui l'a fixee ici.
+ *
+ * L'appareil le plus haut est la Galaxy Tab S10+, 185,4 mm. Les appareils sont
+ * centres puis remontes de BIAIS, donc le vide au-dessus du plus haut vaut
+ * (HAUTEUR_MM - 185,4) / 2 - 17. A 212 il valait **-3,7 mm** : la tablette
+ * sortait par le haut et la coque en rognait 3,3. A 240 il vaut 10,3 mm, soit un
+ * carreau plein de quadrillage au-dessus d'elle.
+ *
+ * 240 est de surcroit un multiple du pas de 10 mm : le quadrillage traverse donc
+ * la bande de tranche sans rupture de phase, les deux boites se contentant d'un
+ * `background-position: center top`.
+ */
+export const HAUTEUR_MM = 240;
 /**
  * Place reservee sous la scene a la bande de tranche, en mm de reel. Elle est
  * constante -- elle ne suit ni la selection, ni le pli, ni meme le fait que la
