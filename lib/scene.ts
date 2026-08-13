@@ -4,6 +4,15 @@ export type Mode = "side" | "stack" | "center";
 
 /** Hauteur fixe de la scene, en mm de reel. */
 export const HAUTEUR_MM = 212;
+/**
+ * Place reservee sous la scene a la bande de tranche, en mm de reel. Elle est
+ * constante -- elle ne suit ni la selection, ni le pli, ni meme le fait que la
+ * bande soit repliee -- pour la meme raison que l'echelle elle-meme est fixe :
+ * la comparaison ne veut plus rien dire si le millimetre change de taille en
+ * cours de route. Replier la bande rend donc de la place a l'ecran, pas a
+ * l'echelle.
+ */
+const TRANCHE_MM = 16;
 /** Marge basse reservee aux rails de cotes de largeur. */
 const BIAIS = 17;
 /** Ecart entre deux appareils cote a cote, en mm. */
@@ -36,6 +45,13 @@ export interface Disposition {
   defile: boolean;
   /** un seul appareil en scene : il n'a rien a laisser voir derriere lui */
   seulVisible: boolean;
+  /**
+   * Plus grande epaisseur du catalogue, tous etats de pli confondus : c'est la
+   * hauteur de la bande de tranche. Prise sur le catalogue entier et non sur la
+   * selection, pour que la bande ne saute pas de taille quand on coche un
+   * appareil ou qu'on deplie.
+   */
+  epaisseurMaxMm: number;
   boites: BoiteDisposee[];
 }
 
@@ -152,6 +168,10 @@ export function disposer(params: {
     canvasMm,
     defile: largeurPx !== null && canvasMm * ppmm > largeurPx + 1,
     seulVisible: vivantes.length === 1,
+    epaisseurMaxMm: Math.max(
+      ...appareils.flatMap((d) => Object.values(d.body).map((b) => b.d)),
+      1,
+    ),
     boites,
   };
 }
@@ -174,7 +194,9 @@ export function echelleAuto(params: {
   plafond: number;
 }): number {
   const { base, hauteurFenetre, largeurScene, plafond } = params;
-  const parHauteur = Math.max(360, hauteurFenetre * 0.82) / HAUTEUR_MM;
+  // la bande de tranche s'ajoute sous la scene : son millimetre est le meme, sa
+  // reserve entre donc dans le meme budget de hauteur
+  const parHauteur = Math.max(360, hauteurFenetre * 0.82) / (HAUTEUR_MM + TRANCHE_MM);
   const requisMm =
     base.reduce((a, d) => a + Math.max(bod(d, "open").w, bod(d, "closed").w), 0) +
     ECART * (base.length - 1) +

@@ -5,6 +5,7 @@ import type {
   Catalogue,
   Ecran,
   Locale,
+  Repere,
   Traduit,
 } from "@/lib/types";
 
@@ -109,7 +110,8 @@ export interface Dictionnaire {
     modes: { side: string; stack: string; center: string };
     etats: { closed: string; open: string };
     etatsCourts: { closed: string; open: string };
-    marques: { w: string; h: string; d: string; a: string };
+    /** indexe sur REPERES : ajouter un repere y oblige les deux langues */
+    marques: Record<Repere, string>;
     rejouer: string;
     replierFiche: string;
     deplierFiche: string;
@@ -121,6 +123,8 @@ export interface Dictionnaire {
     titre: string;
     intro: string;
     echelle: string;
+    /** description de la bande de tranche, pour les lecteurs d'ecran */
+    tranche: string;
     reinitialiser: string;
     unite(valeur: string): string;
     indiceDefilement: string;

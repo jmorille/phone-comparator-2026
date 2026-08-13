@@ -47,7 +47,13 @@ export const fr: Dictionnaire = {
     modes: { side: "Côte à côte", stack: "Superposition", center: "Centré" },
     etats: { closed: "Fermé (externe)", open: "Ouvert (interne)" },
     etatsCourts: { closed: "Fermé", open: "Ouvert" },
-    marques: { w: "Largeur", h: "Hauteur", d: "Diagonale", a: "Surface" },
+    marques: {
+      w: "Largeur",
+      h: "Hauteur",
+      d: "Diagonale",
+      a: "Surface",
+      e: "Épaisseur",
+    },
     rejouer: "↻ Rejouer l'animation",
     replierFiche: "Replier la fiche",
     deplierFiche: "Déplier la fiche",
@@ -62,6 +68,9 @@ export const fr: Dictionnaire = {
       "et de la résolution. Dépliez, superposez, centrez — et posez une carte bancaire sur l'écran " +
       "pour passer en 1:1.",
     echelle: "Échelle",
+    tranche:
+      "Les appareils vus par la tranche, à la même échelle : l'épaisseur de chaque châssis, " +
+      "repliée ou dépliée selon l'état des pliables.",
     reinitialiser: "Réinitialiser",
     unite: (v) => `${v} px/mm`,
     indiceDefilement: "↔ la scène défile latéralement à cette échelle",

@@ -46,7 +46,13 @@ export const en: Dictionnaire = {
     modes: { side: "Side by side", stack: "Stacked", center: "Centred" },
     etats: { closed: "Closed (cover)", open: "Open (inner)" },
     etatsCourts: { closed: "Closed", open: "Open" },
-    marques: { w: "Width", h: "Height", d: "Diagonal", a: "Area" },
+    marques: {
+      w: "Width",
+      h: "Height",
+      d: "Diagonal",
+      a: "Area",
+      e: "Thickness",
+    },
     rejouer: "↻ Replay the animation",
     replierFiche: "Collapse the panel",
     deplierFiche: "Expand the panel",
@@ -61,6 +67,9 @@ export const en: Dictionnaire = {
       "resolution. Unfold them, stack them, centre them — and hold a bank card against the screen to " +
       "switch to 1:1.",
     echelle: "Scale",
+    tranche:
+      "The devices seen edge-on, at the same scale: the thickness of each chassis, folded or " +
+      "unfolded according to the foldables' state.",
     reinitialiser: "Reset",
     unite: (v) => `${v} px/mm`,
     indiceDefilement: "↔ the stage scrolls sideways at this scale",

@@ -69,6 +69,22 @@ grep -q "Les cinq dalles, ligne par ligne" <<< "$fr" \
 grep -q "The five panels, row by row" <<< "$en" \
   || { echo "ECHEC : section 04, titre anglais attendu"; exit 1; }
 
+# La bande de tranche est prerendue comme le reste : un profil par appareil du
+# catalogue, portant son epaisseur dans --ed. Le Fold est deplie au demarrage,
+# son profil doit donc porter --ed:5 et non les --ed:10.1 du chassis replie --
+# ce qui prouve d'un coup que la bande est rendue et qu'elle suit le pli.
+# Le controle porte sur l'attribut de style, pas sur l'etiquette : il est ainsi
+# le meme dans les deux langues et ne depend d'aucun separateur decimal.
+echo "> la bande de tranche suit l'etat du pli"
+for langue in fr en; do
+  page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")
+  profils=$(grep -o 'class="prof' <<< "$page" | wc -l)
+  [ "$profils" -ge 1 ] \
+    || { echo "ECHEC : ${langue}, aucun profil dans la bande de tranche"; exit 1; }
+  grep -qE 'style="--dc:var\(--c-fold\);[^"]*--ed:5;' <<< "$page" \
+    || { echo "ECHEC : ${langue}, le Fold devrait etre deplie (--ed:5)"; exit 1; }
+done
+
 echo "> les nombres suivent la langue"
 grep -q "111,5 cm" <<< "$fr" || { echo "ECHEC : virgule decimale attendue"; exit 1; }
 grep -q "111.5 cm" <<< "$en" || { echo "ECHEC : point decimal attendu"; exit 1; }

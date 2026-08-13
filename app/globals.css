@@ -273,6 +273,51 @@ button{font-family:inherit; cursor:pointer}
 .mk-a{position:absolute; left:3%; bottom:calc(3% + var(--stag) * 13%)}
 .mk-a .tag{position:static; display:block}
 
+/* -- tranche -------------------------------------------------------- */
+/* Les appareils vus de cote, sous la scene et au meme millimetre. La bande
+   mesure la plus grande epaisseur du catalogue (--epmax), plus la hauteur d'une
+   etiquette : elle ne se redimensionne donc jamais, ni au depliage ni au
+   cochage. Les profils reposent sur une ligne de base commune -- des telephones
+   poses a plat -- ce qui rend la comparaison lisible y compris superposes. */
+.tranche{
+  position:relative; height:calc(var(--epmax) * var(--u) + 34px);
+  border-top:1px solid var(--line2); background:var(--panel2);
+}
+.tranche::after{
+  content:""; position:absolute; left:0; right:0; bottom:0;
+  border-bottom:1px solid var(--line);
+}
+.prof{
+  position:absolute; bottom:0;
+  left:calc(var(--ex) * var(--u));
+  width:calc(var(--ew) * var(--u));
+  height:calc(var(--ed) * var(--u));
+  /* une gelule : c'est la section d'un chassis, pas une plaque vue de face */
+  border-radius:calc(var(--ed) * var(--u) / 2);
+  background:linear-gradient(180deg, color-mix(in oklab,var(--body) 82%, var(--dc)) 0%, var(--body) 62%);
+  box-shadow:inset 0 0 0 1px var(--body-edge), 0 calc(.6 * var(--u)) calc(1.6 * var(--u)) var(--shade);
+  transition:
+    left var(--dur) var(--ease), width var(--dur) var(--ease),
+    height var(--dur) var(--ease), opacity .5s var(--ease);
+  will-change:left,width,height;
+}
+.prof .tag{
+  bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+  font:600 12px/1 var(--f-mono); padding:4px 6px 4px 5px;
+}
+/* Superposition : les profils partagent la meme abscisse, donc les etiquettes
+   se decalent sur le rang -- exactement le procede des cotes de diagonale. */
+.tranche:not([data-mode="side"]) .prof{
+  background:color-mix(in oklab, var(--dc) 15%, transparent);
+  box-shadow:inset 0 0 0 2px var(--dc);
+}
+.tranche:not([data-mode="side"]) .prof.focus{
+  background:color-mix(in oklab, var(--dc) 38%, transparent); z-index:40;
+}
+.tranche:not([data-mode="side"]) .prof .tag{
+  left:calc(var(--stag) * 78px); transform:none;
+}
+
 /* legend / fiche */
 .stage-grid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start}
 @media (max-width:940px){.stage-grid{grid-template-columns:minmax(0,1fr)}}

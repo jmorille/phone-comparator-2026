@@ -1,7 +1,7 @@
 import type { Dictionnaire } from "@/i18n";
 import type { Formats } from "@/lib/format";
 import type { Disposition, Mode } from "@/lib/scene";
-import { teinte, type Appareil, type EtatPli } from "@/lib/types";
+import { teinte, type Appareil, type EtatPli, type Marques } from "@/lib/types";
 
 import { Plaque, vars } from "./primitives";
 
@@ -51,7 +51,7 @@ function Reperes({
   f,
 }: {
   boite: Disposition["boites"][number];
-  marks: { w: boolean; h: boolean; d: boolean; a: boolean };
+  marks: Marques;
   f: Formats;
 }) {
   const { s, body } = boite;
@@ -92,6 +92,77 @@ function Reperes({
   );
 }
 
+/**
+ * Les appareils vus par la tranche, sous la scene et a la meme echelle : chaque
+ * profil fait `body.w` de large sur `body.d` d'epais, pose a la meme abscisse
+ * que l'appareil au-dessus de lui.
+ *
+ * Rien n'est calcule ici. `boite.body` vaut deja `bod(d, etat)`, donc deplier un
+ * pliable fait passer son profil de son epaisseur fermee a son epaisseur
+ * ouverte -- et sa largeur double dans le meme mouvement, puisque c'est le meme
+ * chassis. Les transitions CSS font le reste.
+ *
+ * La bande partage la largeur et le defilement de la scene, et reprend son
+ * `data-mode` : en superposition les profils se recouvrent exactement comme les
+ * dalles, poses sur une ligne de base commune.
+ */
+function Tranche({
+  dispo,
+  mode,
+  focus,
+  f,
+  etiquette,
+  surSurvol,
+  surSortie,
+}: {
+  dispo: Disposition;
+  mode: Mode;
+  focus: string | null;
+  f: Formats;
+  etiquette: string;
+  surSurvol(id: string): void;
+  surSortie(): void;
+}) {
+  return (
+    <div
+      className="tranche"
+      data-mode={mode}
+      role="img"
+      aria-label={etiquette}
+      style={{
+        width: `calc(${dispo.canvasMm} * var(--u))`,
+        ...vars({ "--epmax": dispo.epaisseurMaxMm }),
+      }}
+    >
+      {dispo.boites.map((b) => {
+        const enAvant = focus === b.d.id || (dispo.seulVisible && b.visible);
+        return (
+          <div
+            key={b.d.id}
+            className={"prof" + (enAvant ? " focus" : "")}
+            style={{
+              ...vars({
+                "--dc": teinte(b.d.id),
+                "--ex": b.x,
+                "--ew": b.body.w,
+                "--ed": b.body.d,
+                "--stag": b.stag,
+              }),
+              zIndex: b.z,
+              opacity: b.visible ? undefined : 0,
+              pointerEvents: b.visible ? undefined : "none",
+            }}
+            onPointerEnter={() => surSurvol(b.d.id)}
+            onPointerLeave={surSortie}
+          >
+            <span className="tag">{f.mm(b.body.d)}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Banc({
   dispo,
   mode,
@@ -107,7 +178,7 @@ export function Banc({
   dispo: Disposition;
   mode: Mode;
   etat: EtatPli;
-  marks: { w: boolean; h: boolean; d: boolean; a: boolean };
+  marks: Marques;
   focus: string | null;
   f: Formats;
   surSurvol(id: string): void;
@@ -115,7 +186,6 @@ export function Banc({
   refDefilement: React.Ref<HTMLDivElement>;
   dict: Dictionnaire;
 }) {
-  void dict;
   return (
     <div className="stage-scroll" ref={refDefilement}>
       <div
@@ -153,6 +223,18 @@ export function Banc({
           );
         })}
       </div>
+
+      {marks.e && (
+        <Tranche
+          dispo={dispo}
+          mode={mode}
+          focus={focus}
+          f={f}
+          etiquette={dict.banc.tranche}
+          surSurvol={surSurvol}
+          surSortie={surSortie}
+        />
+      )}
     </div>
   );
 }

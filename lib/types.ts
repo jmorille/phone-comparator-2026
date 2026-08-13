@@ -13,6 +13,18 @@ export type Kind = "bar" | "fold";
 export type EtatPli = "open" | "closed";
 export type CleEcran = "main" | "cover" | "inner";
 
+/**
+ * Les cotes que le banc sait tracer : largeur, hauteur, diagonale, surface,
+ * epaisseur. Un seul tableau fait foi -- il donne l'ordre des puces, et le type
+ * qu'on en derive contraint aussi bien l'etat de l'interface que les deux
+ * dictionnaires. Ajouter un repere ici, et rien d'autre : `Record<Repere, …>`
+ * fait cesser de compiler tout ce qui ne l'a pas encore pris en compte.
+ */
+export const REPERES = ["w", "h", "d", "a", "e"] as const;
+export type Repere = (typeof REPERES)[number];
+/** Quels reperes sont affiches. */
+export type Marques = Record<Repere, boolean>;
+
 export interface Chassis {
   /** largeur en mm */
   w: number;

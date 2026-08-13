@@ -5,7 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { contexte, dictionnaire } from "@/i18n";
 import { formats } from "@/lib/format";
 import { disposer, echelleAuto, echelleScenes } from "@/lib/scene";
-import { panneauxDe, teinte, type Catalogue, type Locale, type Panneau } from "@/lib/types";
+import {
+  REPERES,
+  panneauxDe,
+  teinte,
+  type Catalogue,
+  type Locale,
+  type Panneau,
+} from "@/lib/types";
 
 import { Barres } from "./Barres";
 import { Bandeau, Fiche } from "./Fiche";
@@ -295,10 +302,11 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
             <div className="ctl-grp">
               <span className="ctl-lbl">{dict.ctl.reperes}</span>
               <div className="chips">
-                {(["w", "h", "d", "a"] as const).map((k) => (
+                {REPERES.map((k) => (
                   <button
                     key={k}
                     className={puce(s.marks[k], "ghost")}
+                    aria-pressed={s.marks[k]}
                     onClick={() => maj({ marks: { ...s.marks, [k]: !s.marks[k] } })}
                   >
                     {dict.ctl.marques[k]}

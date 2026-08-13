@@ -122,6 +122,21 @@ dimension rails. It is **pure** — no DOM reads; the one browser measurement, t
 passed in as `largeurPx`, and is `null` until measured so the server and the first client render
 agree (no hydration mismatch). It is the only function that positions a device.
 
+`REPERES` in `lib/types.ts` is the single source of truth for which cotes the stage can draw —
+`w`, `h`, `d` (diagonal), `a` (area), `e` (thickness). The array gives the chip order; `Repere`
+constrains `EtatUI.marks` (`Marques = Record<Repere, boolean>`) *and* `dict.ctl.marques`. Adding a
+cote is one array entry: the two dictionaries then stop compiling until they translate it, and
+`marquesToutes()` in `components/etat.ts` keeps the all-on / all-off literals of `etatInitial` and
+`TEMPS` from having to be rewritten.
+
+The `Tranche` band under the stage draws each device **edge-on** — `body.w` wide by `body.d` thick,
+at the same `--u`, on a shared baseline, at the same `x` as the device above it. It computes
+nothing: `boite.body` is already `bod(d, etat)`, so unfolding a foldable moves its profile from the
+closed thickness to the open one and doubles its width in the same gesture, in CSS transitions.
+Its height reserve, `TRANCHE_MM`, is a **constant** in `echelleAuto()`'s budget — it does not shrink
+when the band is toggled off, for the same reason the scale itself is fixed. Toggling the band gives
+back screen space, never scale.
+
 Dimension rails stagger over the **visible** devices, with a step that tightens as the selection
 grows. The original page indexed a fixed four-entry `ROWS` table by catalogue position, which
 produced `--woff: NaN` for the fifth and sixth devices once the catalogue grew past four.
