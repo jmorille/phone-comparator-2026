@@ -79,6 +79,14 @@ and side by side; checking on more devices makes the stage scroll horizontally r
 The calibration slider then lets the user push up to true 1:1 by matching a bank card, at which point
 the stage scrolls horizontally. See the comment block in `autoScale()` before changing this.
 
+**A hand-set scale wins over `autoScale()` and survives reloads.** Dragging the slider persists the
+value to `localStorage` under `ecrans-echelle:ppmm`; `autoScale()` returns early whenever a stored
+value exists, so neither a resize nor collapsing the fiche can clobber it. "Réinitialiser" clears the
+key *before* recomputing — dropping that order makes the button a no-op. Every access goes through
+`readPpmm`/`savePpmm`/`forgetPpmm`, which swallow exceptions: the page also runs as a sandboxed
+Artifact, where touching `localStorage` can throw. Stored values are validated against the slider's
+own `min`/`max`, so a corrupt or out-of-range entry falls back to `autoScale()`.
+
 ### Data flow
 
 ```

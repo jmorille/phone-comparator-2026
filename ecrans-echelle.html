@@ -540,7 +540,7 @@ footer.end{padding:34px 0 60px; color:var(--muted); font-size:12.5px; display:gr
             <div class="card-ref">Carte bancaire<br>85,6 &#xD7; 54 mm</div>
           </div>
         </div>
-        <p class="mut" id="calHint" style="font-size:12.5px;margin-top:10px">Grille = 10 mm. Faites glisser l'&#xE9;chelle jusqu'&#xE0; ce que le gabarit corresponde &#xE0; une vraie carte bancaire pos&#xE9;e sur l'&#xE9;cran : la comparaison devient alors grandeur nature.</p>
+        <p class="mut" id="calHint" style="font-size:12.5px;margin-top:10px">Grille = 10 mm. Faites glisser l'&#xE9;chelle jusqu'&#xE0; ce que le gabarit corresponde &#xE0; une vraie carte bancaire pos&#xE9;e sur l'&#xE9;cran : la comparaison devient alors grandeur nature. Votre r&#xE9;glage est conserv&#xE9; sur cet appareil pour vos prochaines visites ; &#xAB; R&#xE9;initialiser &#xBB; l'oublie.</p>
       </div>
 
       <aside class="fiche" id="fiche"></aside>
@@ -1089,7 +1089,27 @@ function setPpmm(v){
   calOut.textContent = f2(v)+" px/mm";
   layout();
 }
-cal.addEventListener("input", () => setPpmm(parseFloat(cal.value)));
+
+// L'echelle est le seul reglage retenu d'une visite a l'autre : c'est celui que
+// l'utilisateur calibre a la main sur une vraie carte bancaire, le reperdre a
+// chaque chargement serait penible. localStorage peut lever -- navigation privee,
+// iframe bac a sable, stockage plein -- donc tout passe par un try/catch et la
+// page se comporte exactement comme avant si le stockage est indisponible.
+const CAL_KEY = "ecrans-echelle:ppmm";
+const CAL_MIN = parseFloat(cal.min), CAL_MAX = parseFloat(cal.max);
+
+function readPpmm(){
+  try {
+    const v = parseFloat(localStorage.getItem(CAL_KEY));
+    return Number.isFinite(v) && v >= CAL_MIN && v <= CAL_MAX ? v : null;
+  } catch (e) { return null; }
+}
+function savePpmm(v){ try { localStorage.setItem(CAL_KEY, String(v)); } catch (e) {} }
+function forgetPpmm(){ try { localStorage.removeItem(CAL_KEY); } catch (e) {} }
+
+// on n'enregistre que le geste de l'utilisateur : autoScale() ecrit aussi
+// cal.value, mais par programme, ce qui ne declenche pas "input"
+cal.addEventListener("input", () => { const v = parseFloat(cal.value); setPpmm(v); savePpmm(v); });
 const PPMM_DEF = 2.10;                 // echelle de reference de la scene
 function autoScale(){
   // L'echelle est unique et stable : elle ne change ni au depliage, ni au changement
@@ -1098,6 +1118,9 @@ function autoScale(){
   // cote : la vue d'arrivee est ainsi la plus grande possible. Cocher un appareil de
   // plus fait defiler la scene lateralement plutot que de tout retrecir, et le
   // curseur permet toujours de monter jusqu'au 1:1.
+  // une echelle memorisee fait foi : ni le redimensionnement, ni le repli de la
+  // fiche ne doivent ecraser un reglage que l'utilisateur a pose lui-meme
+  if (readPpmm() !== null) return;
   const base = DEV.filter(d => DEFAULT_VIS.includes(d.id));
   const byHeight = Math.max(360, innerHeight * .82)/212;
   const needMm = base.reduce((a,d) => a + Math.max(bod(d,"open").w, bod(d,"closed").w), 0)
@@ -1106,7 +1129,9 @@ function autoScale(){
   const v = Math.max(1.4, Math.min(PPMM_DEF, byHeight, byWidth));
   cal.value = v; setPpmm(v);
 }
-document.getElementById("calReset").addEventListener("click", autoScale);
+// \u00AB Reinitialiser \u00BB oublie le reglage memorise avant de recalculer, sinon le
+// garde-fou d'autoScale() le renverrait aussitot
+document.getElementById("calReset").addEventListener("click", () => { forgetPpmm(); autoScale(); });
 
 /* -- barres de surface ---------------------------------------------- */
 const EMPTY = `<div class="empty">Aucun appareil s\u00E9lectionn\u00E9 \u2014 activez-en un dans <b>Appareils</b>, tout en haut de la page.</div>`;
@@ -1377,7 +1402,12 @@ document.getElementById("verdicts").innerHTML = [
     <span class="w">${v.w}</span></div>`).join("");
 
 /* -- boot ----------------------------------------------------------- */
-function boot(){ autoScale(); paint(); }
+function boot(){
+  const kept = readPpmm();
+  if (kept !== null){ cal.value = kept; setPpmm(kept); }   // reglage d'une visite precedente
+  else autoScale();
+  paint();
+}
 boot();
 // au redimensionnement, seules les deux echelles sont a revoir : le contenu des
 // scenes est dessine en var(--u2) et se remet a l'echelle tout seul
