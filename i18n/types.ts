@@ -149,6 +149,23 @@ export interface Dictionnaire {
     badgeCalcule: string;
     badgeRumeur: string;
     choixLangue: string;
+    /**
+     * Le bouton de theme. Il tourne sur trois etats, et « systeme » n'est pas un
+     * troisieme gout : c'est l'absence de choix, donc le reglage du systeme
+     * d'exploitation qui reprend la main. Le nom accessible dit l'etat courant,
+     * pas celui vers lequel le clic mene -- un bouton se lit par ce qu'il montre.
+     */
+    theme: {
+      /**
+       * Le nom accessible, assemble par la langue et non par le composant : le
+       * francais met une espace insecable avant le deux-points, l'anglais non.
+       * C'est la meme raison qui fait que `%` a la sienne dans `lib/format`.
+       */
+      libelle(etat: string): string;
+      auto: string;
+      clair: string;
+      sombre: string;
+    };
   };
 
   ctl: {

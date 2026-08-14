@@ -36,6 +36,13 @@ export const fr: Dictionnaire = {
     badgeCalcule: "Les cotes en mm, cm² et dp sont <b>calculées</b>",
     badgeRumeur: "Aucune donnée de rumeur",
     choixLangue: "Langue",
+    theme: {
+      // espace insecable avant le deux-points, comme le veut le francais
+      libelle: (e) => `Thème : ${e}`,
+      auto: "Système",
+      clair: "Clair",
+      sombre: "Sombre",
+    },
   },
 
   ctl: {

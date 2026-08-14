@@ -6,6 +6,7 @@ import "../globals.css";
 
 import { dictionnaire, estLocale } from "@/i18n";
 import { chargerCatalogue } from "@/lib/catalogue";
+import { SCRIPT_THEME } from "@/lib/theme";
 import { LOCALES, type Catalogue } from "@/lib/types";
 
 export const dynamicParams = false;
@@ -69,6 +70,14 @@ export default async function RootLayout({
       <head>
         <meta name="color-scheme" content="light dark" />
         <style dangerouslySetInnerHTML={{ __html: jetonsCouleurs(chargerCatalogue()) }} />
+        {/*
+          Le theme choisi, pose avant la peinture. React ne monte qu'apres le
+          premier rendu : sans ce script, quelqu'un qui a choisi « sombre » sur
+          une machine en clair verrait un eclair blanc a chaque chargement.
+          Il est synchrone et tient en une ligne ; il ne fait aucune requete, la
+          page continue donc de n'en faire aucune.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_THEME }} />
       </head>
       <body>
         {children}

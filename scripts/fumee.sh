@@ -151,6 +151,23 @@ done
 # donc etre proposee avec sa mention « hors scene ». Et +87,2 % est l'ecart de la
 # dalle interne du Fold *au Pixel 7 Pro* -- contre +85,0 % si la reference avait
 # glisse sur un autre appareil. Ce chiffre atteste donc du repere de depart.
+# Le theme se choisit sur trois etats, et le seul qui doive etre prerendu est
+# « systeme » : le HTML est le meme pour tout le monde, c'est le script en ligne
+# qui pose l'attribut avant la peinture, puis React qui rattrape le libelle apres
+# le montage. Un `data-theme` present dans le HTML servi voudrait donc dire qu'un
+# choix a fui dans le prerendu -- il vaudrait pour tous les visiteurs.
+# Les motifs restent ASCII : le libelle du bouton, lui, est accentue et traduit.
+echo "> le bouton de theme est servi, sans theme fige"
+for langue in fr en; do
+  page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")
+  grep -q 'class="theme"' <<< "$page" \
+    || { echo "ECHEC : ${langue}, le bouton de theme est absent"; exit 1; }
+  grep -q 'ecrans-echelle:theme' <<< "$page" \
+    || { echo "ECHEC : ${langue}, le script de theme n'est pas en ligne dans la page"; exit 1; }
+  grep -q '<html[^>]*data-theme' <<< "$page" \
+    && { echo "ECHEC : ${langue}, un theme est fige dans le HTML prerendu"; exit 1; }
+done
+
 echo "> le 100 % part de la reference du catalogue"
 for langue in fr en; do
   page=$([ "$langue" = fr ] && echo "$fr" || echo "$en")

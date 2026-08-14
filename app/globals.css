@@ -3,6 +3,12 @@
    generes depuis data/appareils/*.json au rendu, dans app/[locale]/layout.tsx.
    Ajouter un appareil n'oblige donc plus a toucher cette feuille. */
 :root{
+  /* Le theme force doit emporter aussi ce que la page ne peint pas : barres de
+     defilement, champs, menus natifs. Sans cette declaration, un choix « sombre »
+     sur une machine en clair laissait des ascenseurs blancs. Elle suit donc la
+     meme regle que les couleurs -- definie dans les trois blocs, jamais dans le
+     seul media. */
+  color-scheme:light;
   --bg:#F2F3F7; --bg2:#E7E9F0; --panel:#FFFFFF; --panel2:#FAFBFD;
   --ink:#14161D; --ink2:#3A404F; --muted:#5C6377;
   --line:rgba(20,22,29,.14); --line2:rgba(20,22,29,.07); --grid:rgba(20,22,29,.055);
@@ -28,6 +34,7 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --bg:#090B11; --bg2:#0D1017; --panel:#10131B; --panel2:#141822;
     --ink:#E9EBF2; --ink2:#C3C9DA; --muted:#8E96AC;
     --line:rgba(233,235,242,.15); --line2:rgba(233,235,242,.075); --grid:rgba(233,235,242,.055);
@@ -38,6 +45,7 @@
   }
 }
 :root[data-theme="dark"]{
+  color-scheme:dark;
   --bg:#090B11; --bg2:#0D1017; --panel:#10131B; --panel2:#141822;
   --ink:#E9EBF2; --ink2:#C3C9DA; --muted:#8E96AC;
   --line:rgba(233,235,242,.15); --line2:rgba(233,235,242,.075); --grid:rgba(233,235,242,.055);
@@ -106,6 +114,18 @@ h1 em{font-style:normal; color:var(--acc)}
 }
 .lang a:hover{color:var(--ink)}
 .lang a[aria-current="true"]{background:var(--ink); color:var(--bg)}
+
+/* -- bouton de theme ------------------------------------------------ */
+/* Meme pastille que le selecteur de langue, a cote duquel il se pose : ce sont
+   deux reglages de meme rang, ils doivent se ressembler. */
+.theme{
+  display:inline-flex; align-items:center; gap:7px; flex:none; cursor:pointer;
+  border:1px solid var(--line); border-radius:999px; padding:6px 12px; background:var(--panel);
+  font:500 11.5px/1 var(--f-mono); letter-spacing:.06em; text-transform:uppercase;
+  color:var(--muted); transition:background .18s, color .18s, border-color .18s;
+}
+.theme:hover{color:var(--ink); border-color:color-mix(in oklab,var(--ink) 26%, transparent)}
+.theme .gl{font-size:13px; line-height:1}
 
 /* -- section frame -------------------------------------------------- */
 .sec{border-bottom:1px solid var(--line); padding:56px 0}

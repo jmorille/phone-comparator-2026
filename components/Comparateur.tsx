@@ -30,6 +30,7 @@ import {
   DISPOSITION_MS,
   TEMPS,
   etatInitial,
+  jeuVisible,
   type EtatUI,
 } from "./etat";
 import { Riche, vars } from "./primitives";
@@ -63,6 +64,37 @@ const oublierEchelle = () => {
     localStorage.removeItem(CLE_ECHELLE);
   } catch {
     /* rien a oublier */
+  }
+};
+
+/**
+ * La selection est le second reglage retenu, pour la meme raison : recocher ses
+ * appareils a chaque visite serait la meme peine que recalibrer l'echelle.
+ *
+ * A la lecture on ne garde que les ids que le catalogue connait. C'est ce qui
+ * rend la cle sure dans le temps : un appareil retire du catalogue disparait de
+ * la selection au lieu de la rendre invalide, et un appareil ajoute part decoche
+ * -- agrandir le catalogue ne peut donc pas casser une selection enregistree.
+ *
+ * Une selection **vide** est une selection valable : la page a deja son etat
+ * vide, et `null` la distingue d'une cle absente. Renvoyer `[]` pour les deux
+ * ferait qu'un premier passage afficherait une scene vide.
+ */
+const CLE_APPAREILS = "ecrans-echelle:appareils";
+
+const lireSelection = (cat: Catalogue): string[] | null => {
+  try {
+    const v = localStorage.getItem(CLE_APPAREILS);
+    return v === null ? null : v.split(",").filter((id) => cat.parId[id]);
+  } catch {
+    return null;
+  }
+};
+const ecrireSelection = (ids: string[]) => {
+  try {
+    localStorage.setItem(CLE_APPAREILS, ids.join(","));
+  } catch {
+    /* stockage indisponible : la selection vaut pour la session, sans plus */
   }
 };
 
@@ -127,6 +159,18 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
   useEffect(() => {
     document.documentElement.style.setProperty("--ppmm2", String(ppmm2));
   }, [ppmm2]);
+
+  /*
+   * La selection memorisee est appliquee **apres le montage**, jamais pendant le
+   * rendu : le HTML est prerendu avec `selectionParDefaut`, et lire localStorage
+   * au premier rendu ferait diverger le serveur du client -- un ecart
+   * d'hydratation. C'est deja la regle de l'echelle. Le prix assume est que la
+   * selection du catalogue reste visible un instant au chargement.
+   */
+  useEffect(() => {
+    const ids = lireSelection(cat);
+    if (ids) maj({ vis: jeuVisible(cat, ids) });
+  }, [cat, maj]);
 
   const base = useMemo(
     () => cat.appareils.filter((d) => cat.reglages.selectionParDefaut.includes(d.id)),
@@ -267,9 +311,14 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
     minuteurs.current.forEach(clearTimeout);
     minuteurs.current = [];
 
+    // La scene sera rendue telle qu'on la lui confie : on capture la selection
+    // ici plutot que de relire le stockage. Meme resultat, et cela marche aussi
+    // quand localStorage est indisponible.
+    const depart = cat.appareils.filter((d) => s.vis[d.id]).map((d) => d.id);
+
     // Mouvement reduit : on saute directement a l'etat final, sans narration.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setS((x) => TEMPS.reduce((acc, t) => t.appliquer(acc, cat), x));
+      setS((x) => TEMPS.reduce((acc, t) => t.appliquer(acc, cat, depart), x));
       setTemps(TEMPS.length - 1);
       setMontre(true);
       return;
@@ -279,7 +328,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
     TEMPS.forEach((t, i) => {
       minuteurs.current.push(
         setTimeout(() => {
-          setS((x) => t.appliquer(x, cat));
+          setS((x) => t.appliquer(x, cat, depart));
           setTemps(i);
           setMontre(false);
           requestAnimationFrame(() => setMontre(true));
@@ -287,7 +336,7 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
       );
       cumul += t.t + (i === 0 ? 350 : 0);
     });
-  }, [cat]);
+  }, [cat, s.vis]);
 
   /** Toute action de l'utilisateur interrompt la narration en cours. */
   const agir = useCallback(
@@ -360,12 +409,14 @@ export function Comparateur({ cat, locale }: { cat: Catalogue; locale: Locale })
                     className={"chip" + (s.vis[d.id] ? "" : " off")}
                     aria-pressed={!!s.vis[d.id]}
                     style={vars({ "--dc": teinte(d.id) })}
-                    onClick={() =>
-                      agir({
-                        vis: { ...s.vis, [d.id]: !s.vis[d.id] },
-                        ...(s.vis[d.id] ? {} : { sel: d.id }),
-                      })
-                    }
+                    onClick={() => {
+                      const vis = { ...s.vis, [d.id]: !s.vis[d.id] };
+                      // seul un geste de l'utilisateur ecrit : la narration
+                      // traverse toute une suite de selections qui ne sont pas
+                      // des choix, et qui n'ont donc rien a memoriser
+                      ecrireSelection(cat.appareils.filter((x) => vis[x.id]).map((x) => x.id));
+                      agir({ vis, ...(s.vis[d.id] ? {} : { sel: d.id }) });
+                    }}
                     onPointerEnter={() => maj({ focus: d.id })}
                     onPointerLeave={() => maj({ focus: null })}
                   >

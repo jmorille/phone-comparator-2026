@@ -34,6 +34,13 @@ export const en: Dictionnaire = {
     badgeCalcule: "Figures in mm, cm² and dp are <b>computed</b>",
     badgeRumeur: "No rumoured data",
     choixLangue: "Language",
+    theme: {
+      // pas d'espace avant le deux-points en anglais
+      libelle: (e) => `Theme: ${e}`,
+      auto: "System",
+      clair: "Light",
+      sombre: "Dark",
+    },
   },
 
   ctl: {

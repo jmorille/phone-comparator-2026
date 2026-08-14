@@ -114,7 +114,13 @@ export const GESTE_MS = CHARNIERE_MS + DISPOSITION_MS;
 export interface Temps {
   /** duree avant le temps suivant, en ms */
   t: number;
-  appliquer(s: EtatUI, cat: Catalogue): EtatUI;
+  /**
+   * `depart` est la selection a laquelle la narration doit rendre la scene :
+   * celle qui etait cochee au moment ou on a lance l'animation. Elle est passee
+   * plutot que relue dans `localStorage`, ce qui donne le meme resultat et
+   * fonctionne aussi quand le stockage est indisponible.
+   */
+  appliquer(s: EtatUI, cat: Catalogue, depart: string[]): EtatUI;
 }
 
 const coche = (s: EtatUI, ids: string[]): Record<string, boolean> => ({
@@ -153,15 +159,21 @@ export const TEMPS: Temps[] = [
   { t: 2700, appliquer: (s) => ({ ...s, vis: coche(s, ["tabs10p"]), sel: "tabs10p" }) },
   { t: 1900, appliquer: (s) => ({ ...s, mode: "center" }) },
   { t: 2500, appliquer: (s) => ({ ...s, marks: marquesToutes(true) }) },
+  // Dernier temps : la scene est rendue telle qu'on l'a trouvee. Pas la selection
+  // du catalogue -- celle du lecteur, sinon rejouer l'animation lui coutait le
+  // reglage qu'il venait de poser. La fiche suit : celle du catalogue si elle est
+  // dans sa selection, sinon le premier appareil qu'il a coche.
   {
     t: 0,
-    appliquer: (s, cat) => ({
+    appliquer: (s, cat, depart) => ({
       ...s,
-      vis: jeuVisible(cat, cat.reglages.selectionParDefaut),
+      vis: jeuVisible(cat, depart),
       mode: "side",
       etat: "open",
       pliLibre: null,
-      sel: cat.reglages.ficheParDefaut,
+      sel: depart.includes(cat.reglages.ficheParDefaut)
+        ? cat.reglages.ficheParDefaut
+        : (depart[0] ?? cat.reglages.ficheParDefaut),
     }),
   },
 ];

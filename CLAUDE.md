@@ -71,6 +71,43 @@ stored value exists. "Réinitialiser" clears the key *before* recomputing — dr
 the button a no-op. Every access goes through `lireEchelle`/`ecrireEchelle`/`oublierEchelle`, which
 swallow exceptions: `localStorage` can throw in private browsing or a sandboxed iframe.
 
+## What survives a visit
+
+Three keys, all under the `ecrans-echelle:` prefix, all read through a `try/catch` for the reason
+above — the page must behave exactly as before when storage is unavailable.
+
+- `:ppmm` — the hand-set scale, above.
+- `:appareils` — the checked devices, as ids joined by commas. **A read keeps only the ids the
+  catalogue knows**, which is what makes the key safe over time: a device removed from the catalogue
+  drops out of the selection instead of invalidating it, and a device added starts unchecked. An
+  empty selection is a valid selection — the page already has its empty state — so `null` (no key)
+  and `[]` (the reader unchecked everything) must stay distinct. Only a click on a device chip
+  writes; the narration crosses a dozen selections that are not choices.
+- `:theme` — `light` or `dark`. `auto` **removes** the key rather than storing a third value, because
+  `auto` is the absence of a choice: no `data-theme` attribute, so `@media (prefers-color-scheme)`
+  takes over. `lib/theme.ts` is the only place that knows the key, the states and the attribute.
+
+**Two rules both come from the same fact: the HTML is prerendered.**
+
+Reading `localStorage` during render would make the server and the first client render disagree — a
+hydration mismatch. So the stored selection is applied in an effect *after mount*, exactly like the
+scale, and the catalogue's default selection is briefly visible on load. That flash is the accepted
+price; do not "fix" it by reading storage during render.
+
+The theme cannot pay that price — a flash of the wrong *colours* is not the same as a flash of the
+wrong selection. So `SCRIPT_THEME`, a one-line synchronous script, sits in `<head>` and sets the
+attribute **before the body exists**. It builds its key from the same constant rather than repeating
+the string, and the smoke test asserts that no `data-theme` is baked into the served HTML: a theme
+frozen into the prerender would apply to every visitor.
+
+`color-scheme` is declared alongside the colours in all three theme blocks, so a forced theme also
+carries the scrollbars, form controls and native menus the page does not paint itself.
+
+**Replaying the animation returns the reader to their own selection**, not the catalogue's.
+`jouer()` captures the checked devices at the click and passes them to every beat as `depart`; the
+last beat restores them. It is passed rather than re-read from storage — same result, and it still
+works when storage is unavailable.
+
 ## Architecture
 
 ```

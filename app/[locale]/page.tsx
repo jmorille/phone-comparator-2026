@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Comparateur } from "@/components/Comparateur";
 import { Riche } from "@/components/primitives";
 import { Sources } from "@/components/Sources";
+import { BoutonTheme } from "@/components/Theme";
 import { contexte, dictionnaire, estLocale, langues } from "@/i18n";
 import { chargerCatalogue } from "@/lib/catalogue";
 import type { Locale } from "@/lib/types";
@@ -54,7 +55,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <Riche html={dict.entete.badgeCalcule} />
             </span>
             <span className="badge">{dict.entete.badgeRumeur}</span>
+            {/* .lang porte le margin-left:auto : les deux reglages partent donc
+                ensemble a droite de la rangee, dans cet ordre */}
             <SelecteurLangue courante={locale} libelle={dict.entete.choixLangue} />
+            <BoutonTheme locale={locale} />
           </div>
         </div>
       </header>
